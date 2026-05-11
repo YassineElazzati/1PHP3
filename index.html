@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHP — Jour 1 · Comprendre & Installer</title>
+<style>
+  /* ============================================================
+     RESET & BASE
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #0a0a0a;
+    background: #fafafa;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  ::selection { background: #6366f1; color: white; }
+
+  /* ============================================================
+     VARIABLES
+     ============================================================ */
+  :root {
+    --bg: #fafafa;
+    --card: #ffffff;
+    --text: #0a0a0a;
+    --text-soft: #525252;
+    --text-light: #a3a3a3;
+    --border: #e5e5e5;
+    --primary: #6366f1;
+    --primary-soft: #eef2ff;
+    --pink: #ec4899;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --code-bg: #1a1a2e;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 40px rgba(0,0,0,0.08);
+  }
+
+  /* ============================================================
+     PROGRESS BAR TOP
+     ============================================================ */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--pink));
+    z-index: 1000;
+    width: 0%;
+    transition: width 0.1s ease;
+  }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 2rem 6rem;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--primary-soft);
+    color: var(--primary);
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    width: fit-content;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: slideUp 0.6s 0.1s forwards;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: slideUp 0.6s 0.2s forwards;
+  }
+  .hero h1 .accent {
+    background: linear-gradient(135deg, var(--primary), var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p.lead {
+    font-size: 1.2rem;
+    color: var(--text-soft);
+    max-width: 600px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: slideUp 0.6s 0.3s forwards;
+  }
+  .hero-meta {
+    margin-top: 3rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: slideUp 0.6s 0.5s forwards;
+  }
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .hero-meta-item .num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .hero-meta-item .label {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  /* ============================================================
+     SECTIONS
+     ============================================================ */
+  section.chapter {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+  .chapter-num {
+    display: inline-block;
+    font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+  .chapter h2 {
+    font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .chapter .intro {
+    font-size: 1.1rem;
+    color: var(--text-soft);
+    margin-bottom: 2rem;
+    max-width: 700px;
+  }
+  .chapter h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+  }
+  .chapter p { margin-bottom: 1rem; color: #1f1f1f; }
+  .chapter p strong { font-weight: 600; color: var(--text); }
+
+  /* On scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ============================================================
+     DEMO 1 — PHP → HTML
+     ============================================================ */
+  .demo-transform {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-md);
+  }
+  .demo-transform-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  .demo-pane {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 1.2rem;
+    font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: #e5e5e5;
+    position: relative;
+  }
+  .demo-pane .pane-label {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.8rem;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: -apple-system, sans-serif;
+  }
+  .demo-pane .pane-label.server {
+    color: #fbbf24;
+  }
+  .demo-pane .pane-label.client {
+    color: #34d399;
+  }
+  .demo-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    font-size: 1.5rem;
+  }
+  .demo-controls {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: var(--text);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .btn.primary {
+    background: var(--primary);
+  }
+  .btn.ghost {
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+  }
+  .demo-status {
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    margin-left: auto;
+  }
+  .demo-status.running { color: var(--amber); }
+  .demo-status.done { color: var(--green); }
+
+  /* Syntax colors */
+  .tk-php { color: #f97316; }
+  .tk-html { color: #f87171; }
+  .tk-kw { color: #c084fc; }
+  .tk-str { color: #86efac; }
+  .tk-var { color: #fbbf24; }
+  .tk-com { color: #6b7280; font-style: italic; }
+  .tk-fn { color: #60a5fa; }
+  .tk-num { color: #f9a8d4; }
+
+  /* Highlight effect */
+  .highlight-flash {
+    animation: flashBg 1.5s ease;
+  }
+  @keyframes flashBg {
+    0%, 100% { background: var(--code-bg); }
+    30% { background: #2d1b4e; }
+  }
+
+  /* ============================================================
+     DEMO 2 — VOYAGE DE LA REQUÊTE
+     ============================================================ */
+  .journey {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-md);
+  }
+  .journey-stage {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .stage-node {
+    aspect-ratio: 1;
+    background: #f4f4f5;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    text-align: center;
+    transition: all 0.4s ease;
+    position: relative;
+  }
+  .stage-node .icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+    transition: transform 0.4s ease;
+  }
+  .stage-node .label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-soft);
+    line-height: 1.2;
+  }
+  .stage-node .step-num {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 24px;
+    height: 24px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-light);
+    transition: all 0.4s ease;
+  }
+  .stage-node.active {
+    background: linear-gradient(135deg, var(--primary), var(--pink));
+    border-color: var(--primary);
+    transform: scale(1.08);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+  }
+  .stage-node.active .icon { transform: scale(1.2); }
+  .stage-node.active .label { color: white; }
+  .stage-node.active .step-num {
+    background: white;
+    color: var(--primary);
+    border-color: white;
+  }
+  .stage-node.done {
+    background: #ecfdf5;
+    border-color: var(--green);
+  }
+  .stage-node.done .step-num {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+
+  .journey-explainer {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    min-height: 110px;
+    transition: opacity 0.3s ease;
+    border-left: 3px solid var(--primary);
+  }
+  .journey-explainer h4 {
+    font-size: 0.95rem;
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+  .journey-explainer p {
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    margin: 0;
+  }
+  .journey-controls {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .journey-counter {
+    margin-right: auto;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-family: "SF Mono", Consolas, monospace;
+  }
+
+  /* ============================================================
+     COMPARISON CARDS — PHP vs autres
+     ============================================================ */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .compare-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+  .compare-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+  }
+  .compare-card .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .compare-card .badge.client {
+    background: #ecfdf5;
+    color: var(--green);
+  }
+  .compare-card .badge.server {
+    background: #fef3c7;
+    color: #b45309;
+  }
+  .compare-card .tech-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .compare-card .role {
+    font-size: 0.88rem;
+    color: var(--text-soft);
+    margin-bottom: 0.8rem;
+  }
+  .compare-card .example {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.78rem;
+    background: #f4f4f5;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    color: var(--text-soft);
+  }
+
+  /* ============================================================
+     STACK BUILDER (XAMPP) — Briques qui s'empilent
+     ============================================================ */
+  .stack-builder {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-md);
+  }
+  .stack-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .stack-brick {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.5s ease;
+  }
+  .stack-brick.in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .stack-brick .brick-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .stack-brick.apache .brick-icon { background: #fef3c7; }
+  .stack-brick.mariadb .brick-icon { background: #dbeafe; }
+  .stack-brick.php .brick-icon { background: #ede9fe; }
+  .stack-brick.perl .brick-icon { background: #fce7f3; }
+  .stack-brick .brick-info { flex: 1; }
+  .stack-brick .brick-name {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .stack-brick .brick-role {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+  }
+  .stack-brick .brick-letter {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+    width: 30px;
+    text-align: center;
+  }
+  .stack-result {
+    background: linear-gradient(135deg, var(--primary), var(--pink));
+    color: white;
+    padding: 1.2rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-top: 1rem;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.5s ease;
+  }
+  .stack-result.in {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .stack-result .result-word {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+  }
+  .stack-result .result-sub {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-top: 0.3rem;
+  }
+
+  /* ============================================================
+     COMPONENT CARDS (Apache, PHP, MySQL...)
+     ============================================================ */
+  .component-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  .component-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .component-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--pink));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .component-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .component-card:hover::before { transform: scaleX(1); }
+  .component-card .comp-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--primary-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  .component-card h4 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .component-card .comp-meta {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 0.8rem;
+  }
+  .component-card .comp-desc {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    line-height: 1.55;
+  }
+  .component-card .comp-metaphor {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.83rem;
+    font-style: italic;
+    color: var(--primary);
+  }
+
+  /* ============================================================
+     HTDOCS DEMO
+     ============================================================ */
+  .htdocs-demo {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-md);
+  }
+  .file-explorer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .folder {
+    background: #f9fafb;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    min-height: 180px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  .folder.target {
+    border-style: solid;
+    border-color: var(--green);
+    background: #f0fdf4;
+  }
+  .folder.outside {
+    border-color: var(--text-light);
+  }
+  .folder-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .folder-path {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-bottom: 0.8rem;
+  }
+  .file-icon {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+    width: fit-content;
+  }
+  .file-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+  .file-icon .file-emoji { font-size: 1.2rem; }
+  .file-icon .file-name {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  .url-display {
+    margin-top: 1rem;
+    padding: 1rem 1.2rem;
+    background: var(--code-bg);
+    border-radius: 10px;
+    color: white;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+  }
+  .url-display .url-status {
+    margin-left: auto;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .url-display.success .url-status {
+    background: var(--green);
+    color: white;
+  }
+  .url-display.fail .url-status {
+    background: #ef4444;
+    color: white;
+  }
+
+  /* ============================================================
+     CODE PANEL — Premier script
+     ============================================================ */
+  .editor {
+    background: var(--code-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    margin: 2rem 0;
+  }
+  .editor-header {
+    background: #16162a;
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-bottom: 1px solid #2a2a3e;
+  }
+  .editor-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .editor-dot.red { background: #ff5f57; }
+  .editor-dot.yellow { background: #febc2e; }
+  .editor-dot.green { background: #28c840; }
+  .editor-filename {
+    margin-left: 0.8rem;
+    color: var(--text-light);
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  .editor-body {
+    padding: 1.5rem;
+    font-family: "SF Mono", "JetBrains Mono", Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #e5e5e5;
+  }
+  .editor-line {
+    display: flex;
+    gap: 1rem;
+  }
+  .editor-line-num {
+    color: #4a4a6e;
+    user-select: none;
+    width: 1.5rem;
+    text-align: right;
+  }
+
+  /* ============================================================
+     CALLOUTS
+     ============================================================ */
+  .callout {
+    margin: 1.5rem 0;
+    padding: 1.1rem 1.3rem;
+    border-radius: 12px;
+    border-left: 3px solid;
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+  }
+  .callout .callout-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+  .callout-content { flex: 1; }
+  .callout-title {
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin-bottom: 0.25rem;
+  }
+  .callout p {
+    font-size: 0.92rem;
+    margin: 0;
+    color: var(--text);
+  }
+  .callout p + p { margin-top: 0.5rem; }
+  .callout.warn {
+    background: #fffbeb;
+    border-color: var(--amber);
+  }
+  .callout.warn .callout-title { color: #92400e; }
+  .callout.tip {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+  }
+  .callout.tip .callout-title { color: #3730a3; }
+  .callout.key {
+    background: #ecfdf5;
+    border-color: var(--green);
+  }
+  .callout.key .callout-title { color: #065f46; }
+  .callout.recall {
+    background: #fdf4ff;
+    border-color: #d946ef;
+  }
+  .callout.recall .callout-title { color: #86198f; }
+
+  /* Inline code */
+  .chapter code:not([class*="tk-"]) {
+    background: #f4f4f5;
+    padding: 0.15rem 0.45rem;
+    border-radius: 5px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.86em;
+    color: #be185d;
+    border: 1px solid var(--border);
+  }
+  .callout code {
+    background: rgba(0,0,0,0.06);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.85em;
+  }
+
+  /* ============================================================
+     QCM INTERACTIF
+     ============================================================ */
+  .qcm-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  .qcm-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    transition: all 0.3s ease;
+  }
+  .qcm-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+  .qcm-question {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .qcm-answers {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .qcm-answer {
+    background: #f9fafb;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--text);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+  }
+  .qcm-answer .qcm-letter {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-soft);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+  .qcm-answer .qcm-text {
+    flex: 1;
+  }
+  .qcm-answer .qcm-mark {
+    margin-left: auto;
+    font-size: 1.1rem;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+  }
+  .qcm-answer:hover:not(.locked) {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    transform: translateX(2px);
+  }
+  .qcm-answer:hover:not(.locked) .qcm-letter {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .qcm-card.answered .qcm-answer {
+    cursor: default;
+  }
+  .qcm-answer.correct {
+    border-color: var(--green);
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .qcm-answer.correct .qcm-letter {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+  .qcm-answer.correct .qcm-mark {
+    opacity: 1;
+    transform: scale(1);
+    color: var(--green);
+  }
+  .qcm-answer.wrong {
+    border-color: #ef4444;
+    background: #fef2f2;
+    color: #991b1b;
+  }
+  .qcm-answer.wrong .qcm-letter {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+  }
+  .qcm-answer.wrong .qcm-mark {
+    opacity: 1;
+    transform: scale(1);
+    color: #ef4444;
+  }
+  .qcm-answer.dimmed {
+    opacity: 0.5;
+  }
+  .qcm-feedback {
+    margin-top: 1rem;
+    padding: 1rem 1.1rem;
+    background: var(--primary-soft);
+    border-left: 3px solid var(--primary);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.55;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition: all 0.4s ease;
+  }
+  .qcm-card.answered .qcm-feedback {
+    max-height: 300px;
+    opacity: 1;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .qcm-feedback strong { color: var(--primary); }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 700px) {
+    .demo-transform-grid {
+      grid-template-columns: 1fr;
+    }
+    .demo-arrow { transform: rotate(90deg); padding: 0.5rem 0; }
+    .journey-stage {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.3rem;
+    }
+    .stage-node .icon { font-size: 1.3rem; }
+    .stage-node .label { font-size: 0.6rem; }
+    .file-explorer-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <span class="hero-tag">1PHP3 · Jour 1</span>
+  <h1>Découvrir <span class="accent">PHP</span><br>et installer son atelier.</h1>
+  <p class="lead">Avant d'écrire la moindre ligne, prenons le temps de comprendre où vit PHP, ce qu'il fait vraiment, et pourquoi on a besoin de tant de logiciels pour le faire tourner.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <div class="num">77%</div>
+      <div class="label">du web tourne sous PHP</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">1995</div>
+      <div class="label">année de naissance</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">5</div>
+      <div class="label">briques à installer</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 1 — C'est quoi PHP, concrètement
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 01</div>
+  <h2>Concrètement, PHP est un cuisinier invisible.</h2>
+  <p class="intro">Pas un langage parmi d'autres. Pas un truc abstrait. C'est un <strong>moteur</strong> qui prépare une page web pour vous, sur un serveur, avant que votre navigateur n'en voie la première miette.</p>
+
+  <p>Le mot PHP veut dire « <em>PHP : Hypertext Preprocessor</em> ». Retenez juste <strong>preprocessor</strong> : ça pré-traite quelque chose. Ce qu'il pré-traite, c'est la page HTML qui va finir affichée chez vous.</p>
+
+  <p>Le mieux, c'est de le voir. Cliquez sur <strong>« Exécuter »</strong> ci-dessous : à gauche, le fichier <code>.php</code> tel que vous l'écrivez. À droite, ce que votre navigateur reçoit réellement.</p>
+
+  <div class="demo-transform">
+    <div class="demo-transform-grid">
+      <div class="demo-pane">
+        <span class="pane-label server">📁 Côté serveur</span>
+<pre id="demo1-input"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$nom</span> = <span class="tk-str">"Marie"</span>;
+<span class="tk-kw">$heure</span> = <span class="tk-fn">date</span>(<span class="tk-str">"H"</span>);
+<span class="tk-php">?&gt;</span>
+
+<span class="tk-html">&lt;h1&gt;</span>Bonjour <span class="tk-php">&lt;?= $nom ?&gt;</span> !<span class="tk-html">&lt;/h1&gt;</span>
+<span class="tk-html">&lt;p&gt;</span>Il est <span class="tk-php">&lt;?= $heure ?&gt;</span>h.<span class="tk-html">&lt;/p&gt;</span></pre>
+      </div>
+      <div class="demo-arrow">→</div>
+      <div class="demo-pane">
+        <span class="pane-label client">🌐 Côté navigateur</span>
+<pre id="demo1-output"><span class="tk-com">// En attente d'exécution...
+// Cliquez sur « Exécuter » pour voir
+// ce que reçoit réellement le client.</span></pre>
+      </div>
+    </div>
+    <div class="demo-controls">
+      <button class="btn primary" id="demo1-run">▶ Exécuter</button>
+      <button class="btn ghost" id="demo1-reset">↺ Reset</button>
+      <span class="demo-status" id="demo1-status">Prêt</span>
+    </div>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-content">
+      <div class="callout-title">Ce qu'il faut absolument retenir</div>
+      <p>Le code PHP <strong>n'existe pas</strong> dans le navigateur. Faites un clic droit → « Afficher le code source » sur n'importe quel site PHP : vous ne verrez jamais une seule balise <code>&lt;?php</code>. Tout a été remplacé par du HTML, sur le serveur, avant l'envoi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 2 — Le voyage de la requête
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 02</div>
+  <h2>Suivons une requête, du clic à l'affichage.</h2>
+  <p class="intro">Quand vous tapez <code>localhost/accueil.php</code> dans votre navigateur, il se passe une chaîne d'événements précise. On va la suivre pas à pas.</p>
+
+  <div class="journey">
+    <div class="journey-stage">
+      <div class="stage-node" data-step="1">
+        <div class="step-num">1</div>
+        <div class="icon">🌐</div>
+        <div class="label">Navigateur</div>
+      </div>
+      <div class="stage-node" data-step="2">
+        <div class="step-num">2</div>
+        <div class="icon">🚪</div>
+        <div class="label">Apache</div>
+      </div>
+      <div class="stage-node" data-step="3">
+        <div class="step-num">3</div>
+        <div class="icon">⚙️</div>
+        <div class="label">PHP</div>
+      </div>
+      <div class="stage-node" data-step="4">
+        <div class="step-num">4</div>
+        <div class="icon">🗄️</div>
+        <div class="label">MySQL</div>
+      </div>
+      <div class="stage-node" data-step="5">
+        <div class="step-num">5</div>
+        <div class="icon">📄</div>
+        <div class="label">HTML reçu</div>
+      </div>
+    </div>
+
+    <div class="journey-explainer" id="journey-text">
+      <h4>Cliquez sur « Démarrer » pour voir le voyage</h4>
+      <p>Chaque étape va s'éclairer. Vous pouvez avancer manuellement ou laisser l'animation tourner.</p>
+    </div>
+
+    <div class="journey-controls">
+      <span class="journey-counter" id="journey-counter">— / 5</span>
+      <button class="btn ghost" id="journey-prev">← Précédent</button>
+      <button class="btn primary" id="journey-next">Démarrer →</button>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+      <div class="callout-title">L'erreur de débutant la plus fréquente</div>
+      <p>Croire que PHP s'exécute « quelque part dans le navigateur ». <strong>Non.</strong> Si vous fermez le serveur (Apache), votre fichier <code>.php</code> ne fait <em>rien</em>, même si vous l'ouvrez à la main dans Chrome. Le navigateur ne sait pas lire le PHP — il a besoin que quelqu'un (Apache + PHP) lui ait préparé du HTML d'abord.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 3 — PHP vs les autres
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 03</div>
+  <h2>Quatre technos, quatre rôles. Ne les confondez plus.</h2>
+  <p class="intro">HTML, CSS, JavaScript, PHP. On les croise tous les jours, et on les mélange souvent. Voici la frontière claire entre eux : <strong>où</strong> chacun s'exécute, et <strong>pourquoi</strong> ça change tout.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <span class="badge client">Client</span>
+      <div class="tech-name">HTML</div>
+      <div class="role">Structure le contenu. Pose les titres, paragraphes, liens.</div>
+      <div class="example">&lt;h1&gt;Bonjour&lt;/h1&gt;</div>
+    </div>
+    <div class="compare-card">
+      <span class="badge client">Client</span>
+      <div class="tech-name">CSS</div>
+      <div class="role">Donne l'apparence. Couleurs, polices, espacement.</div>
+      <div class="example">h1 { color: red }</div>
+    </div>
+    <div class="compare-card">
+      <span class="badge client">Client</span>
+      <div class="tech-name">JavaScript</div>
+      <div class="role">Anime, valide, interagit. Sans recharger la page.</div>
+      <div class="example">btn.onclick = ...</div>
+    </div>
+    <div class="compare-card">
+      <span class="badge server">Serveur</span>
+      <div class="tech-name">PHP</div>
+      <div class="role">Décide quoi envoyer. Logique métier, BDD, sécurité.</div>
+      <div class="example">&lt;?php echo $user ?&gt;</div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-content">
+      <div class="callout-title">Le test mental qui tranche</div>
+      <p>Posez-vous la question : « <em>Est-ce qu'un utilisateur malin pourrait voir ce code en faisant clic droit ?</em> » Si oui → c'est du client (HTML/CSS/JS). Si non → c'est du serveur (PHP). C'est pour ça qu'un mot de passe ou une vérification d'identité <strong>doit absolument</strong> se faire en PHP, jamais en JavaScript.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 4 — Installation : XAMPP brique par brique
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 04</div>
+  <h2>Pour faire tourner PHP, il faut un atelier complet.</h2>
+  <p class="intro">Vous ne pouvez pas simplement « installer PHP » et attendre que la magie opère. PHP a besoin d'un <strong>écosystème</strong> : un serveur pour l'appeler, une base pour ranger les données, des outils pour visualiser tout ça. C'est ce qu'on appelle un <em>stack</em>.</p>
+
+  <p>Plutôt que d'installer chaque brique séparément (douloureux), on utilise un package tout-en-un. Le plus connu s'appelle <strong>XAMPP</strong>. Regardez ce qui se cache derrière ce nom :</p>
+
+  <div class="stack-builder">
+    <div class="stack-visual" id="stack-visual">
+      <div class="stack-brick apache" data-delay="0">
+        <div class="brick-letter">A</div>
+        <div class="brick-icon">🚪</div>
+        <div class="brick-info">
+          <div class="brick-name">Apache</div>
+          <div class="brick-role">Le serveur web qui reçoit les requêtes</div>
+        </div>
+      </div>
+      <div class="stack-brick mariadb" data-delay="1">
+        <div class="brick-letter">M</div>
+        <div class="brick-icon">🗄️</div>
+        <div class="brick-info">
+          <div class="brick-name">MariaDB</div>
+          <div class="brick-role">La base de données (compatible MySQL)</div>
+        </div>
+      </div>
+      <div class="stack-brick php" data-delay="2">
+        <div class="brick-letter">P</div>
+        <div class="brick-icon">⚙️</div>
+        <div class="brick-info">
+          <div class="brick-name">PHP</div>
+          <div class="brick-role">L'interpréteur qui exécute votre code</div>
+        </div>
+      </div>
+      <div class="stack-brick perl" data-delay="3">
+        <div class="brick-letter">P</div>
+        <div class="brick-icon">🔧</div>
+        <div class="brick-info">
+          <div class="brick-name">Perl</div>
+          <div class="brick-role">Un autre langage (rare aujourd'hui)</div>
+        </div>
+      </div>
+    </div>
+    <div class="stack-result" id="stack-result">
+      <div class="result-word">X·A·M·P·P</div>
+      <div class="result-sub">+ X pour Cross-platform — fonctionne sur Windows, macOS, Linux</div>
+    </div>
+    <div style="text-align: center; margin-top: 1rem;">
+      <button class="btn primary" id="stack-build">▶ Empiler les briques</button>
+    </div>
+  </div>
+
+  <h3>Sur Mac : MAMP, même idée</h3>
+  <p>Sur macOS, l'équivalent s'appelle <strong>MAMP</strong> : <em>Mac, Apache, MySQL, PHP</em>. Mêmes briques, packaging légèrement différent. Les ports par défaut changent (<code>8888</code> au lieu de <code>80</code>), c'est tout.</p>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+      <div class="callout-title">Le port 80 refuse de démarrer ?</div>
+      <p>Sur Windows, le port 80 est souvent squatté par Skype, IIS ou un antivirus. Si Apache plante au démarrage, ouvrez <code>httpd.conf</code> et remplacez <code>Listen 80</code> par <code>Listen 8080</code>. Vos sites seront alors sur <code>http://localhost:8080</code>.</p>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-content">
+      <div class="callout-title">Et en entreprise, on utilise quoi ?</div>
+      <p>Pas XAMPP. Les boîtes sérieuses (BlaBlaCar, Leboncoin…) utilisent <strong>Docker</strong>, qui crée des conteneurs identiques entre la machine du dev et le serveur de production. Mais c'est trop lourd pour apprendre — XAMPP est parfait pour l'école, Docker viendra en B3.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 5 — Le rôle détaillé de chaque composant
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 05</div>
+  <h2>Maintenant, qui fait quoi exactement.</h2>
+  <p class="intro">Vous avez les briques, mais chacune a un rôle bien précis dans la chaîne. Survolez chaque carte pour voir la métaphore qui marche.</p>
+
+  <div class="component-grid">
+    <div class="component-card">
+      <div class="comp-icon">🚪</div>
+      <h4>Apache</h4>
+      <div class="comp-meta">Port 80 (ou 8080)</div>
+      <div class="comp-desc">Le portier du serveur. Il écoute les requêtes HTTP qui arrivent du navigateur. Selon ce qui est demandé, il sert un fichier directement (image, CSS) ou passe la main à PHP.</div>
+      <div class="comp-metaphor">Comme le réceptionniste d'un hôtel qui oriente les clients.</div>
+    </div>
+
+    <div class="component-card">
+      <div class="comp-icon">⚙️</div>
+      <h4>PHP</h4>
+      <div class="comp-meta">L'interpréteur</div>
+      <div class="comp-desc">Reçoit le fichier <code>.php</code> d'Apache, lit le code ligne par ligne, l'exécute, et renvoie en sortie du HTML pur. C'est lui qui fait tout le « travail intellectuel ».</div>
+      <div class="comp-metaphor">Le cuisinier qui suit la recette pour préparer l'assiette.</div>
+    </div>
+
+    <div class="component-card">
+      <div class="comp-icon">🗄️</div>
+      <h4>MariaDB / MySQL</h4>
+      <div class="comp-meta">Port 3306</div>
+      <div class="comp-desc">La base de données. Stocke tout ce qui doit survivre au-delà d'une requête : utilisateurs, articles, commandes, messages. PHP lui parle en langage SQL.</div>
+      <div class="comp-metaphor">Le garde-manger : grand, organisé, persistant.</div>
+    </div>
+
+    <div class="component-card">
+      <div class="comp-icon">📊</div>
+      <h4>phpMyAdmin</h4>
+      <div class="comp-meta">localhost/phpmyadmin</div>
+      <div class="comp-desc">Une interface web qui permet de voir et gérer la base MySQL sans écrire de SQL à la main. On y crée les tables, on ajoute des lignes, on teste des requêtes.</div>
+      <div class="comp-metaphor">Le tableau d'inventaire avec stylo et papier.</div>
+    </div>
+
+    <div class="component-card">
+      <div class="comp-icon">📁</div>
+      <h4>htdocs</h4>
+      <div class="comp-meta">C:\xampp\htdocs</div>
+      <div class="comp-desc">Le dossier <strong>sacré</strong>. C'est le seul endroit où Apache va chercher les fichiers à servir. Un fichier hors de htdocs n'existe pas, du point de vue du web.</div>
+      <div class="comp-metaphor">La salle du restaurant — hors de la salle, pas de service.</div>
+    </div>
+
+    <div class="component-card">
+      <div class="comp-icon">🎛️</div>
+      <h4>XAMPP Control Panel</h4>
+      <div class="comp-meta">L'interface principale</div>
+      <div class="comp-desc">Le tableau de bord avec un bouton Start/Stop pour chaque service. C'est par là qu'on démarre Apache et MySQL avant de commencer à coder.</div>
+      <div class="comp-metaphor">La salle de contrôle de l'atelier.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 6 — htdocs : la démo
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 06</div>
+  <h2>Pourquoi <code>htdocs</code> est le dossier le plus important.</h2>
+  <p class="intro">C'est le piège n°1 du débutant : créer un super fichier PHP, l'enregistrer sur le Bureau, et se demander pourquoi <code>localhost</code> ne le trouve pas. Voyons exactement ce qui se passe.</p>
+
+  <div class="htdocs-demo">
+    <p style="margin-bottom: 1rem;">Cliquez sur l'un des deux fichiers pour voir s'il est accessible via le navigateur :</p>
+
+    <div class="file-explorer-grid">
+      <div class="folder target">
+        <div class="folder-header">📁 Dossier htdocs</div>
+        <div class="folder-path">C:\xampp\htdocs\</div>
+        <div class="file-icon" data-loc="htdocs">
+          <span class="file-emoji">📄</span>
+          <span class="file-name">index.php</span>
+        </div>
+      </div>
+
+      <div class="folder outside">
+        <div class="folder-header">📁 Bureau (n'importe où ailleurs)</div>
+        <div class="folder-path">C:\Users\Vous\Desktop\</div>
+        <div class="file-icon" data-loc="desktop">
+          <span class="file-emoji">📄</span>
+          <span class="file-name">monsite.php</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="url-display" id="url-display">
+      <span>🌐</span>
+      <span id="url-text">http://localhost/...</span>
+      <span class="url-status" id="url-status">EN ATTENTE</span>
+    </div>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-content">
+      <div class="callout-title">La règle absolue</div>
+      <p>Pour qu'un fichier soit accessible via <code>http://localhost</code>, il <strong>doit</strong> être quelque part dans <code>htdocs</code> (ou un sous-dossier de htdocs). C'est ce qu'on appelle la <em>racine documentaire</em>. Apache ne regarde nulle part ailleurs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 7 — Premier script
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 07</div>
+  <h2>Vérifions que tout marche en 3 lignes.</h2>
+  <p class="intro">Maintenant que l'atelier est monté, il faut le tester. On va écrire le plus petit script PHP possible, le placer au bon endroit, et regarder ce qui s'affiche dans le navigateur.</p>
+
+  <div class="editor">
+    <div class="editor-header">
+      <div class="editor-dot red"></div>
+      <div class="editor-dot yellow"></div>
+      <div class="editor-dot green"></div>
+      <div class="editor-filename">C:\xampp\htdocs\test.php</div>
+    </div>
+    <div class="editor-body">
+      <div class="editor-line"><span class="editor-line-num">1</span><span><span class="tk-php">&lt;?php</span></span></div>
+      <div class="editor-line"><span class="editor-line-num">2</span><span><span class="tk-com">// Affiche toutes les infos de configuration PHP</span></span></div>
+      <div class="editor-line"><span class="editor-line-num">3</span><span><span class="tk-fn">phpinfo</span>();</span></div>
+      <div class="editor-line"><span class="editor-line-num">4</span><span><span class="tk-php">?&gt;</span></span></div>
+    </div>
+  </div>
+
+  <p>Trois choses à remarquer sur ce micro-script :</p>
+  <ul style="margin: 1rem 0 1rem 1.5rem;">
+    <li><strong>Les balises <code>&lt;?php</code> et <code>?&gt;</code></strong> encadrent tout code PHP. En dehors d'elles, on est en HTML.</li>
+    <li><strong>Le point-virgule <code>;</code></strong> à la fin de la ligne 3. C'est obligatoire — oubliez-le et PHP refuse de tourner.</li>
+    <li><strong>La fonction <code>phpinfo()</code></strong> est intégrée à PHP : elle génère toute seule une page de diagnostic.</li>
+  </ul>
+
+  <p>Ouvrez votre navigateur, allez à <code>http://localhost/test.php</code>. Vous devez voir une grande page violette pleine d'informations : version de PHP, modules chargés, configuration du serveur. <strong>Si vous la voyez, votre atelier est opérationnel.</strong></p>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-content">
+      <div class="callout-title">Trois bugs classiques au premier essai</div>
+      <p><strong>Vous voyez le code source brut</strong> au lieu de la page violette → Apache n'est pas démarré. Retournez dans XAMPP Control Panel et cliquez Start.</p>
+      <p><strong>Erreur 404</strong> → le fichier n'est pas dans htdocs, ou il s'appelle <code>test.php.txt</code> (Windows cache les extensions par défaut, activez l'affichage).</p>
+      <p><strong>Une erreur de syntaxe</strong> → vous avez oublié le point-virgule, ou une des balises.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 8 — Mini-QCM
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-num">CHAPITRE 08</div>
+  <h2>À vous de jouer. Cinq questions, vraies conditions.</h2>
+  <p class="intro">Cliquez sur la réponse que vous pensez correcte. Vous aurez immédiatement le verdict, et une explication pour ancrer le réflexe.</p>
+
+  <div class="qcm-list">
+
+    <div class="qcm-card" data-correct="2">
+      <div class="qcm-question">Quelle est la balise d'ouverture correcte pour commencer un bloc de code PHP dans un document HTML ?</div>
+      <div class="qcm-answers">
+        <button class="qcm-answer" data-idx="0">
+          <span class="qcm-letter">A</span>
+          <span class="qcm-text"><code>&lt;php&gt;</code></span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="1">
+          <span class="qcm-letter">B</span>
+          <span class="qcm-text"><code>&lt;script php&gt;</code></span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="2">
+          <span class="qcm-letter">C</span>
+          <span class="qcm-text"><code>&lt;?php</code></span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="3">
+          <span class="qcm-letter">D</span>
+          <span class="qcm-text"><code>&lt;%php%&gt;</code></span>
+          <span class="qcm-mark"></span>
+        </button>
+      </div>
+      <div class="qcm-feedback">
+        <strong>Réponse C.</strong> <code>&lt;?php</code> est la seule balise d'ouverture standard. Les autres formes n'existent pas en PHP — elles peuvent ressembler à d'autres langages (JSP, ASP), mais ici elles déclencheraient une erreur de syntaxe.
+      </div>
+    </div>
+
+    <div class="qcm-card" data-correct="1">
+      <div class="qcm-question">Que signifie l'acronyme XAMPP, et quels composants regroupe-t-il pour le développement PHP local ?</div>
+      <div class="qcm-answers">
+        <button class="qcm-answer" data-idx="0">
+          <span class="qcm-letter">A</span>
+          <span class="qcm-text">eXtended Application Management and PHP Processing, une plateforme cloud</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="1">
+          <span class="qcm-letter">B</span>
+          <span class="qcm-text">Cross-platform · Apache · MariaDB · PHP · Perl, regroupés pour le développement web local</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="2">
+          <span class="qcm-letter">C</span>
+          <span class="qcm-text">XML Advanced Modular PHP Platform, un framework d'entreprise</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="3">
+          <span class="qcm-letter">D</span>
+          <span class="qcm-text">eXecutable Apache MySQL PHP Python, un environnement multilangage</span>
+          <span class="qcm-mark"></span>
+        </button>
+      </div>
+      <div class="qcm-feedback">
+        <strong>Réponse B.</strong> Le X signifie « Cross-platform » (multiplateforme). Les quatre autres lettres correspondent aux logiciels installés ensemble : Apache (serveur web), MariaDB (base de données), PHP (interpréteur) et Perl (autre langage, rarement utilisé aujourd'hui).
+      </div>
+    </div>
+
+    <div class="qcm-card" data-correct="3">
+      <div class="qcm-question">Dans quel répertoire les fichiers PHP doivent-ils être placés au sein d'une installation XAMPP pour être accessibles via le navigateur ?</div>
+      <div class="qcm-answers">
+        <button class="qcm-answer" data-idx="0">
+          <span class="qcm-letter">A</span>
+          <span class="qcm-text">Dans <code>xampp/php/</code> car c'est là que l'interpréteur cherche les scripts</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="1">
+          <span class="qcm-letter">B</span>
+          <span class="qcm-text">N'importe où sur l'ordinateur, XAMPP scanne tout le système</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="2">
+          <span class="qcm-letter">C</span>
+          <span class="qcm-text">Dans <code>xampp/apache/</code>, à côté des fichiers de configuration</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="3">
+          <span class="qcm-letter">D</span>
+          <span class="qcm-text">Dans <code>xampp/htdocs/</code>, la racine documentaire d'Apache</span>
+          <span class="qcm-mark"></span>
+        </button>
+      </div>
+      <div class="qcm-feedback">
+        <strong>Réponse D.</strong> <code>htdocs</code> est la racine documentaire du serveur Apache. Tout fichier placé dedans devient accessible via <code>http://localhost/</code>. Hors de ce dossier, le fichier existe sur votre disque mais Apache ne le verra jamais.
+      </div>
+    </div>
+
+    <div class="qcm-card" data-correct="0">
+      <div class="qcm-question">Comment PHP traite-t-il une requête sur le serveur avant d'envoyer la réponse au navigateur ?</div>
+      <div class="qcm-answers">
+        <button class="qcm-answer" data-idx="0">
+          <span class="qcm-letter">A</span>
+          <span class="qcm-text">Le serveur interprète le code, génère la sortie HTML et envoie uniquement le HTML au navigateur</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="1">
+          <span class="qcm-letter">B</span>
+          <span class="qcm-text">Le code PHP est téléchargé par le navigateur et exécuté localement par un moteur JavaScript</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="2">
+          <span class="qcm-letter">C</span>
+          <span class="qcm-text">PHP se compile en exécutable binaire que le navigateur télécharge et exécute</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="3">
+          <span class="qcm-letter">D</span>
+          <span class="qcm-text">Le serveur envoie à la fois le code source PHP et le HTML au navigateur</span>
+          <span class="qcm-mark"></span>
+        </button>
+      </div>
+      <div class="qcm-feedback">
+        <strong>Réponse A.</strong> PHP est un langage <em>côté serveur</em>. Tout le traitement se fait sur le serveur, et le navigateur ne reçoit que le HTML produit. Le code PHP n'est jamais visible côté client, c'est cette propriété qui le distingue de JavaScript.
+      </div>
+    </div>
+
+    <div class="qcm-card" data-correct="2">
+      <div class="qcm-question">Quels grands sites web utilisent (ou ont utilisé) PHP, démontrant sa capacité à tenir un trafic massif ?</div>
+      <div class="qcm-answers">
+        <button class="qcm-answer" data-idx="0">
+          <span class="qcm-letter">A</span>
+          <span class="qcm-text">Uniquement de petits blogs, PHP ne tient pas le gros trafic</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="1">
+          <span class="qcm-letter">B</span>
+          <span class="qcm-text">Google, Amazon et Netflix ont migré de Java vers PHP pour les performances</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="2">
+          <span class="qcm-letter">C</span>
+          <span class="qcm-text">Facebook, WordPress et Wikipédia utilisent PHP au cœur de leur stack</span>
+          <span class="qcm-mark"></span>
+        </button>
+        <button class="qcm-answer" data-idx="3">
+          <span class="qcm-letter">D</span>
+          <span class="qcm-text">Twitter et LinkedIn, pour leurs capacités de messagerie en temps réel</span>
+          <span class="qcm-mark"></span>
+        </button>
+      </div>
+      <div class="qcm-feedback">
+        <strong>Réponse C.</strong> Facebook a été initialement écrit en PHP (puis en Hack, un dialecte de PHP). WordPress propulse 43 % de tous les sites du web. Wikipedia tourne sur MediaWiki, écrit en PHP. Google, Amazon et Netflix, eux, n'utilisent pas PHP comme cœur de stack.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script>
+  // ============================================================
+  // PROGRESS BAR
+  // ============================================================
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = (window.scrollY / max) * 100;
+    progressBar.style.width = pct + '%';
+  });
+
+  // ============================================================
+  // REVEAL ON SCROLL
+  // ============================================================
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => io.observe(r));
+
+  // ============================================================
+  // DEMO 1 — PHP → HTML transformation
+  // ============================================================
+  const demo1Run = document.getElementById('demo1-run');
+  const demo1Reset = document.getElementById('demo1-reset');
+  const demo1Output = document.getElementById('demo1-output');
+  const demo1Status = document.getElementById('demo1-status');
+  const demo1OutputPane = demo1Output.parentElement;
+
+  const htmlResult = `<span class="tk-com">// Reçu par le navigateur :</span>
+
+<span class="tk-html">&lt;h1&gt;</span>Bonjour Marie !<span class="tk-html">&lt;/h1&gt;</span>
+<span class="tk-html">&lt;p&gt;</span>Il est 14h.<span class="tk-html">&lt;/p&gt;</span>
+
+<span class="tk-com">// ↑ Plus aucune trace de PHP.
+// Les variables ont été remplacées
+// par leur valeur, sur le serveur.</span>`;
+
+  demo1Run.addEventListener('click', () => {
+    demo1Status.textContent = 'Exécution sur le serveur...';
+    demo1Status.className = 'demo-status running';
+    demo1OutputPane.classList.add('highlight-flash');
+
+    let i = 0;
+    const lines = htmlResult.split('\n');
+    demo1Output.innerHTML = '';
+
+    const interval = setInterval(() => {
+      if (i < lines.length) {
+        demo1Output.innerHTML += lines[i] + '\n';
+        i++;
+      } else {
+        clearInterval(interval);
+        demo1Status.textContent = '✓ Page générée et envoyée';
+        demo1Status.className = 'demo-status done';
+      }
+    }, 120);
+  });
+
+  demo1Reset.addEventListener('click', () => {
+    demo1Output.innerHTML = '<span class="tk-com">// En attente d\'exécution...\n// Cliquez sur « Exécuter » pour voir\n// ce que reçoit réellement le client.</span>';
+    demo1Status.textContent = 'Prêt';
+    demo1Status.className = 'demo-status';
+  });
+
+  // ============================================================
+  // JOURNEY — Le voyage de la requête
+  // ============================================================
+  const journeySteps = [
+    {
+      title: "1 · Le navigateur lance la requête",
+      text: "Vous tapez l'URL ou cliquez sur un lien. Votre navigateur envoie une requête HTTP au serveur. Il demande : « donne-moi /accueil.php ». Il ne sait pas du tout ce que ce fichier contient."
+    },
+    {
+      title: "2 · Apache reçoit et trie",
+      text: "Apache regarde l'extension du fichier demandé. Voyant un .php, il sait qu'il ne peut pas le servir directement comme une image. Il transmet le fichier à l'interpréteur PHP."
+    },
+    {
+      title: "3 · PHP exécute le code",
+      text: "PHP lit le fichier, exécute chaque instruction : variables, conditions, boucles, calculs. Si le code a besoin de données, il prépare une requête SQL à envoyer à la base."
+    },
+    {
+      title: "4 · MySQL répond (si nécessaire)",
+      text: "MySQL reçoit la requête SQL, cherche les données dans ses tables, les renvoie à PHP. PHP intègre ces données dans le HTML qu'il est en train de construire."
+    },
+    {
+      title: "5 · Le navigateur reçoit du HTML",
+      text: "Apache renvoie au navigateur le résultat final : un fichier HTML classique. Le navigateur ne voit jamais le code PHP, ni la requête SQL, ni les variables. Juste du HTML, comme s'il était écrit à la main."
+    }
+  ];
+
+  let currentStep = 0;
+  const stageNodes = document.querySelectorAll('.stage-node');
+  const journeyText = document.getElementById('journey-text');
+  const journeyCounter = document.getElementById('journey-counter');
+  const journeyNext = document.getElementById('journey-next');
+  const journeyPrev = document.getElementById('journey-prev');
+
+  function renderJourney() {
+    stageNodes.forEach((node, i) => {
+      node.classList.remove('active', 'done');
+      if (i + 1 < currentStep) node.classList.add('done');
+      if (i + 1 === currentStep) node.classList.add('active');
+    });
+
+    if (currentStep === 0) {
+      journeyText.innerHTML = '<h4>Cliquez sur « Démarrer » pour voir le voyage</h4><p>Chaque étape va s\'éclairer. Vous pouvez avancer manuellement ou laisser l\'animation tourner.</p>';
+      journeyCounter.textContent = '— / 5';
+      journeyNext.textContent = 'Démarrer →';
+    } else {
+      const step = journeySteps[currentStep - 1];
+      journeyText.style.opacity = 0;
+      setTimeout(() => {
+        journeyText.innerHTML = `<h4>${step.title}</h4><p>${step.text}</p>`;
+        journeyText.style.opacity = 1;
+      }, 150);
+      journeyCounter.textContent = `${currentStep} / 5`;
+      journeyNext.textContent = currentStep < 5 ? 'Suivant →' : '✓ Recommencer';
+    }
+  }
+
+  journeyNext.addEventListener('click', () => {
+    if (currentStep < 5) {
+      currentStep++;
+    } else {
+      currentStep = 0;
+    }
+    renderJourney();
+  });
+
+  journeyPrev.addEventListener('click', () => {
+    if (currentStep > 0) {
+      currentStep--;
+      renderJourney();
+    }
+  });
+
+  // Clic direct sur un noeud
+  stageNodes.forEach((node, i) => {
+    node.addEventListener('click', () => {
+      currentStep = i + 1;
+      renderJourney();
+    });
+  });
+
+  // ============================================================
+  // STACK BUILDER — Empile les briques XAMPP
+  // ============================================================
+  const stackBuild = document.getElementById('stack-build');
+  const stackBricks = document.querySelectorAll('.stack-brick');
+  const stackResult = document.getElementById('stack-result');
+
+  stackBuild.addEventListener('click', () => {
+    // Reset
+    stackBricks.forEach(b => b.classList.remove('in'));
+    stackResult.classList.remove('in');
+    stackBuild.disabled = true;
+    stackBuild.textContent = 'Empilage en cours...';
+
+    // Anim each brick
+    stackBricks.forEach((brick, i) => {
+      setTimeout(() => {
+        brick.classList.add('in');
+      }, 400 + i * 350);
+    });
+
+    // Reveal final result
+    setTimeout(() => {
+      stackResult.classList.add('in');
+      stackBuild.disabled = false;
+      stackBuild.textContent = '↺ Recommencer';
+    }, 400 + stackBricks.length * 350 + 200);
+  });
+
+  // ============================================================
+  // HTDOCS DEMO — Quel fichier est accessible ?
+  // ============================================================
+  const fileIcons = document.querySelectorAll('.file-icon');
+  const urlDisplay = document.getElementById('url-display');
+  const urlText = document.getElementById('url-text');
+  const urlStatus = document.getElementById('url-status');
+
+  fileIcons.forEach(file => {
+    file.addEventListener('click', () => {
+      const loc = file.dataset.loc;
+      urlDisplay.classList.remove('success', 'fail');
+
+      if (loc === 'htdocs') {
+        urlText.textContent = 'http://localhost/index.php';
+        urlStatus.textContent = '✓ 200 OK';
+        urlDisplay.classList.add('success');
+      } else {
+        urlText.textContent = 'http://localhost/monsite.php';
+        urlStatus.textContent = '✗ 404 Not Found';
+        urlDisplay.classList.add('fail');
+      }
+    });
+  });
+
+  // ============================================================
+  // QCM INTERACTIF
+  // ============================================================
+  const qcmCards = document.querySelectorAll('.qcm-card');
+  qcmCards.forEach(card => {
+    const correctIdx = parseInt(card.dataset.correct, 10);
+    const answers = card.querySelectorAll('.qcm-answer');
+
+    answers.forEach(ans => {
+      ans.addEventListener('click', () => {
+        if (card.classList.contains('answered')) return;
+        card.classList.add('answered');
+
+        const chosen = parseInt(ans.dataset.idx, 10);
+
+        answers.forEach((a, i) => {
+          a.classList.add('locked');
+          if (i === correctIdx) {
+            a.classList.add('correct');
+            a.querySelector('.qcm-mark').textContent = '✓';
+          } else if (i === chosen) {
+            a.classList.add('wrong');
+            a.querySelector('.qcm-mark').textContent = '✗';
+          } else {
+            a.classList.add('dimmed');
+          }
+        });
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
