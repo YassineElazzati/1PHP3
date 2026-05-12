@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intro PHP · Syntaxe & Structures de contrôle</title>
+<style>
+  /* ============================================================
+     RESET & ROOT
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--primary); color: var(--bg); }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-soft: #11111a;
+    --bg-elev: #16161f;
+    --card: rgba(255, 255, 255, 0.025);
+    --card-hover: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #e8e8ed;
+    --text-soft: #a0a0b0;
+    --text-dim: #6b6b78;
+    --primary: #a78bfa;
+    --primary-bright: #c4b5fd;
+    --primary-glow: rgba(167, 139, 250, 0.15);
+    --accent: #fb923c;
+    --accent-soft: rgba(251, 146, 60, 0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74, 222, 128, 0.12);
+    --red: #f87171;
+    --red-soft: rgba(248, 113, 113, 0.12);
+    --amber: #fbbf24;
+    --code-bg: #0d0d18;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.025) 1px, transparent 0);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167, 139, 250, 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(251, 146, 60, 0.05), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  main, section, .hero { position: relative; z-index: 1; }
+
+  /* ============================================================
+     PROGRESS BAR
+     ============================================================ */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    z-index: 1000;
+    width: 0%;
+    transition: width 0.1s ease;
+    box-shadow: 0 0 12px var(--primary-glow);
+  }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    min-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    width: fit-content;
+    margin-bottom: 2rem;
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    animation: slideUp 0.8s 0.1s var(--easing) forwards;
+  }
+  .hero-eyebrow .dot {
+    width: 7px; height: 7px;
+    background: var(--primary);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--primary);
+    animation: pulse 2s infinite;
+  }
+  .hero-eyebrow .sep { color: var(--text-dim); }
+  .hero-eyebrow .accent { color: var(--accent); font-weight: 600; }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 6.5vw, 5rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    margin-bottom: 2rem;
+    color: var(--text);
+    opacity: 0;
+    animation: slideUp 0.8s 0.2s var(--easing) forwards;
+  }
+  .hero h1 .line { display: block; }
+  .hero h1 .word-accent {
+    background: linear-gradient(135deg, var(--primary) 20%, var(--accent) 80%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    font-style: italic;
+    font-weight: 700;
+  }
+  .hero h1 .word-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--text-soft);
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  .hero-lead {
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--text-soft);
+    max-width: 600px;
+    line-height: 1.65;
+    opacity: 0;
+    animation: slideUp 0.8s 0.3s var(--easing) forwards;
+  }
+
+  .hero-meta {
+    margin-top: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 2rem;
+    max-width: 760px;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    opacity: 0;
+    animation: slideUp 0.8s 0.5s var(--easing) forwards;
+  }
+  .hero-meta-item .num {
+    font-size: 2.2rem;
+    font-weight: 700;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, var(--text), var(--text-soft));
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    line-height: 1;
+  }
+  .hero-meta-item .label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+  }
+
+  /* ============================================================
+     CHAPITRES
+     ============================================================ */
+  section.chapter {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    position: relative;
+  }
+  section.chapter::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .chapter-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: baseline;
+    margin-bottom: 2.2rem;
+  }
+  .chapter-num {
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    user-select: none;
+    font-feature-settings: "tnum";
+  }
+  .chapter-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 0.6rem;
+  }
+  .chapter h2 {
+    font-size: clamp(1.7rem, 3.2vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--text);
+  }
+  .chapter h2 em {
+    font-style: italic;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+  .chapter .intro {
+    font-size: 1.05rem;
+    color: var(--text-soft);
+    margin-bottom: 2rem;
+    max-width: 760px;
+    line-height: 1.65;
+  }
+  .chapter h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 2.6rem 0 1rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .chapter h3::before {
+    content: '';
+    width: 3px;
+    height: 1.15rem;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+    border-radius: 2px;
+  }
+  .chapter h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 1.8rem 0 0.8rem;
+    color: var(--text);
+  }
+  .chapter p {
+    margin-bottom: 1rem;
+    color: var(--text-soft);
+    max-width: 760px;
+  }
+  .chapter p strong { font-weight: 600; color: var(--text); }
+  .chapter p code,
+  .chapter li code,
+  .chapter h3 code,
+  .chapter h4 code {
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    padding: 0.12rem 0.4rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+
+  /* Reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s var(--easing), transform 0.9s var(--easing);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ============================================================
+     PANEL
+     ============================================================ */
+  .panel {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.8rem;
+    margin: 1.6rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+
+  /* ============================================================
+     CALLOUTS
+     ============================================================ */
+  .callout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    padding: 1.3rem 1.5rem;
+    border-radius: 14px;
+    margin: 1.6rem 0;
+    border: 1px solid var(--border);
+    background: var(--card);
+  }
+  .callout-icon {
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-top: 0.1rem;
+  }
+  .callout-content { min-width: 0; }
+  .callout-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.005em;
+  }
+  .callout-title em {
+    font-style: italic;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+  }
+  .callout p {
+    font-size: 0.92rem;
+    margin: 0 0 0.5rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+    max-width: none;
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout.key {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.08), rgba(167, 139, 250, 0.02));
+  }
+  .callout.key .callout-icon { color: var(--primary); }
+  .callout.warn {
+    border-color: rgba(251, 191, 36, 0.4);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(251, 191, 36, 0.01));
+  }
+  .callout.warn .callout-icon { color: var(--amber); }
+  .callout.tip {
+    border-color: rgba(74, 222, 128, 0.3);
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.04), rgba(74, 222, 128, 0.01));
+  }
+  .callout.tip .callout-icon { color: var(--green); }
+
+  /* ============================================================
+     SYNTAX TOKENS
+     ============================================================ */
+  .tk-php { color: #f97316; }
+  .tk-html { color: #fb7185; }
+  .tk-kw { color: #c4b5fd; }
+  .tk-str { color: #86efac; }
+  .tk-var { color: #fbbf24; }
+  .tk-com { color: var(--text-dim); font-style: italic; }
+  .tk-fn { color: #60a5fa; }
+  .tk-num { color: #f9a8d4; }
+
+  /* ============================================================
+     CODE ANNOTÉ (ligne par ligne)
+     ============================================================ */
+  .code-annotated {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+  .code-annotated-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.25s var(--easing);
+  }
+  .code-annotated-row:last-child { border-bottom: none; }
+  .code-annotated-row:hover { background: rgba(167, 139, 250, 0.04); }
+  .code-annotated-row.blank .code-annotated-code,
+  .code-annotated-row.blank .code-annotated-explain {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+  }
+  .code-annotated-row.blank .code-annotated-explain { opacity: 0.4; }
+  .code-annotated-code {
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    padding: 0.7rem 1.2rem;
+    color: var(--text);
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+    border-right: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .code-annotated-num {
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    user-select: none;
+    min-width: 1.4rem;
+    text-align: right;
+    padding-top: 0.18rem;
+    flex-shrink: 0;
+  }
+  .code-annotated-line {
+    flex: 1;
+    white-space: pre;
+    word-break: normal;
+  }
+  .code-annotated-explain {
+    padding: 0.7rem 1.2rem;
+    background: rgba(255, 255, 255, 0.015);
+    font-size: 0.84rem;
+    color: var(--text-soft);
+    line-height: 1.55;
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+  .code-annotated-explain::before {
+    content: '▸';
+    color: var(--primary);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+  .code-annotated-row.blank .code-annotated-explain::before { content: ''; }
+  .code-annotated-explain strong { color: var(--text); font-weight: 600; }
+  .code-annotated-explain code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    background: var(--code-bg);
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+
+  /* ============================================================
+     TABLEAU DES TYPES
+     ============================================================ */
+  .types-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .types-table th,
+  .types-table td {
+    padding: 0.85rem 1.1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .types-table th {
+    background: var(--bg-elev);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .types-table tr:last-child td { border-bottom: none; }
+  .types-table tr:hover td { background: rgba(167, 139, 250, 0.04); }
+  .types-table .type-name {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    color: var(--primary-bright);
+  }
+  .types-table .type-example {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--text-soft);
+  }
+
+  /* ============================================================
+     COMPARAISON == / ===
+     ============================================================ */
+  .equality-table {
+    margin: 1.5rem 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .equality-row {
+    display: grid;
+    grid-template-columns: 1.2fr 0.7fr 1.6fr;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding: 0.85rem 1.2rem;
+    gap: 1rem;
+  }
+  .equality-row:last-child { border-bottom: none; }
+  .equality-row.header {
+    background: var(--bg-elev);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  .equality-row .expr {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+  .equality-row .result {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .equality-row .result.t { color: var(--green); }
+  .equality-row .result.f { color: var(--red); }
+  .equality-row .why {
+    font-size: 0.84rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+  .equality-row .why code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    background: var(--code-bg);
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+
+  /* ============================================================
+     DIAGRAMME DE DÉCISION
+     ============================================================ */
+  .decision-tree {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .decision-branch {
+    display: grid;
+    grid-template-columns: minmax(180px, auto) auto 1fr;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .decision-branch .cond {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    color: var(--primary-bright);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .decision-branch .arrow {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+  }
+  .decision-branch .outcome {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--green);
+    font-weight: 600;
+    font-size: 0.88rem;
+  }
+
+  /* ============================================================
+     CALLOUT RÉEL (Cdiscount, Airbnb, Netflix)
+     ============================================================ */
+  .real-world {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.08), rgba(251, 146, 60, 0.04));
+    border: 1px solid var(--border-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    margin: 1.8rem 0;
+  }
+  .real-world-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+  .real-world h4 {
+    font-size: 1.05rem;
+    color: var(--text);
+    margin: 0 0 0.7rem;
+    font-weight: 700;
+  }
+  .real-world p {
+    font-size: 0.93rem;
+    color: var(--text-soft);
+    margin: 0;
+    max-width: none;
+    line-height: 1.65;
+  }
+  .real-world p code {
+    background: var(--code-bg);
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+
+  /* ============================================================
+     MINI-CARTES SYNTAXE RÉCAP
+     ============================================================ */
+  .syntax-recap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.9rem;
+    margin: 1.6rem 0;
+  }
+  .syntax-recap-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    transition: all 0.3s var(--easing);
+  }
+  .syntax-recap-card:hover {
+    border-color: var(--primary);
+    background: var(--card-hover);
+    transform: translateY(-2px);
+  }
+  .syntax-recap-card .symbol {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-bright);
+    margin-bottom: 0.4rem;
+  }
+  .syntax-recap-card .label {
+    font-size: 0.84rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     DÉMO BOUCLE
+     ============================================================ */
+  .loop-demo {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.6rem;
+    margin: 0;
+  }
+  .loop-counter-display {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-align: center;
+    min-height: 3.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -0.03em;
+    text-shadow: 0 0 30px var(--primary-glow);
+    transition: transform 0.2s var(--easing);
+  }
+  .loop-counter-display.pulse { transform: scale(1.18); }
+  .loop-output-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+    min-height: 2.4rem;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: var(--bg-elev);
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+  }
+  .loop-chip {
+    background: var(--card);
+    border: 1px solid var(--primary);
+    border-radius: 7px;
+    padding: 0.3rem 0.7rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--primary-bright);
+    opacity: 0;
+    transform: scale(0.7);
+    animation: chipIn 0.35s var(--easing) forwards;
+  }
+  .loop-output-empty {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+  @keyframes chipIn {
+    to { opacity: 1; transform: scale(1); }
+  }
+  .netflix-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.7rem;
+    margin-top: 1rem;
+    min-height: 80px;
+  }
+  .netflix-tile {
+    background: linear-gradient(135deg, var(--bg-elev), var(--card));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 0.8rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 70px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: chipIn 0.45s var(--easing) forwards;
+  }
+
+  /* ============================================================
+     BOUTONS
+     ============================================================ */
+  .btn {
+    background: var(--primary);
+    color: var(--bg);
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s var(--easing);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--primary-glow), 0 0 0 1px var(--primary);
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn.ghost {
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+  }
+  .btn.ghost:hover {
+    border-color: var(--text-soft);
+    color: var(--text);
+    box-shadow: none;
+  }
+  .demo-controls {
+    margin-top: 1.2rem;
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .demo-status {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-left: auto;
+    font-family: "JetBrains Mono", monospace;
+  }
+  .demo-status.running { color: var(--amber); }
+  .demo-status.done { color: var(--green); }
+
+  /* ============================================================
+     END SPACER
+     ============================================================ */
+  .end-spacer {
+    height: 30vh;
+    background: linear-gradient(180deg, transparent, rgba(167, 139, 250, 0.02));
+  }
+  .end-mark {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 800px) {
+    .chapter-header {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+    .chapter-num { font-size: 3.5rem; }
+    section.chapter { padding: 4rem 1.2rem; }
+    .panel { padding: 1.3rem; }
+    .code-annotated-row { grid-template-columns: 1fr; }
+    .code-annotated-code {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .equality-row {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+    .decision-branch {
+      grid-template-columns: 1fr;
+      gap: 0.3rem;
+    }
+    .decision-branch .arrow { display: none; }
+    .hero { padding: 3rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    <span>1PHP3</span>
+    <span class="sep">·</span>
+    <span>Bachelor 1</span>
+    <span class="sep">·</span>
+    <span class="accent">Intro PHP</span>
+  </div>
+  <h1>
+    <span class="line"><span class="word-outline">Apprendre</span> PHP.</span>
+    <span class="line"><span class="word-accent">Ligne</span> par <span class="word-accent">ligne.</span></span>
+  </h1>
+  <p class="hero-lead">Cinq chapitres pour passer de zéro à un premier vrai script PHP. Chaque exemple est décortiqué <strong>ligne par ligne</strong> : ce que ça fait, pourquoi c'est là, et à quoi ça sert dans la vraie vie.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <div class="num">05</div>
+      <div class="label">chapitres</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">06</div>
+      <div class="label">types de données</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">2</div>
+      <div class="label">boucles à maîtriser</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">===</div>
+      <div class="label">l'opérateur qui sauve</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 01 — Structure d'un fichier PHP
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-header">
+    <div class="chapter-num">01</div>
+    <div>
+      <div class="chapter-eyebrow">L'ossature</div>
+      <h2>Un fichier PHP, c'est <em>du HTML avec des îlots de code</em>.</h2>
+    </div>
+  </div>
+  <p class="intro">Un fichier <code>.php</code> ressemble à un fichier HTML classique. La différence : on peut y glisser des blocs de code délimités par <code>&lt;?php</code> et <code>?&gt;</code>. Le serveur les exécute, et remplace chaque bloc par son résultat <strong>avant</strong> d'envoyer la page au navigateur.</p>
+
+  <p>Lisez chaque ligne avec son explication à droite. C'est la structure que vous croiserez dans 90 % des fichiers PHP au début.</p>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;!DOCTYPE html&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Déclare au navigateur que c'est un fichier <strong>HTML5</strong>. Toujours en première ligne, obligatoire.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;html lang="fr"&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Ouvre la racine de la page. <code>lang="fr"</code> dit au navigateur et à Google que la page est en <strong>français</strong>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;head&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Début de la zone d'<strong>en-tête</strong>. Ce qui s'y trouve ne s'affiche pas dans la page, c'est de la méta-info.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">04</span>
+        <span class="code-annotated-line">    <span class="tk-html">&lt;meta charset="UTF-8"&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Indique l'<strong>encodage</strong> des caractères. UTF-8 permet d'afficher les accents (é, è, à...) et les emojis correctement.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">05</span>
+        <span class="code-annotated-line">    <span class="tk-html">&lt;title&gt;</span>Ma première page PHP<span class="tk-html">&lt;/title&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Définit le titre <strong>affiché dans l'onglet</strong> du navigateur (et dans les résultats Google).</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">06</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;/head&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Ferme la zone d'en-tête.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">07</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;body&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Début du <strong>contenu visible</strong> dans la fenêtre du navigateur.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">08</span>
+        <span class="code-annotated-line">    <span class="tk-html">&lt;h1&gt;</span>Bienvenue<span class="tk-html">&lt;/h1&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Un titre HTML <strong>statique</strong>. PHP ne le touche pas, il arrive tel quel au navigateur.</div>
+    </div>
+    <div class="code-annotated-row blank">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">09</span>
+        <span class="code-annotated-line"> </span>
+      </div>
+      <div class="code-annotated-explain">Ligne vide pour aérer le code. N'a aucun effet sur le rendu.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">10</span>
+        <span class="code-annotated-line">    <span class="tk-php">&lt;?php</span></span>
+      </div>
+      <div class="code-annotated-explain"><strong>Début du bloc PHP.</strong> Tout ce qui suit jusqu'à <code>?&gt;</code> sera exécuté <em>sur le serveur</em>. Le navigateur ne verra jamais ce code, seulement son résultat.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">11</span>
+        <span class="code-annotated-line">    <span class="tk-com">// Code PHP ici - sera exécuté côté serveur</span></span>
+      </div>
+      <div class="code-annotated-explain">Un <strong>commentaire</strong>. Le <code>//</code> dit à PHP : « ignore cette ligne ». Sert juste à expliquer le code au futur lecteur (toi, dans 3 mois).</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">12</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"&lt;p&gt;Cette ligne est générée par PHP&lt;/p&gt;"</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><code>echo</code> = « <strong>affiche-moi ça</strong> ». Imprime la chaîne entre guillemets dans la page HTML. Le <code>;</code> à la fin termine l'instruction — <strong>obligatoire</strong>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">13</span>
+        <span class="code-annotated-line">    <span class="tk-php">?&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain"><strong>Fin du bloc PHP.</strong> En dessous, on est de retour en HTML pur.</div>
+    </div>
+    <div class="code-annotated-row blank">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">14</span>
+        <span class="code-annotated-line"> </span>
+      </div>
+      <div class="code-annotated-explain"></div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">15</span>
+        <span class="code-annotated-line">    <span class="tk-html">&lt;p&gt;</span>Cette ligne est du HTML statique<span class="tk-html">&lt;/p&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Du HTML normal, <strong>en dehors du bloc PHP</strong>. Identique pour tous les visiteurs.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">16</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;/body&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Fin de la zone visible.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">17</span>
+        <span class="code-annotated-line"><span class="tk-html">&lt;/html&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">Fin du document.</div>
+    </div>
+  </div>
+
+  <h3>Les 5 symboles à retenir</h3>
+  <div class="syntax-recap">
+    <div class="syntax-recap-card">
+      <div class="symbol">&lt;?php</div>
+      <div class="label">Ouvre un bloc PHP. Tout ce qui suit est exécuté côté serveur.</div>
+    </div>
+    <div class="syntax-recap-card">
+      <div class="symbol">?&gt;</div>
+      <div class="label">Ferme le bloc PHP. Optionnel en toute fin de fichier.</div>
+    </div>
+    <div class="syntax-recap-card">
+      <div class="symbol">echo</div>
+      <div class="label">Affiche du texte ou du HTML dans la page reçue par le visiteur.</div>
+    </div>
+    <div class="syntax-recap-card">
+      <div class="symbol">//</div>
+      <div class="label">Commentaire sur une seule ligne. Ignoré par PHP.</div>
+    </div>
+    <div class="syntax-recap-card">
+      <div class="symbol">;</div>
+      <div class="label">Termine chaque instruction PHP. L'oublier = erreur de syntaxe.</div>
+    </div>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-icon">◆</span>
+    <div class="callout-content">
+      <div class="callout-title">PHP <em>s'insère dans</em> le HTML, pas l'inverse</div>
+      <p>Le HTML est la <strong>base</strong>. PHP est un invité qui s'installe par endroits, fait son travail, et disparaît avant que la page ne parte vers le navigateur. À l'arrivée, le visiteur ne voit que du HTML — toujours.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 02 — Variables et types
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-header">
+    <div class="chapter-num">02</div>
+    <div>
+      <div class="chapter-eyebrow">Les étiquettes</div>
+      <h2>Stocker une valeur, c'est <em>poser une étiquette sur une boîte</em>.</h2>
+    </div>
+  </div>
+  <p class="intro">Une variable, c'est un <strong>nom</strong> (l'étiquette) qui pointe vers une <strong>valeur</strong> (le contenu de la boîte). En PHP, toute variable commence par le symbole <code>$</code>. Ce symbole dit au moteur PHP : « <em>attention, c'est une variable, pas un mot normal</em> ».</p>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-php">&lt;?php</span></span>
+      </div>
+      <div class="code-annotated-explain">On ouvre le bloc PHP.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line"><span class="tk-kw">$nom</span> = <span class="tk-str">"Marie"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Crée une variable <code>$nom</code> et y range la chaîne <code>"Marie"</code>. C'est un <strong>String</strong> (texte). Les guillemets sont obligatoires autour du texte.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line"><span class="tk-kw">$age</span> = <span class="tk-num">25</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Crée <code>$age</code> avec la valeur <code>25</code>. C'est un <strong>Integer</strong> (nombre entier). <em>Pas</em> de guillemets autour des nombres.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">04</span>
+        <span class="code-annotated-line"><span class="tk-kw">$taille</span> = <span class="tk-num">1.68</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Crée <code>$taille</code> avec <code>1.68</code>. C'est un <strong>Float</strong> (nombre décimal). Attention : on utilise un <strong>point</strong>, pas une virgule.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">05</span>
+        <span class="code-annotated-line"><span class="tk-kw">$estEtudiant</span> = <span class="tk-kw">true</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Crée <code>$estEtudiant</code> à <code>true</code>. C'est un <strong>Boolean</strong> (vrai ou faux). Seules deux valeurs possibles : <code>true</code> ou <code>false</code>.</div>
+    </div>
+    <div class="code-annotated-row blank">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">06</span>
+        <span class="code-annotated-line"> </span>
+      </div>
+      <div class="code-annotated-explain"></div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">07</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-str">"Nom : "</span> . <span class="tk-kw">$nom</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Concaténation.</strong> Le <code>.</code> colle deux textes ensemble. Affiche : <code>Nom : Marie</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">08</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-str">"&lt;br&gt;"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Affiche une balise HTML <code>&lt;br&gt;</code> = <strong>saut de ligne</strong> dans le navigateur.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">09</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-str">"Age : $age ans"</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Interpolation.</strong> Dans des guillemets <em>doubles</em>, PHP remplace <code>$age</code> par sa valeur. Affiche : <code>Age : 25 ans</code>. Plus court que la concaténation.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">10</span>
+        <span class="code-annotated-line"><span class="tk-php">?&gt;</span></span>
+      </div>
+      <div class="code-annotated-explain">On ferme le bloc PHP.</div>
+    </div>
+  </div>
+
+  <h3>Les 6 types de données</h3>
+  <p>Chaque variable contient une <strong>seule</strong> donnée d'un type précis. PHP détecte automatiquement le type selon ce que vous mettez dedans (c'est ce qu'on appelle le <em>typage faible</em>) :</p>
+
+  <table class="types-table">
+    <thead>
+      <tr><th>Type</th><th>Description</th><th>Exemple</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="type-name">String</span></td>
+        <td>Chaîne de caractères (texte)</td>
+        <td><span class="type-example">$texte = "Bonjour";</span></td>
+      </tr>
+      <tr>
+        <td><span class="type-name">Integer</span></td>
+        <td>Nombre entier</td>
+        <td><span class="type-example">$nombre = 42;</span></td>
+      </tr>
+      <tr>
+        <td><span class="type-name">Float</span></td>
+        <td>Nombre à virgule (décimal)</td>
+        <td><span class="type-example">$prix = 19.99;</span></td>
+      </tr>
+      <tr>
+        <td><span class="type-name">Boolean</span></td>
+        <td>Vrai ou faux</td>
+        <td><span class="type-example">$actif = true;</span></td>
+      </tr>
+      <tr>
+        <td><span class="type-name">Array</span></td>
+        <td>Tableau (plusieurs valeurs dans une boîte)</td>
+        <td><span class="type-example">$liste = [1, 2, 3];</span></td>
+      </tr>
+      <tr>
+        <td><span class="type-name">NULL</span></td>
+        <td>Absence de valeur (la boîte est vide)</td>
+        <td><span class="type-example">$vide = null;</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <span class="callout-icon">▲</span>
+    <div class="callout-content">
+      <div class="callout-title">Trois règles qui sauvent des heures de debug</div>
+      <p><strong>Sensibilité à la casse.</strong> <code>$nom</code> et <code>$Nom</code> sont <em>deux variables différentes</em>. PHP fait la différence entre majuscule et minuscule.</p>
+      <p><strong>Convention camelCase.</strong> Pour les noms à plusieurs mots, on colle les mots avec une majuscule au milieu : <code>$monAge</code>, <code>$prenomClient</code>, <code>$totalCommandes</code>.</p>
+      <p><strong>Toujours commencer par <code>$</code>.</strong> Sans le dollar, PHP cherche une constante ou une fonction et lève une erreur.</p>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <div class="real-world-label">▼ E-commerce · Cdiscount</div>
+    <h4>Vos variables, sur un vrai site</h4>
+    <p>Quand vous consultez votre profil sur Cdiscount, le serveur PHP récupère vos infos en variables : <code>$nomClient = "Dupont"</code>, <code>$emailClient = "dupont@example.com"</code>, <code>$totalCommandes = 1250.50</code>. Ces variables sont ensuite injectées dans le HTML pour générer <strong>votre</strong> page profil, personnalisée. Les variables, c'est ça : la mémoire temporaire de la page pendant qu'elle se construit.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 03 — Opérateurs
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-header">
+    <div class="chapter-num">03</div>
+    <div>
+      <div class="chapter-eyebrow">Les outils de calcul</div>
+      <h2>Calculer, comparer, décider : <em>les opérateurs</em>.</h2>
+    </div>
+  </div>
+  <p class="intro">Un opérateur, c'est un symbole qui prend une ou deux valeurs et retourne un résultat. On les classe en deux familles : les <strong>arithmétiques</strong> (qui font des maths) et les <strong>comparaisons</strong> (qui retournent vrai ou faux).</p>
+
+  <h3>Opérateurs arithmétiques</h3>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-kw">$a</span> = <span class="tk-num">10</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Range <code>10</code> dans <code>$a</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line"><span class="tk-kw">$b</span> = <span class="tk-num">3</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Range <code>3</code> dans <code>$b</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-kw">$a</span> + <span class="tk-kw">$b</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Addition.</strong> Affiche <code>13</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">04</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-kw">$a</span> - <span class="tk-kw">$b</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Soustraction.</strong> Affiche <code>7</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">05</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-kw">$a</span> * <span class="tk-kw">$b</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Multiplication.</strong> Affiche <code>30</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">06</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-kw">$a</span> / <span class="tk-kw">$b</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Division.</strong> Affiche <code>3.333...</code> (résultat décimal).</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">07</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-kw">$a</span> % <span class="tk-kw">$b</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Modulo</strong> (reste de la division). 10 ÷ 3 = 3, reste 1. Affiche <code>1</code>. Très utile pour tester la parité : <code>$n % 2 === 0</code> = vrai si pair.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">08</span>
+        <span class="code-annotated-line"><span class="tk-fn">echo</span> <span class="tk-kw">$a</span> ** <span class="tk-kw">$b</span>;</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Puissance.</strong> 10 puissance 3 = 1000.</div>
+    </div>
+  </div>
+
+  <h3>Opérateurs de comparaison : <code>==</code> vs <code>===</code></h3>
+  <p>C'est <strong>le piège n°1</strong> du débutant PHP. Comparer deux valeurs, c'est demander : « ces deux choses sont-elles égales ? ». Mais PHP propose <em>deux</em> niveaux d'égalité.</p>
+
+  <div class="equality-table">
+    <div class="equality-row header">
+      <div>Expression</div>
+      <div>Résultat</div>
+      <div>Pourquoi</div>
+    </div>
+    <div class="equality-row">
+      <div class="expr">5 == "5"</div>
+      <div class="result t">true</div>
+      <div class="why"><code>==</code> compare juste la <strong>valeur</strong>. PHP convertit silencieusement <code>"5"</code> en nombre et trouve 5 = 5.</div>
+    </div>
+    <div class="equality-row">
+      <div class="expr">5 === "5"</div>
+      <div class="result f">false</div>
+      <div class="why"><code>===</code> compare valeur <strong>ET type</strong>. <code>5</code> est un Integer, <code>"5"</code> est un String → types différents.</div>
+    </div>
+    <div class="equality-row">
+      <div class="expr">5 != "5"</div>
+      <div class="result f">false</div>
+      <div class="why">L'inverse de <code>==</code>. Les valeurs <em>sont</em> égales (après conversion), donc « différent » est faux.</div>
+    </div>
+    <div class="equality-row">
+      <div class="expr">5 !== "5"</div>
+      <div class="result t">true</div>
+      <div class="why">L'inverse de <code>===</code>. Les types <em>sont</em> différents, donc « strictement différent » est vrai.</div>
+    </div>
+  </div>
+
+  <div class="callout key">
+    <span class="callout-icon">◆</span>
+    <div class="callout-content">
+      <div class="callout-title">La règle de survie : <em>toujours</em> <code>===</code></div>
+      <p>Utilisez <code>===</code> par défaut. <code>==</code> autorise des conversions silencieuses qui causent des bugs vicieux. Avec <code>===</code>, vous comparez ce que vous voyez, sans mauvaise surprise.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 04 — Conditions
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-header">
+    <div class="chapter-num">04</div>
+    <div>
+      <div class="chapter-eyebrow">Les aiguillages</div>
+      <h2>Faire des choix : <em>si... alors... sinon...</em></h2>
+    </div>
+  </div>
+  <p class="intro">Un programme sans condition fait toujours la même chose. Les conditions permettent à votre code de <strong>réagir différemment</strong> selon les valeurs qu'il rencontre. C'est ce qui transforme un script linéaire en un vrai programme intelligent.</p>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-kw">$note</span> = <span class="tk-num">14</span>;</span>
+      </div>
+      <div class="code-annotated-explain">On range la note <code>14</code> dans <code>$note</code>. C'est la valeur qu'on va tester.</div>
+    </div>
+    <div class="code-annotated-row blank">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line"> </span>
+      </div>
+      <div class="code-annotated-explain"></div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line"><span class="tk-kw">if</span> (<span class="tk-kw">$note</span> &gt;= <span class="tk-num">16</span>) {</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Premier test.</strong> Si <code>$note</code> ≥ 16, on entre dans ce bloc. Les <code>{ }</code> délimitent le code à exécuter.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">04</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"Très bien !"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Ce qui s'affiche <em>uniquement</em> si la condition de la ligne 03 est vraie.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">05</span>
+        <span class="code-annotated-line">} <span class="tk-kw">elseif</span> (<span class="tk-kw">$note</span> &gt;= <span class="tk-num">12</span>) {</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Sinon si</strong> la note est ≥ 12. PHP n'arrive ici que si la condition précédente était fausse.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">06</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"Bien"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">S'affiche pour 12 ≤ note &lt; 16.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">07</span>
+        <span class="code-annotated-line">} <span class="tk-kw">elseif</span> (<span class="tk-kw">$note</span> &gt;= <span class="tk-num">10</span>) {</span>
+      </div>
+      <div class="code-annotated-explain">On peut chaîner autant de <code>elseif</code> qu'on veut.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">08</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"Passable"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">S'affiche pour 10 ≤ note &lt; 12.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">09</span>
+        <span class="code-annotated-line">} <span class="tk-kw">else</span> {</span>
+      </div>
+      <div class="code-annotated-explain"><strong>Sinon</strong> (le filet de sécurité). Exécuté si <em>aucune</em> condition précédente n'est vraie.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">10</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"Insuffisant"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">S'affiche pour toute note &lt; 10.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">11</span>
+        <span class="code-annotated-line">}</span>
+      </div>
+      <div class="code-annotated-explain">Ferme la chaîne if/elseif/else.</div>
+    </div>
+  </div>
+
+  <h3>L'aiguillage en visuel</h3>
+  <p>Avec <code>$note = 14</code>, PHP teste chaque condition <strong>dans l'ordre</strong>. La première vraie gagne, les suivantes sont ignorées :</p>
+
+  <div class="decision-tree">
+    <div class="decision-branch">
+      <div class="cond">$note &gt;= 16 ?</div>
+      <div class="arrow">→</div>
+      <div class="outcome" style="color: var(--text-dim);">faux (14 &lt; 16), on passe à la suite</div>
+    </div>
+    <div class="decision-branch">
+      <div class="cond">$note &gt;= 12 ?</div>
+      <div class="arrow">→</div>
+      <div class="outcome">VRAI → affiche « Bien » ✓</div>
+    </div>
+    <div class="decision-branch">
+      <div class="cond" style="opacity:0.45;">$note &gt;= 10 ?</div>
+      <div class="arrow" style="opacity:0.4;">→</div>
+      <div class="outcome" style="opacity:0.45; color: var(--text-dim);">ignoré (un cas a déjà gagné)</div>
+    </div>
+    <div class="decision-branch">
+      <div class="cond" style="opacity:0.45;">else</div>
+      <div class="arrow" style="opacity:0.4;">→</div>
+      <div class="outcome" style="opacity:0.45; color: var(--text-dim);">ignoré</div>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <div class="real-world-label">▼ Réservation · Airbnb</div>
+    <h4>Quand un utilisateur réserve un logement</h4>
+    <p>Avant de valider, le serveur PHP enchaîne plusieurs conditions : <code>if ($disponible)</code> vérifie que les dates sont libres, <code>if ($solde &gt;= $prix)</code> contrôle que le compte peut payer, <code>if ($identiteVerifiee)</code> s'assure de l'identité. Selon les résultats, le script génère soit une confirmation, soit un message d'erreur précis. <strong>Toute interface web qui doit décider quelque chose</strong> repose sur ce mécanisme.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 05 — Boucles
+     ============================================================ -->
+<section class="chapter reveal">
+  <div class="chapter-header">
+    <div class="chapter-num">05</div>
+    <div>
+      <div class="chapter-eyebrow">Les répétitions</div>
+      <h2>Répéter sans copier-coller : <em>les boucles</em>.</h2>
+    </div>
+  </div>
+  <p class="intro">Une boucle dit à PHP : « <em>refais ça N fois</em> ». Sans elle, il faudrait écrire 50 fois la même ligne pour afficher 50 articles. Avec elle, 3 lignes suffisent — quelle que soit la taille du tableau.</p>
+
+  <h3>La boucle <code>for</code> — quand on sait combien de fois</h3>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-kw">for</span> (<span class="tk-kw">$i</span> = <span class="tk-num">1</span>; <span class="tk-kw">$i</span> &lt;= <span class="tk-num">10</span>; <span class="tk-kw">$i</span>++) {</span>
+      </div>
+      <div class="code-annotated-explain">Trois infos séparées par des <code>;</code> :<br>• <code>$i = 1</code> → <strong>départ</strong>, on commence à 1.<br>• <code>$i &lt;= 10</code> → <strong>condition</strong>, on continue tant que vrai.<br>• <code>$i++</code> → <strong>incrément</strong>, on ajoute 1 à chaque tour.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"Nombre : $i &lt;br&gt;"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Le corps de la boucle. Exécuté <strong>une fois par tour</strong>. <code>$i</code> vaut 1, puis 2, puis 3... jusqu'à 10.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line">}</span>
+      </div>
+      <div class="code-annotated-explain">Ferme la boucle. Total : <strong>10 affichages</strong> avec 3 lignes de code.</div>
+    </div>
+  </div>
+
+  <h4>Démo en direct</h4>
+  <p>Cliquez sur <strong>Lancer</strong> pour voir la boucle s'exécuter en temps réel. Chaque tour incrémente <code>$i</code> et ajoute un chip dans la zone de sortie :</p>
+
+  <div class="panel">
+    <div class="loop-demo">
+      <div class="loop-counter-display" id="loop-counter">—</div>
+      <div class="loop-output-list" id="loop-output">
+        <span class="loop-output-empty">(sortie de la boucle ici)</span>
+      </div>
+    </div>
+    <div class="demo-controls">
+      <button class="btn" id="loop-run">▶ Lancer la boucle</button>
+      <button class="btn ghost" id="loop-reset">↺ Réinitialiser</button>
+      <span class="demo-status" id="loop-status">Prêt</span>
+    </div>
+  </div>
+
+  <h3>La boucle <code>foreach</code> — parcourir un tableau</h3>
+  <p>Quand on a déjà une liste (un tableau), on n'a pas besoin de compteur. <code>foreach</code> se charge tout seul de visiter chaque élément.</p>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-kw">$fruits</span> = [<span class="tk-str">"Pomme"</span>, <span class="tk-str">"Banane"</span>, <span class="tk-str">"Orange"</span>];</span>
+      </div>
+      <div class="code-annotated-explain">Crée un <strong>tableau</strong> de 3 strings. Les crochets <code>[ ]</code> définissent un array. Les valeurs sont séparées par des virgules.</div>
+    </div>
+    <div class="code-annotated-row blank">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line"> </span>
+      </div>
+      <div class="code-annotated-explain"></div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line"><span class="tk-kw">foreach</span> (<span class="tk-kw">$fruits</span> <span class="tk-kw">as</span> <span class="tk-kw">$fruit</span>) {</span>
+      </div>
+      <div class="code-annotated-explain">Lit ça : « <strong>pour chaque</strong> élément de <code>$fruits</code>, range-le dans <code>$fruit</code> ». À chaque tour, <code>$fruit</code> prend la valeur suivante : "Pomme", puis "Banane", puis "Orange".</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">04</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"J'aime les $fruit &lt;br&gt;"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Exécuté 3 fois (un par fruit). Affiche : <em>J'aime les Pomme / J'aime les Banane / J'aime les Orange</em>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">05</span>
+        <span class="code-annotated-line">}</span>
+      </div>
+      <div class="code-annotated-explain">Ferme la boucle.</div>
+    </div>
+  </div>
+
+  <h4>Variante avec index</h4>
+  <p>Parfois on veut aussi <strong>la position</strong> de chaque élément (0, 1, 2...). On utilise la syntaxe <code>as $cle =&gt; $valeur</code> :</p>
+
+  <div class="code-annotated">
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">01</span>
+        <span class="code-annotated-line"><span class="tk-kw">foreach</span> (<span class="tk-kw">$fruits</span> <span class="tk-kw">as</span> <span class="tk-kw">$index</span> =&gt; <span class="tk-kw">$fruit</span>) {</span>
+      </div>
+      <div class="code-annotated-explain">Cette fois on récupère <strong>deux choses</strong> : la position dans <code>$index</code> (0, 1, 2...) et la valeur dans <code>$fruit</code>.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">02</span>
+        <span class="code-annotated-line">    <span class="tk-fn">echo</span> <span class="tk-str">"$index : $fruit &lt;br&gt;"</span>;</span>
+      </div>
+      <div class="code-annotated-explain">Affiche : <em>0 : Pomme / 1 : Banane / 2 : Orange</em>. Note : les index de tableau commencent toujours à <strong>0</strong>, pas à 1.</div>
+    </div>
+    <div class="code-annotated-row">
+      <div class="code-annotated-code">
+        <span class="code-annotated-num">03</span>
+        <span class="code-annotated-line">}</span>
+      </div>
+      <div class="code-annotated-explain">Fin.</div>
+    </div>
+  </div>
+
+  <div class="real-world">
+    <div class="real-world-label">▶ Streaming · Netflix</div>
+    <h4>« Ma liste » : la boucle en production</h4>
+    <p>Quand vous ouvrez votre liste sur Netflix, le serveur récupère vos films favoris dans un tableau : <code>$maListe = ["Stranger Things", "Breaking Bad", "The Crown"]</code>. Une boucle <code>foreach</code> génère ensuite le HTML de chaque vignette. Si vous avez 50 films, <strong>le même code PHP s'exécute 50 fois</strong>, en adaptant les données à chaque tour. C'est pour ça qu'un site peut afficher des millions de contenus sans écrire des millions de lignes.</p>
+    <div class="netflix-grid" id="netflix-grid"></div>
+    <div class="demo-controls" style="margin-top: 1rem;">
+      <button class="btn ghost" id="netflix-run">▶ Lancer le foreach</button>
+    </div>
+  </div>
+</section>
+
+<div class="end-mark">— Fin de l'intro PHP —</div>
+<div class="end-spacer"></div>
+
+<script>
+  // PROGRESS BAR
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = (window.scrollY / max) * 100;
+    progressBar.style.width = pct + '%';
+  });
+
+  // REVEAL ON SCROLL
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => io.observe(r));
+
+  // LOOP DEMO (for $i = 1; $i <= 10; $i++)
+  const loopCounter = document.getElementById('loop-counter');
+  const loopOutput = document.getElementById('loop-output');
+  const loopRun = document.getElementById('loop-run');
+  const loopReset = document.getElementById('loop-reset');
+  const loopStatus = document.getElementById('loop-status');
+
+  function resetLoop() {
+    loopCounter.textContent = '—';
+    loopOutput.innerHTML = '<span class="loop-output-empty">(sortie de la boucle ici)</span>';
+    loopStatus.textContent = 'Prêt';
+    loopStatus.className = 'demo-status';
+    loopRun.disabled = false;
+  }
+
+  loopRun.addEventListener('click', () => {
+    loopRun.disabled = true;
+    loopOutput.innerHTML = '';
+    loopStatus.textContent = '● Boucle en cours...';
+    loopStatus.className = 'demo-status running';
+
+    let i = 1;
+    const interval = setInterval(() => {
+      if (i > 10) {
+        clearInterval(interval);
+        loopCounter.textContent = '✓';
+        loopStatus.textContent = '✓ 10 tours effectués';
+        loopStatus.className = 'demo-status done';
+        loopRun.disabled = false;
+        return;
+      }
+      loopCounter.textContent = i;
+      loopCounter.classList.add('pulse');
+      setTimeout(() => loopCounter.classList.remove('pulse'), 180);
+
+      const chip = document.createElement('span');
+      chip.className = 'loop-chip';
+      chip.textContent = '$i = ' + i;
+      loopOutput.appendChild(chip);
+
+      i++;
+    }, 320);
+  });
+
+  loopReset.addEventListener('click', resetLoop);
+
+  // FOREACH NETFLIX DEMO
+  const netflixGrid = document.getElementById('netflix-grid');
+  const netflixRun = document.getElementById('netflix-run');
+  const maListe = ['Stranger Things', 'Breaking Bad', 'The Crown', 'Squid Game', 'Wednesday', 'Black Mirror'];
+
+  netflixRun.addEventListener('click', () => {
+    netflixGrid.innerHTML = '';
+    netflixRun.disabled = true;
+    maListe.forEach((titre, idx) => {
+      setTimeout(() => {
+        const tile = document.createElement('div');
+        tile.className = 'netflix-tile';
+        tile.textContent = titre;
+        netflixGrid.appendChild(tile);
+        if (idx === maListe.length - 1) {
+          setTimeout(() => { netflixRun.disabled = false; }, 500);
+        }
+      }, idx * 220);
+    });
+  });
+</script>
+
+</body>
+</html>
