@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHP — Jour 02 · Exercices du matin</title>
+<style>
+  /* ============================================================
+     RESET & ROOT (identique Jour 2)
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--primary); color: var(--bg); }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-soft: #11111a;
+    --bg-elev: #16161f;
+    --card: rgba(255, 255, 255, 0.025);
+    --card-hover: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #e8e8ed;
+    --text-soft: #a0a0b0;
+    --text-dim: #6b6b78;
+    --primary: #a78bfa;
+    --primary-bright: #c4b5fd;
+    --primary-glow: rgba(167, 139, 250, 0.15);
+    --accent: #fb923c;
+    --accent-soft: rgba(251, 146, 60, 0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74, 222, 128, 0.12);
+    --red: #f87171;
+    --red-soft: rgba(248, 113, 113, 0.12);
+    --amber: #fbbf24;
+    --amber-soft: rgba(251, 191, 36, 0.1);
+    --code-bg: #0d0d18;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.025) 1px, transparent 0);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167, 139, 250, 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(251, 146, 60, 0.05), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  main, section, .hero { position: relative; z-index: 1; }
+
+  /* ============================================================
+     PROGRESS BAR
+     ============================================================ */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    z-index: 1000;
+    width: 0%;
+    transition: width 0.1s ease;
+    box-shadow: 0 0 12px var(--primary-glow);
+  }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    width: fit-content;
+    margin-bottom: 2rem;
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    animation: slideUp 0.8s 0.1s var(--easing) forwards;
+  }
+  .hero-eyebrow .dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .hero-eyebrow .sep { color: var(--text-dim); }
+  .hero-eyebrow .accent { color: var(--accent); font-weight: 600; }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 2rem;
+    color: var(--text);
+    opacity: 0;
+    animation: slideUp 0.8s 0.2s var(--easing) forwards;
+  }
+  .hero h1 .line { display: block; }
+  .hero h1 .word-accent {
+    background: linear-gradient(135deg, var(--primary) 20%, var(--accent) 80%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-style: italic;
+    font-weight: 700;
+  }
+  .hero h1 .word-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--text-soft);
+    font-style: italic;
+    font-weight: 700;
+  }
+
+  .hero-lead {
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+    color: var(--text-soft);
+    max-width: 640px;
+    line-height: 1.65;
+    opacity: 0;
+    animation: slideUp 0.8s 0.3s var(--easing) forwards;
+  }
+
+  .hero-meta {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.6rem;
+    max-width: 800px;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    opacity: 0;
+    animation: slideUp 0.8s 0.5s var(--easing) forwards;
+  }
+  .hero-meta-item .num {
+    font-size: 2.2rem;
+    font-weight: 700;
+    font-feature-settings: "tnum";
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, var(--text), var(--text-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+  }
+  .hero-meta-item .label {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  /* ============================================================
+     CONSIGNES
+     ============================================================ */
+  .briefing {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .briefing-card {
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .briefing-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .briefing-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 0.7rem;
+  }
+  .briefing-card h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .briefing-card p {
+    color: var(--text-soft);
+    line-height: 1.65;
+    margin-bottom: 0.7rem;
+    max-width: 800px;
+  }
+  .briefing-card p code,
+  .briefing-card li code {
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+  .briefing-card strong { color: var(--text); }
+  .briefing-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1.4rem;
+  }
+  .briefing-bullet {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+  }
+  .briefing-bullet .step-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+  }
+  .briefing-bullet .step-text {
+    font-size: 0.88rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     BLOCS
+     ============================================================ */
+  section.block {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 2rem 2rem;
+    position: relative;
+  }
+  section.block::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .block-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2rem;
+    align-items: baseline;
+    margin-bottom: 1.5rem;
+  }
+  .block-num {
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    user-select: none;
+    font-feature-settings: "tnum";
+  }
+  .block-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 0.6rem;
+  }
+  .block-header h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: var(--text);
+  }
+  .block-header h2 em {
+    font-style: italic;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .block-duration {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-align: right;
+    font-family: "JetBrains Mono", monospace;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    white-space: nowrap;
+  }
+  .block-intro {
+    font-size: 1rem;
+    color: var(--text-soft);
+    margin-bottom: 1.8rem;
+    max-width: 760px;
+    line-height: 1.65;
+  }
+  .block-intro code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.9s var(--easing), transform 0.9s var(--easing);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ============================================================
+     EXERCISE CARD
+     ============================================================ */
+  .exercise {
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.8rem 2rem;
+    margin: 1.4rem 0;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s var(--easing);
+  }
+  .exercise::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .exercise.done {
+    border-color: rgba(74, 222, 128, 0.3);
+    background: linear-gradient(135deg, rgba(74, 222, 128, 0.04), rgba(255, 255, 255, 0.015));
+  }
+  .exercise.done::before {
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+
+  .exercise-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .exercise-id {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(251, 146, 60, 0.2);
+    padding: 0.3rem 0.7rem;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+  .exercise-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    margin-left: auto;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+  .duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
+    color: var(--text-dim);
+    padding: 0.18rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .done-toggle {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 0.3rem 0.7rem;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s var(--easing);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .done-toggle:hover {
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .exercise.done .done-toggle {
+    background: var(--green-soft);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .exercise.done .done-toggle .check { color: var(--green); }
+
+  .exercise h3 {
+    font-size: 1.18rem;
+    font-weight: 700;
+    margin: 0 0 0.7rem;
+    color: var(--text);
+    letter-spacing: -0.005em;
+    line-height: 1.35;
+  }
+  .exercise p {
+    color: var(--text-soft);
+    margin-bottom: 0.8rem;
+    line-height: 1.65;
+    max-width: 800px;
+  }
+  .exercise p code,
+  .exercise li code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+  .exercise strong { color: var(--text); }
+  .exercise ul, .exercise ol {
+    margin: 0.6rem 0 1rem 1.5rem;
+    color: var(--text-soft);
+  }
+  .exercise li { margin-bottom: 0.3rem; }
+  .exercise li::marker { color: var(--accent); }
+
+  .expected {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    margin: 1rem 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.6;
+    position: relative;
+  }
+  .expected-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    margin-bottom: 0.45rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  }
+  .expected pre {
+    white-space: pre-wrap;
+    color: var(--green);
+  }
+
+  /* Toggle buttons (hint / solution) */
+  .ex-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+  }
+  .ex-btn {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 1rem;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s var(--easing);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .ex-btn:hover {
+    background: var(--card-hover);
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .ex-btn.hint:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .ex-btn.solution:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+  .ex-btn .arrow { transition: transform 0.25s var(--easing); }
+  .ex-btn.open .arrow { transform: rotate(180deg); }
+
+  .hint-box, .solution-box {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.5s var(--easing), opacity 0.4s var(--easing), margin 0.4s var(--easing), padding 0.4s var(--easing);
+  }
+  .hint-box.open, .solution-box.open {
+    max-height: 3500px;
+    opacity: 1;
+    margin-top: 0.9rem;
+  }
+  .hint-box {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(251, 191, 36, 0.01));
+    border-left: 3px solid var(--amber);
+    border-radius: 10px;
+    padding: 0 1.1rem;
+  }
+  .hint-box.open { padding: 1rem 1.1rem; }
+  .hint-box p {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    margin-bottom: 0.5rem;
+    max-width: none;
+  }
+  .hint-box p:last-child { margin-bottom: 0; }
+  .hint-box-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--amber);
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    margin-bottom: 0.5rem;
+  }
+  .hint-box ul { margin: 0.3rem 0 0 1.2rem; color: var(--text-soft); font-size: 0.9rem; }
+  .hint-box li { margin-bottom: 0.3rem; }
+
+  .solution-box {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.06), rgba(167, 139, 250, 0.01));
+    border-left: 3px solid var(--primary);
+    border-radius: 10px;
+    padding: 0 1.1rem;
+  }
+  .solution-box.open { padding: 1rem 1.1rem 1.2rem; }
+  .solution-box-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    margin-bottom: 0.7rem;
+  }
+  .solution-box p {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    margin: 0.7rem 0 0;
+    max-width: none;
+  }
+  .solution-box p:first-of-type { margin-top: 0; }
+  .solution-box p code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82em;
+    background: var(--code-bg);
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    color: var(--primary-bright);
+    border: 1px solid var(--border);
+  }
+
+  /* Code block (à l'intérieur des solutions) */
+  pre.code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 0.7rem 0;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  pre.code .tk-php { color: #f97316; }
+  pre.code .tk-kw { color: #c4b5fd; }
+  pre.code .tk-str { color: #86efac; }
+  pre.code .tk-var { color: #fbbf24; }
+  pre.code .tk-com { color: var(--text-dim); font-style: italic; }
+  pre.code .tk-fn { color: #60a5fa; }
+  pre.code .tk-num { color: #f9a8d4; }
+
+  /* ============================================================
+     FLOATING PROGRESS WIDGET
+     ============================================================ */
+  .progress-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: rgba(13, 13, 24, 0.92);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.9rem 1.2rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s var(--easing);
+  }
+  .progress-widget:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+  .progress-widget .pw-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .progress-widget .pw-count .pw-done { color: var(--green); }
+  .progress-widget .pw-label {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.3;
+  }
+  .progress-widget .pw-ring {
+    width: 36px;
+    height: 36px;
+    position: relative;
+  }
+  .progress-widget .pw-ring svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .progress-widget .pw-ring circle {
+    fill: none;
+    stroke-width: 3;
+  }
+  .progress-widget .pw-ring .bg-ring { stroke: var(--border); }
+  .progress-widget .pw-ring .fg-ring {
+    stroke: url(#pwGrad);
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.5s var(--easing);
+  }
+
+  /* ============================================================
+     FINALE
+     ============================================================ */
+  .finale {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 2rem 2rem;
+  }
+  .finale-card {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(251, 146, 60, 0.05));
+    border: 1px solid var(--border-strong);
+    border-radius: 22px;
+    padding: 2.6rem 2.4rem;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .finale-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+  }
+  .finale-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.9rem;
+  }
+  .finale-card h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .finale-card h2 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .finale-card p {
+    color: var(--text-soft);
+    max-width: 720px;
+    margin: 0 auto 1rem;
+    line-height: 1.65;
+  }
+  .finale-card .pm-time {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.55rem 1.2rem;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    color: var(--primary-bright);
+  }
+
+  /* End */
+  .end-spacer { height: 5rem; }
+  .end-mark {
+    text-align: center;
+    padding: 3rem 2rem 5rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 800px) {
+    .block-header { grid-template-columns: 1fr; gap: 0.6rem; }
+    .block-num { font-size: 3.5rem; }
+    .block-duration { justify-self: start; }
+    section.block { padding: 3rem 1.2rem 1.5rem; }
+    .briefing { padding: 1.5rem 1.2rem; }
+    .briefing-card, .exercise { padding: 1.4rem 1.3rem; }
+    .hero { padding: 3rem 1.2rem; }
+    .progress-widget {
+      bottom: 1rem; right: 1rem;
+      padding: 0.7rem 1rem;
+    }
+    .progress-widget .pw-label { display: none; }
+    .finale { padding: 3rem 1.2rem 1.5rem; }
+    .finale-card { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- HIDDEN SVG GRADIENT FOR PROGRESS RING -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="pwGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    <span>1PHP3</span>
+    <span class="sep">·</span>
+    <span>Jour 02</span>
+    <span class="sep">·</span>
+    <span class="accent">Exercices du matin</span>
+  </div>
+  <h1>
+    <span class="line"><span class="word-outline">Maintenant,</span></span>
+    <span class="line">au <span class="word-accent">clavier.</span></span>
+  </h1>
+  <p class="hero-lead">Vingt exercices ciblés, classés par bloc et par difficulté. Faites-les <strong>dans l'ordre</strong> — chaque bloc construit sur le précédent. L'après-midi sera consacré au <strong>WebBlog</strong>, donc une matinée bien rythmée vous évitera de courir l'après-midi.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <div class="num">20</div>
+      <div class="label">exercices</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">5</div>
+      <div class="label">blocs</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">~4h</div>
+      <div class="label">durée totale</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BRIEFING — Comment utiliser cette page
+     ============================================================ -->
+<div class="briefing">
+  <div class="briefing-card">
+    <div class="briefing-eyebrow">Briefing</div>
+    <h2>Mode d'emploi de la matinée</h2>
+    <p>Chaque exercice indique sa <strong>durée estimée</strong>. Lisez d'abord l'énoncé en entier, codez dans votre éditeur, puis comparez avec la <strong>solution</strong> (protégée par un mot de passe que votre prof vous donnera). Les <strong>indices</strong> sont là si vous bloquez plus de 10 minutes — ne les ouvrez pas trop tôt.</p>
+    <p><strong>Marquez chaque exercice comme « fait »</strong> avec la coche en haut à droite. Le compteur en bas de page suit votre progression.</p>
+
+    <div class="briefing-list">
+      <div class="briefing-bullet">
+        <div class="step-num">01 · LIRE</div>
+        <div class="step-text">Lisez l'énoncé entièrement avant de toucher au clavier.</div>
+      </div>
+      <div class="briefing-bullet">
+        <div class="step-num">02 · CODER</div>
+        <div class="step-text">Dans votre éditeur, sans regarder la solution. Visez le résultat attendu.</div>
+      </div>
+      <div class="briefing-bullet">
+        <div class="step-num">03 · BLOQUÉ ?</div>
+        <div class="step-text">Ouvrez l'indice. Toujours bloqué après 10 min ? La solution.</div>
+      </div>
+      <div class="briefing-bullet">
+        <div class="step-num">04 · COMPARER</div>
+        <div class="step-text">Même réussi, regardez la solution. Une autre approche est possible.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BLOC 0 — Échauffement
+     ============================================================ -->
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">00</div>
+    <div>
+      <div class="block-eyebrow">Échauffement</div>
+      <h2>Réveiller les <em>réflexes</em>.</h2>
+    </div>
+    <div class="block-duration">~30 min · 5 exos</div>
+  </div>
+  <p class="block-intro">Cinq exercices très courts pour remettre les doigts dans le PHP. Aucun ne devrait prendre plus de 5 minutes. Si l'un vous bloque, retournez sur la page de cours avant de continuer.</p>
+
+  <!-- EXO 0.1 -->
+  <div class="exercise" id="ex-0-1">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 0.1</div>
+      <div class="exercise-meta">
+        <span class="duration">5 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-0-1')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Hello PHP</h3>
+    <p>Créez un fichier <code>exo01.php</code>. Déclarez une variable <code>$prenom</code> contenant votre prénom, puis affichez « Bonjour, [prénom] ! Bienvenue. » sur une ligne.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Bonjour, Lucas ! Bienvenue.</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-1')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-0-1">
+      <div class="hint-box-title">Indice</div>
+      <p>Utilisez des <strong>guillemets doubles</strong> pour que <code>$prenom</code> soit interprété directement dans la chaîne. Pas besoin de concaténation.</p>
+    </div>
+    <div class="solution-box" id="sol-0-1">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$prenom</span> = <span class="tk-str">"Lucas"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Bonjour, $prenom ! Bienvenue."</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Les guillemets doubles permettent l'<strong>interpolation</strong> : <code>$prenom</code> est remplacé par sa valeur. Avec des guillemets simples, le résultat aurait été <em>« Bonjour, $prenom ! »</em>.</p>
+    </div>
+  </div>
+
+  <!-- EXO 0.2 -->
+  <div class="exercise" id="ex-0-2">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 0.2</div>
+      <div class="exercise-meta">
+        <span class="duration">5 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-0-2')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Première fonction</h3>
+    <p>Écrivez une fonction <code>direBonjour()</code> qui affiche « Salut ! » à chaque appel. Appelez-la <strong>trois fois</strong>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Salut !
+Salut !
+Salut !</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-2')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-2')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-0-2">
+      <div class="hint-box-title">Indice</div>
+      <p>Mot-clé <code>function</code>, puis nom, puis <code>()</code>, puis <code>{ ... }</code>. Pour afficher avec saut de ligne, utilisez <code>"&lt;br&gt;"</code> à la fin de la chaîne.</p>
+    </div>
+    <div class="solution-box" id="sol-0-2">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">direBonjour</span>() {
+    <span class="tk-fn">echo</span> <span class="tk-str">"Salut !&lt;br&gt;"</span>;
+}
+
+<span class="tk-fn">direBonjour</span>();
+<span class="tk-fn">direBonjour</span>();
+<span class="tk-fn">direBonjour</span>();
+<span class="tk-php">?&gt;</span></pre>
+      <p>La fonction est <strong>déclarée une fois</strong> et <strong>appelée trois fois</strong>. C'est tout l'intérêt : si demain on veut changer « Salut » en « Hello », un seul endroit à modifier.</p>
+    </div>
+  </div>
+
+  <!-- EXO 0.3 -->
+  <div class="exercise" id="ex-0-3">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 0.3</div>
+      <div class="exercise-meta">
+        <span class="duration">5 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-0-3')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Le 2ᵉ wagon</h3>
+    <p>Créez un tableau indexé <code>$villes</code> contenant : Paris, Lyon, Marseille, Bordeaux. Affichez <strong>la deuxième ville</strong>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Lyon</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-3')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-3')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-0-3">
+      <div class="hint-box-title">Indice</div>
+      <p>Attention : les index commencent à <strong>0</strong>. Donc la <strong>deuxième</strong> ville n'est pas à l'index 2, mais à l'index <strong>1</strong>.</p>
+    </div>
+    <div class="solution-box" id="sol-0-3">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$villes</span> = [<span class="tk-str">"Paris"</span>, <span class="tk-str">"Lyon"</span>, <span class="tk-str">"Marseille"</span>, <span class="tk-str">"Bordeaux"</span>];
+<span class="tk-fn">echo</span> <span class="tk-kw">$villes</span>[<span class="tk-num">1</span>];  <span class="tk-com">// "Lyon" — 2ᵉ wagon = index 1</span>
+<span class="tk-php">?&gt;</span></pre>
+      <p>Piège classique du QCM : on lit « deuxième élément » et on tape <code>[2]</code>, ce qui donne « Marseille ». <strong>Comptez toujours à partir de 0.</strong></p>
+    </div>
+  </div>
+
+  <!-- EXO 0.4 -->
+  <div class="exercise" id="ex-0-4">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 0.4</div>
+      <div class="exercise-meta">
+        <span class="duration">5 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-0-4')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Compter les lettres</h3>
+    <p>Stockez la phrase « PHP est un langage côté serveur. » dans une variable et affichez son nombre de caractères.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>La phrase fait 31 caractères.</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-4')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-4')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-0-4">
+      <div class="hint-box-title">Indice</div>
+      <p>La fonction s'appelle <code>strlen()</code> — pas <code>length</code>, pas <code>count</code>. Les espaces et la ponctuation comptent comme des caractères.</p>
+    </div>
+    <div class="solution-box" id="sol-0-4">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$phrase</span> = <span class="tk-str">"PHP est un langage côté serveur."</span>;
+<span class="tk-kw">$n</span> = <span class="tk-fn">strlen</span>(<span class="tk-kw">$phrase</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"La phrase fait $n caractères."</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p><strong>Attention :</strong> avec des accents comme « ô », <code>strlen()</code> peut retourner plus que le nombre de lettres réelles (la fonction compte les octets, et un caractère accentué peut faire 2 octets en UTF-8). Pour un comptage exact, on utilise <code>mb_strlen()</code> — mais hors programme aujourd'hui.</p>
+    </div>
+  </div>
+
+  <!-- EXO 0.5 -->
+  <div class="exercise" id="ex-0-5">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 0.5</div>
+      <div class="exercise-meta">
+        <span class="duration">5 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-0-5')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Le bon opérateur</h3>
+    <p>Soient deux variables <code>$prenom = "Marie"</code> et <code>$nom = "Dupont"</code>. Affichez « Marie Dupont » en utilisant la <strong>concaténation</strong> (pas l'interpolation).</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Marie Dupont</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-5')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-5')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-0-5">
+      <div class="hint-box-title">Indice</div>
+      <p>En PHP, l'opérateur de concaténation est <strong>le point</strong>, pas le <code>+</code>. Et n'oubliez pas l'espace entre prénom et nom : c'est une chaîne <code>" "</code> à ajouter au milieu.</p>
+    </div>
+    <div class="solution-box" id="sol-0-5">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$prenom</span> = <span class="tk-str">"Marie"</span>;
+<span class="tk-kw">$nom</span> = <span class="tk-str">"Dupont"</span>;
+<span class="tk-fn">echo</span> <span class="tk-kw">$prenom</span> . <span class="tk-str">" "</span> . <span class="tk-kw">$nom</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Trois éléments collés par deux points : variable, espace, variable. Si vous aviez tapé <code>$prenom + " " + $nom</code>, PHP aurait tenté une addition numérique et obtenu <code>0</code> (puisque "Marie" + 0 = 0 en conversion implicite).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BLOC 1 — Fonctions
+     ============================================================ -->
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">01</div>
+    <div>
+      <div class="block-eyebrow">Bloc fonctions</div>
+      <h2>Écrire ses propres <em>machines à café</em>.</h2>
+    </div>
+    <div class="block-duration">~60 min · 4 exos</div>
+  </div>
+  <p class="block-intro">On passe aux fonctions « utiles ». Paramètres, retour, valeurs par défaut. Un dernier exercice combine tout dans une petite fonction de validation.</p>
+
+  <!-- EXO 1.1 -->
+  <div class="exercise" id="ex-1-1">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 1.1</div>
+      <div class="exercise-meta">
+        <span class="duration">10 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-1-1')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Majorité</h3>
+    <p>Écrivez une fonction <code>estMajeur($age)</code> qui retourne <code>true</code> si l'âge est supérieur ou égal à 18, <code>false</code> sinon. Testez-la avec trois âges différents et affichez le résultat sous la forme « X ans : oui/non ».</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>15 ans : non
+18 ans : oui
+42 ans : oui</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-1-1')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-1-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-1-1">
+      <div class="hint-box-title">Indice</div>
+      <p>La fonction doit utiliser <code>return</code>, pas <code>echo</code>. Pour l'affichage, utilisez un opérateur ternaire : <code>$resultat ? "oui" : "non"</code>.</p>
+    </div>
+    <div class="solution-box" id="sol-1-1">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">estMajeur</span>(<span class="tk-kw">$age</span>) {
+    <span class="tk-kw">return</span> <span class="tk-kw">$age</span> &gt;= <span class="tk-num">18</span>;
+}
+
+<span class="tk-kw">$ages</span> = [<span class="tk-num">15</span>, <span class="tk-num">18</span>, <span class="tk-num">42</span>];
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$ages</span> <span class="tk-kw">as</span> <span class="tk-kw">$a</span>) {
+    <span class="tk-kw">$reponse</span> = <span class="tk-fn">estMajeur</span>(<span class="tk-kw">$a</span>) ? <span class="tk-str">"oui"</span> : <span class="tk-str">"non"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"$a ans : $reponse&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>L'expression <code>$age &gt;= 18</code> renvoie déjà un booléen — pas besoin de <code>if</code>. C'est plus court et plus lisible. Le <code>foreach</code> évite de répéter trois fois le bloc d'affichage.</p>
+    </div>
+  </div>
+
+  <!-- EXO 1.2 -->
+  <div class="exercise" id="ex-1-2">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 1.2</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-1-2')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Calculer la TVA</h3>
+    <p>Écrivez une fonction <code>calculerTVA($prixHT, $taux = 20)</code> qui retourne le <strong>montant de la TVA</strong> (pas le prix TTC, juste la TVA). Le taux est en pourcentage. Le paramètre <code>$taux</code> est <strong>facultatif</strong> et vaut 20 par défaut.</p>
+    <p>Testez avec :</p>
+    <ul>
+      <li>100 € HT au taux par défaut → ?</li>
+      <li>50 € HT au taux de 5,5 % → ?</li>
+      <li>200 € HT au taux de 10 % → ?</li>
+    </ul>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>TVA sur 100€ (20%) : 20€
+TVA sur 50€ (5.5%) : 2.75€
+TVA sur 200€ (10%) : 20€</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-1-2')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-1-2')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-1-2">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li>Formule de la TVA : <code>prixHT × taux ÷ 100</code></li>
+        <li>Pour le paramètre par défaut : <code>function calculerTVA($prixHT, $taux = 20)</code></li>
+        <li>Pour appeler avec le défaut : <code>calculerTVA(100)</code> — sans deuxième argument</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-1-2">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">calculerTVA</span>(<span class="tk-kw">$prixHT</span>, <span class="tk-kw">$taux</span> = <span class="tk-num">20</span>) {
+    <span class="tk-kw">return</span> <span class="tk-kw">$prixHT</span> * <span class="tk-kw">$taux</span> / <span class="tk-num">100</span>;
+}
+
+<span class="tk-fn">echo</span> <span class="tk-str">"TVA sur 100€ (20%) : "</span> . <span class="tk-fn">calculerTVA</span>(<span class="tk-num">100</span>) . <span class="tk-str">"€&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"TVA sur 50€ (5.5%) : "</span> . <span class="tk-fn">calculerTVA</span>(<span class="tk-num">50</span>, <span class="tk-num">5.5</span>) . <span class="tk-str">"€&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"TVA sur 200€ (10%) : "</span> . <span class="tk-fn">calculerTVA</span>(<span class="tk-num">200</span>, <span class="tk-num">10</span>) . <span class="tk-str">"€&lt;br&gt;"</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Le premier appel ne précise pas le taux : PHP utilise la valeur par défaut <code>20</code>. Les deux suivants <strong>surchargent</strong> ce défaut avec leur propre valeur. <strong>Bonne pratique :</strong> mettre les paramètres optionnels en dernier pour ne pas être obligé de tous les fournir.</p>
+    </div>
+  </div>
+
+  <!-- EXO 1.3 -->
+  <div class="exercise" id="ex-1-3">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 1.3</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-1-3')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Prix TTC réutilisable</h3>
+    <p>Écrivez une <strong>deuxième fonction</strong> <code>prixTTC($prixHT, $taux = 20)</code> qui retourne le prix toutes taxes comprises. Cette fonction doit <strong>appeler</strong> celle de l'exercice précédent — pas refaire le calcul.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Prix TTC d'un produit à 100€ HT : 120€
+Prix TTC d'un livre à 25€ HT : 26.375€</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-1-3')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-1-3')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-1-3">
+      <div class="hint-box-title">Indice</div>
+      <p>À l'intérieur de <code>prixTTC()</code>, vous pouvez appeler <code>calculerTVA($prixHT, $taux)</code> et ajouter le résultat au prix HT. Une fonction peut en appeler une autre — c'est même <strong>recommandé</strong> (principe de réutilisation).</p>
+    </div>
+    <div class="solution-box" id="sol-1-3">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">calculerTVA</span>(<span class="tk-kw">$prixHT</span>, <span class="tk-kw">$taux</span> = <span class="tk-num">20</span>) {
+    <span class="tk-kw">return</span> <span class="tk-kw">$prixHT</span> * <span class="tk-kw">$taux</span> / <span class="tk-num">100</span>;
+}
+
+<span class="tk-kw">function</span> <span class="tk-fn">prixTTC</span>(<span class="tk-kw">$prixHT</span>, <span class="tk-kw">$taux</span> = <span class="tk-num">20</span>) {
+    <span class="tk-kw">return</span> <span class="tk-kw">$prixHT</span> + <span class="tk-fn">calculerTVA</span>(<span class="tk-kw">$prixHT</span>, <span class="tk-kw">$taux</span>);
+}
+
+<span class="tk-fn">echo</span> <span class="tk-str">"Prix TTC d'un produit à 100€ HT : "</span> . <span class="tk-fn">prixTTC</span>(<span class="tk-num">100</span>) . <span class="tk-str">"€&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Prix TTC d'un livre à 25€ HT : "</span> . <span class="tk-fn">prixTTC</span>(<span class="tk-num">25</span>, <span class="tk-num">5.5</span>) . <span class="tk-str">"€"</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Voilà la <strong>composition</strong> de fonctions : <code>prixTTC()</code> délègue le calcul de la TVA à <code>calculerTVA()</code>. Si demain la formule de TVA change (cas particulier, arrondi, etc.), on modifie une seule fonction et toutes celles qui l'utilisent suivent automatiquement.</p>
+    </div>
+  </div>
+
+  <!-- EXO 1.4 -->
+  <div class="exercise" id="ex-1-4">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 1.4</div>
+      <div class="exercise-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-1-4')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Validateur de mot de passe</h3>
+    <p>Écrivez une fonction <code>motDePasseValide($mdp)</code> qui retourne <code>true</code> seulement si <strong>les trois conditions</strong> sont remplies :</p>
+    <ul>
+      <li>longueur d'au moins <strong>8 caractères</strong></li>
+      <li>contient au moins <strong>une majuscule</strong></li>
+      <li>contient au moins <strong>un chiffre</strong></li>
+    </ul>
+    <p>Testez-la avec 4 mots de passe : <code>"azerty"</code>, <code>"motdepasse"</code>, <code>"Motdepasse"</code>, <code>"Motdepasse1"</code>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>azerty : invalide
+motdepasse : invalide
+Motdepasse : invalide
+Motdepasse1 : valide</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-1-4')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-1-4')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-1-4">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li>Pour la longueur : <code>strlen($mdp) &gt;= 8</code></li>
+        <li>Pour détecter une majuscule : comparer <code>$mdp</code> à sa version tout en minuscules. S'ils diffèrent, il y a au moins une majuscule. Donc <code>$mdp !== strtolower($mdp)</code>.</li>
+        <li>Pour détecter un chiffre : <code>preg_match('/[0-9]/', $mdp)</code> retourne 1 si trouvé. Ou plus simple : boucle sur chaque caractère avec <code>is_numeric()</code>.</li>
+        <li>La fonction retourne <strong>true seulement si les trois</strong> conditions sont vraies — utilisez <code>&amp;&amp;</code>.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-1-4">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">motDePasseValide</span>(<span class="tk-kw">$mdp</span>) {
+    <span class="tk-kw">$assezLong</span>      = <span class="tk-fn">strlen</span>(<span class="tk-kw">$mdp</span>) &gt;= <span class="tk-num">8</span>;
+    <span class="tk-kw">$aMajuscule</span>     = <span class="tk-kw">$mdp</span> !== <span class="tk-fn">strtolower</span>(<span class="tk-kw">$mdp</span>);
+    <span class="tk-kw">$aChiffre</span>       = <span class="tk-fn">preg_match</span>(<span class="tk-str">'/[0-9]/'</span>, <span class="tk-kw">$mdp</span>) === <span class="tk-num">1</span>;
+
+    <span class="tk-kw">return</span> <span class="tk-kw">$assezLong</span> &amp;&amp; <span class="tk-kw">$aMajuscule</span> &amp;&amp; <span class="tk-kw">$aChiffre</span>;
+}
+
+<span class="tk-kw">$tests</span> = [<span class="tk-str">"azerty"</span>, <span class="tk-str">"motdepasse"</span>, <span class="tk-str">"Motdepasse"</span>, <span class="tk-str">"Motdepasse1"</span>];
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$tests</span> <span class="tk-kw">as</span> <span class="tk-kw">$mdp</span>) {
+    <span class="tk-kw">$verdict</span> = <span class="tk-fn">motDePasseValide</span>(<span class="tk-kw">$mdp</span>) ? <span class="tk-str">"valide"</span> : <span class="tk-str">"invalide"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"$mdp : $verdict&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>On <strong>nomme</strong> chaque test dans une variable : le code se lit comme une phrase. <code>preg_match</code> est une fonction qui cherche un motif dans une chaîne — ici, n'importe quel chiffre de 0 à 9. Le <code>&amp;&amp;</code> combine les trois : si l'un est faux, le tout est faux.</p>
+      <p><strong>Pour aller plus loin :</strong> en production, on ajouterait : au moins un caractère spécial, pas de mot du dictionnaire, etc. Voir le travail du Jour 4 sur la sécurité.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BLOC 2 — Tableaux
+     ============================================================ -->
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">02</div>
+    <div>
+      <div class="block-eyebrow">Bloc tableaux</div>
+      <h2>Manier les <em>wagons et répertoires</em>.</h2>
+    </div>
+    <div class="block-duration">~60 min · 4 exos</div>
+  </div>
+  <p class="block-intro">Quatre exercices pour pratiquer les trois types de tableaux. Indexé, associatif, multidimensionnel, puis une fonction qui combine tout.</p>
+
+  <!-- EXO 2.1 -->
+  <div class="exercise" id="ex-2-1">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 2.1</div>
+      <div class="exercise-meta">
+        <span class="duration">10 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-2-1')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Liste de courses</h3>
+    <p>Créez un tableau <code>$courses</code> indexé contenant : « Pain », « Lait », « Œufs », « Tomates », « Pâtes ». Puis :</p>
+    <ol>
+      <li>Affichez le <strong>nombre total</strong> d'articles.</li>
+      <li>Parcourez le tableau avec <code>foreach</code> et affichez chaque article sous forme de liste HTML <code>&lt;li&gt;</code>.</li>
+      <li>Ajoutez « Café » à la fin avec <code>array_push</code>.</li>
+      <li>Réaffichez le nombre total après ajout.</li>
+    </ol>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Nombre d'articles : 5
+&lt;li&gt;Pain&lt;/li&gt;
+&lt;li&gt;Lait&lt;/li&gt;
+&lt;li&gt;Œufs&lt;/li&gt;
+&lt;li&gt;Tomates&lt;/li&gt;
+&lt;li&gt;Pâtes&lt;/li&gt;
+Nombre après ajout : 6</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-2-1')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-2-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-2-1">
+      <div class="hint-box-title">Indice</div>
+      <p><code>count()</code> pour compter. <code>foreach ($t as $item)</code> pour parcourir. <code>array_push($t, "Café")</code> pour ajouter — ou plus court : <code>$t[] = "Café"</code>.</p>
+    </div>
+    <div class="solution-box" id="sol-2-1">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$courses</span> = [<span class="tk-str">"Pain"</span>, <span class="tk-str">"Lait"</span>, <span class="tk-str">"Œufs"</span>, <span class="tk-str">"Tomates"</span>, <span class="tk-str">"Pâtes"</span>];
+
+<span class="tk-fn">echo</span> <span class="tk-str">"Nombre d'articles : "</span> . <span class="tk-fn">count</span>(<span class="tk-kw">$courses</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$courses</span> <span class="tk-kw">as</span> <span class="tk-kw">$article</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"&lt;li&gt;$article&lt;/li&gt;"</span>;
+}
+
+<span class="tk-fn">array_push</span>(<span class="tk-kw">$courses</span>, <span class="tk-str">"Café"</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"&lt;br&gt;Nombre après ajout : "</span> . <span class="tk-fn">count</span>(<span class="tk-kw">$courses</span>);
+<span class="tk-php">?&gt;</span></pre>
+      <p>La forme courte <code>$courses[] = "Café"</code> est aussi acceptable et fait exactement la même chose qu'<code>array_push</code> avec un seul élément. <code>array_push</code> est plus utile si on veut ajouter plusieurs éléments d'un coup : <code>array_push($t, "a", "b", "c")</code>.</p>
+    </div>
+  </div>
+
+  <!-- EXO 2.2 -->
+  <div class="exercise" id="ex-2-2">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 2.2</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-2-2')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Fiche produit</h3>
+    <p>Créez un tableau associatif <code>$produit</code> représentant un article avec ces clés : <code>nom</code>, <code>prix</code>, <code>stock</code>, <code>categorie</code>. Affichez-le sous forme de fiche HTML simple.</p>
+    <p>Ensuite, ajoutez une nouvelle clé <code>"promo"</code> à <code>true</code> et réaffichez la fiche.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>=== FICHE PRODUIT ===
+nom : iPhone 15
+prix : 999€
+stock : 24
+categorie : Smartphone
+
+=== APRÈS PROMO ===
+nom : iPhone 15
+prix : 999€
+stock : 24
+categorie : Smartphone
+promo : 1</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-2-2')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-2-2')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-2-2">
+      <div class="hint-box-title">Indice</div>
+      <p>Pour parcourir un associatif avec ses clés : <code>foreach ($produit as $cle =&gt; $valeur)</code>. Pour ajouter une nouvelle clé : <code>$produit["promo"] = true;</code> — PHP la crée automatiquement.</p>
+      <p>Le booléen <code>true</code> s'affiche comme <code>1</code> avec <code>echo</code> (et <code>false</code> comme rien). C'est normal.</p>
+    </div>
+    <div class="solution-box" id="sol-2-2">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$produit</span> = [
+    <span class="tk-str">"nom"</span>       =&gt; <span class="tk-str">"iPhone 15"</span>,
+    <span class="tk-str">"prix"</span>      =&gt; <span class="tk-num">999</span>,
+    <span class="tk-str">"stock"</span>     =&gt; <span class="tk-num">24</span>,
+    <span class="tk-str">"categorie"</span> =&gt; <span class="tk-str">"Smartphone"</span>
+];
+
+<span class="tk-fn">echo</span> <span class="tk-str">"=== FICHE PRODUIT ===&lt;br&gt;"</span>;
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$produit</span> <span class="tk-kw">as</span> <span class="tk-kw">$cle</span> =&gt; <span class="tk-kw">$val</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"$cle : $val&lt;br&gt;"</span>;
+}
+
+<span class="tk-kw">$produit</span>[<span class="tk-str">"promo"</span>] = <span class="tk-kw">true</span>;
+
+<span class="tk-fn">echo</span> <span class="tk-str">"&lt;br&gt;=== APRÈS PROMO ===&lt;br&gt;"</span>;
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$produit</span> <span class="tk-kw">as</span> <span class="tk-kw">$cle</span> =&gt; <span class="tk-kw">$val</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"$cle : $val&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>La structure <code>foreach ... as $cle =&gt; $val</code> donne accès à la <strong>clé ET la valeur</strong> de chaque entrée. Quand l'instruction <code>$produit["promo"] = true</code> est exécutée, PHP voit que la clé n'existe pas et la crée. Pas d'erreur.</p>
+      <p><strong>Refacto :</strong> si on devait afficher la fiche à plusieurs endroits, on transformerait le bloc <code>foreach</code> en fonction <code>afficherFiche($produit)</code> (rappel : Bloc 1 exercice 1.3).</p>
+    </div>
+  </div>
+
+  <!-- EXO 2.3 -->
+  <div class="exercise" id="ex-2-3">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 2.3</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-2-3')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Catalogue de films</h3>
+    <p>Créez un tableau <strong>multidimensionnel</strong> <code>$films</code> contenant 3 films, chacun décrit par un tableau associatif avec : <code>titre</code>, <code>realisateur</code>, <code>annee</code>, <code>note</code>. Affichez chaque film sous la forme « <em>Titre</em> (année) — Réalisateur · Note : X/10 ».</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Inception (2010) — Christopher Nolan · Note : 9/10
+Le Voyage de Chihiro (2001) — Hayao Miyazaki · Note : 10/10
+Parasite (2019) — Bong Joon-ho · Note : 9/10</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-2-3')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-2-3')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-2-3">
+      <div class="hint-box-title">Indice</div>
+      <p>L'extérieur est un tableau indexé qui contient 3 tableaux associatifs. <code>foreach ($films as $film)</code> donne à chaque tour un sous-tableau, dont on accède aux clés avec <code>$film["titre"]</code>.</p>
+    </div>
+    <div class="solution-box" id="sol-2-3">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$films</span> = [
+    [
+        <span class="tk-str">"titre"</span>       =&gt; <span class="tk-str">"Inception"</span>,
+        <span class="tk-str">"realisateur"</span> =&gt; <span class="tk-str">"Christopher Nolan"</span>,
+        <span class="tk-str">"annee"</span>       =&gt; <span class="tk-num">2010</span>,
+        <span class="tk-str">"note"</span>        =&gt; <span class="tk-num">9</span>
+    ],
+    [
+        <span class="tk-str">"titre"</span>       =&gt; <span class="tk-str">"Le Voyage de Chihiro"</span>,
+        <span class="tk-str">"realisateur"</span> =&gt; <span class="tk-str">"Hayao Miyazaki"</span>,
+        <span class="tk-str">"annee"</span>       =&gt; <span class="tk-num">2001</span>,
+        <span class="tk-str">"note"</span>        =&gt; <span class="tk-num">10</span>
+    ],
+    [
+        <span class="tk-str">"titre"</span>       =&gt; <span class="tk-str">"Parasite"</span>,
+        <span class="tk-str">"realisateur"</span> =&gt; <span class="tk-str">"Bong Joon-ho"</span>,
+        <span class="tk-str">"annee"</span>       =&gt; <span class="tk-num">2019</span>,
+        <span class="tk-str">"note"</span>        =&gt; <span class="tk-num">9</span>
+    ]
+];
+
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$films</span> <span class="tk-kw">as</span> <span class="tk-kw">$f</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"$f[titre] ($f[annee]) — $f[realisateur] · Note : $f[note]/10&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>Astuce : <strong>dans une chaîne entre guillemets doubles</strong>, on peut écrire <code>$f[titre]</code> sans guillemets autour de la clé. Hors chaîne, il faudrait écrire <code>$f["titre"]</code>. Les deux sont valides, mais le premier économise des lignes quand on affiche.</p>
+      <p><strong>En vrai projet</strong> (Leboncoin, IMDb) : <code>$films</code> ne serait pas écrit en dur, il viendrait d'une base de données (Jour 3) ou d'un fichier JSON.</p>
+    </div>
+  </div>
+
+  <!-- EXO 2.4 -->
+  <div class="exercise" id="ex-2-4">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 2.4</div>
+      <div class="exercise-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-2-4')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Moyenne de classe</h3>
+    <p>Écrivez une fonction <code>moyenne($notes)</code> qui prend un tableau de notes (entiers ou décimaux) et retourne leur moyenne arrondie à <strong>une décimale</strong>.</p>
+    <p>Testez avec : <code>[12, 15, 8, 17, 14, 11, 9]</code>. Puis affichez aussi la note la plus haute et la plus basse.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Notes : 12, 15, 8, 17, 14, 11, 9
+Moyenne : 12.3
+Note la plus haute : 17
+Note la plus basse : 8</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-2-4')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-2-4')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-2-4">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li>Pour la somme : boucle <code>foreach</code> avec une variable <code>$total</code> qui s'incrémente.</li>
+        <li>Diviser le total par <code>count($notes)</code>.</li>
+        <li><code>round($valeur, 1)</code> arrondit à une décimale.</li>
+        <li>Pour la plus haute / plus basse : <code>max()</code> et <code>min()</code> — fonctions natives qui acceptent directement un tableau.</li>
+        <li><code>implode(", ", $notes)</code> pour afficher les notes séparées par des virgules.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-2-4">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">moyenne</span>(<span class="tk-kw">$notes</span>) {
+    <span class="tk-kw">$total</span> = <span class="tk-num">0</span>;
+    <span class="tk-kw">foreach</span> (<span class="tk-kw">$notes</span> <span class="tk-kw">as</span> <span class="tk-kw">$n</span>) {
+        <span class="tk-kw">$total</span> += <span class="tk-kw">$n</span>;
+    }
+    <span class="tk-kw">return</span> <span class="tk-fn">round</span>(<span class="tk-kw">$total</span> / <span class="tk-fn">count</span>(<span class="tk-kw">$notes</span>), <span class="tk-num">1</span>);
+}
+
+<span class="tk-kw">$notes</span> = [<span class="tk-num">12</span>, <span class="tk-num">15</span>, <span class="tk-num">8</span>, <span class="tk-num">17</span>, <span class="tk-num">14</span>, <span class="tk-num">11</span>, <span class="tk-num">9</span>];
+
+<span class="tk-fn">echo</span> <span class="tk-str">"Notes : "</span> . <span class="tk-fn">implode</span>(<span class="tk-str">", "</span>, <span class="tk-kw">$notes</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Moyenne : "</span> . <span class="tk-fn">moyenne</span>(<span class="tk-kw">$notes</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Note la plus haute : "</span> . <span class="tk-fn">max</span>(<span class="tk-kw">$notes</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Note la plus basse : "</span> . <span class="tk-fn">min</span>(<span class="tk-kw">$notes</span>);
+<span class="tk-php">?&gt;</span></pre>
+      <p>Cet exercice combine : <strong>fonction</strong> (Bloc 1), <strong>foreach</strong> (rappel Jour 1), <strong>count</strong> (Bloc 2), <strong>implode</strong> (Bloc 3), et les fonctions natives <code>max</code>/<code>min</code>/<code>round</code>.</p>
+      <p>Note : PHP fournit aussi <code>array_sum($notes)</code> qui fait la somme directement — vous pourriez l'utiliser à la place de la boucle. Mais l'écrire à la main fait travailler le <code>foreach</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BLOC 3 — Chaînes
+     ============================================================ -->
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">03</div>
+    <div>
+      <div class="block-eyebrow">Bloc chaînes</div>
+      <h2>Couper, recoller, <em>nettoyer</em>.</h2>
+    </div>
+    <div class="block-duration">~45 min · 3 exos</div>
+  </div>
+  <p class="block-intro">Trois exercices pour pratiquer les manipulations de chaînes. Le dernier extrait des données réelles d'une saisie utilisateur — le genre de problème qu'on voit tous les jours en production.</p>
+
+  <!-- EXO 3.1 -->
+  <div class="exercise" id="ex-3-1">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 3.1</div>
+      <div class="exercise-meta">
+        <span class="duration">10 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-3-1')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Mini-formateur de texte</h3>
+    <p>À partir de la phrase « bonjour tout le monde », produisez les variantes suivantes :</p>
+    <ol>
+      <li>Tout en MAJUSCULES.</li>
+      <li>Tout en minuscules (déjà le cas, mais appliquez la fonction).</li>
+      <li>Avec une majuscule à chaque mot.</li>
+      <li>Sa longueur (espaces inclus).</li>
+    </ol>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>BONJOUR TOUT LE MONDE
+bonjour tout le monde
+Bonjour Tout Le Monde
+Longueur : 21</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-3-1')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-3-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-3-1">
+      <div class="hint-box-title">Indice</div>
+      <p>Quatre fonctions natives : <code>strtoupper()</code>, <code>strtolower()</code>, <code>ucwords()</code>, <code>strlen()</code>.</p>
+    </div>
+    <div class="solution-box" id="sol-3-1">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$phrase</span> = <span class="tk-str">"bonjour tout le monde"</span>;
+
+<span class="tk-fn">echo</span> <span class="tk-fn">strtoupper</span>(<span class="tk-kw">$phrase</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-fn">strtolower</span>(<span class="tk-kw">$phrase</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-fn">ucwords</span>(<span class="tk-kw">$phrase</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Longueur : "</span> . <span class="tk-fn">strlen</span>(<span class="tk-kw">$phrase</span>);
+<span class="tk-php">?&gt;</span></pre>
+      <p>Une fonction par ligne, chacune ne fait qu'une chose. Si vous deviez en plus mettre seulement la première lettre de la phrase en majuscule (sans toucher aux autres mots), ce serait <code>ucfirst()</code>.</p>
+    </div>
+  </div>
+
+  <!-- EXO 3.2 -->
+  <div class="exercise" id="ex-3-2">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 3.2</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-3-2')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Extracteur de domaine</h3>
+    <p>Écrivez une fonction <code>extraireDomaine($email)</code> qui prend un email et retourne uniquement la partie après le <code>@</code>. Si l'email ne contient pas d'arobase, retournez la chaîne « invalide ».</p>
+    <p>Testez avec : <code>"marie@gmail.com"</code>, <code>"contact@ecoleit.fr"</code>, <code>"pas-un-email"</code>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>marie@gmail.com → gmail.com
+contact@ecoleit.fr → ecoleit.fr
+pas-un-email → invalide</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-3-2')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-3-2')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-3-2">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li>Pour vérifier la présence du <code>@</code> : <code>str_contains($email, "@")</code> retourne <code>true</code> ou <code>false</code>.</li>
+        <li>Pour découper autour du <code>@</code> : <code>explode("@", $email)</code> renvoie un tableau de 2 éléments. La partie domaine est à l'index <code>[1]</code>.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-3-2">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">extraireDomaine</span>(<span class="tk-kw">$email</span>) {
+    <span class="tk-kw">if</span> (!<span class="tk-fn">str_contains</span>(<span class="tk-kw">$email</span>, <span class="tk-str">"@"</span>)) {
+        <span class="tk-kw">return</span> <span class="tk-str">"invalide"</span>;
+    }
+    <span class="tk-kw">$parties</span> = <span class="tk-fn">explode</span>(<span class="tk-str">"@"</span>, <span class="tk-kw">$email</span>);
+    <span class="tk-kw">return</span> <span class="tk-kw">$parties</span>[<span class="tk-num">1</span>];
+}
+
+<span class="tk-kw">$tests</span> = [<span class="tk-str">"marie@gmail.com"</span>, <span class="tk-str">"contact@ecoleit.fr"</span>, <span class="tk-str">"pas-un-email"</span>];
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$tests</span> <span class="tk-kw">as</span> <span class="tk-kw">$e</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"$e → "</span> . <span class="tk-fn">extraireDomaine</span>(<span class="tk-kw">$e</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>Le <code>!</code> devant <code>str_contains</code> signifie « pas ». On lit : « si l'email ne contient PAS de @, alors retourner invalide ». Le <code>return</code> à l'intérieur du <code>if</code> arrête immédiatement la fonction.</p>
+      <p><strong>Limite de cette implémentation :</strong> elle ne gère pas les emails à plusieurs @ (comme <code>a@b@c</code>, qui n'est pas valide mais ne déclenche rien). Pour une vraie validation, on utiliserait <code>filter_var($email, FILTER_VALIDATE_EMAIL)</code>.</p>
+    </div>
+  </div>
+
+  <!-- EXO 3.3 -->
+  <div class="exercise" id="ex-3-3">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 3.3</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-3-3')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Nettoyeur de tags</h3>
+    <p>Un utilisateur saisit ses centres d'intérêt sous forme de chaîne : <code>"  PHP, javascript,  Python ,html "</code>. La saisie est sale : espaces inutiles, casse anarchique. Écrivez du code qui produit un <strong>tableau propre</strong> avec chaque tag :</p>
+    <ul>
+      <li>sans espaces en début/fin</li>
+      <li>tout en minuscules</li>
+    </ul>
+    <p>Affichez ensuite chaque tag sur une ligne, précédé d'un <code>#</code>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>#php
+#javascript
+#python
+#html</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-3-3')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-3-3')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-3-3">
+      <div class="hint-box-title">Indice</div>
+      <ol>
+        <li>D'abord, découper avec <code>explode(",", $saisie)</code> → vous obtenez un tableau.</li>
+        <li>Ensuite, parcourir avec <code>foreach</code> et appliquer <code>trim()</code> puis <code>strtolower()</code> à chaque tag.</li>
+        <li>Stocker les versions propres dans un nouveau tableau, ou modifier le tableau en place avec <code>foreach (... as &amp;$tag)</code> (référence).</li>
+      </ol>
+    </div>
+    <div class="solution-box" id="sol-3-3">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$saisie</span> = <span class="tk-str">"  PHP, javascript,  Python ,html "</span>;
+
+<span class="tk-com">// 1. Découper</span>
+<span class="tk-kw">$brut</span> = <span class="tk-fn">explode</span>(<span class="tk-str">","</span>, <span class="tk-kw">$saisie</span>);
+
+<span class="tk-com">// 2. Nettoyer chaque tag</span>
+<span class="tk-kw">$propre</span> = [];
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$brut</span> <span class="tk-kw">as</span> <span class="tk-kw">$tag</span>) {
+    <span class="tk-kw">$propre</span>[] = <span class="tk-fn">strtolower</span>(<span class="tk-fn">trim</span>(<span class="tk-kw">$tag</span>));
+}
+
+<span class="tk-com">// 3. Afficher</span>
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$propre</span> <span class="tk-kw">as</span> <span class="tk-kw">$tag</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"#$tag&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>L'ordre des appels compte : <code>trim()</code> d'abord pour virer les espaces, <code>strtolower()</code> ensuite. L'opérateur <code>[]</code> sur <code>$propre</code> ajoute à la fin du tableau, équivalent à <code>array_push</code>.</p>
+      <p><strong>Bonus :</strong> on peut tout faire en une seule ligne avec <code>array_map(fn($t) =&gt; strtolower(trim($t)), $brut)</code>. C'est plus court mais demande de connaître les fonctions anonymes — sujet du Jour 4.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BLOC 4 — Fichiers
+     ============================================================ -->
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">04</div>
+    <div>
+      <div class="block-eyebrow">Bloc fichiers</div>
+      <h2>Faire <em>survivre</em> les données.</h2>
+    </div>
+    <div class="block-duration">~45 min · 3 exos</div>
+  </div>
+  <p class="block-intro">Trois exercices pour pratiquer la persistance fichier. Vous allez écrire, lire, ajouter sans écraser — exactement ce qu'on utilisera dans le projet WebBlog cet après-midi pour stocker les articles avant de passer à MySQL demain.</p>
+
+  <!-- EXO 4.1 -->
+  <div class="exercise" id="ex-4-1">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 4.1</div>
+      <div class="exercise-meta">
+        <span class="duration">10 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-4-1')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Premier fichier</h3>
+    <p>Écrivez un script qui crée un fichier <code>citation.txt</code> contenant la phrase « PHP a été créé en 1994 par Rasmus Lerdorf. ». Puis lisez le fichier et affichez son contenu dans la page.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu (page + fichier créé)</span>
+      <pre>Fichier créé.
+Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-4-1')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-4-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-4-1">
+      <div class="hint-box-title">Indice</div>
+      <p>Deux fonctions à enchaîner : <code>file_put_contents("citation.txt", $texte)</code> pour écrire, puis <code>file_get_contents("citation.txt")</code> pour relire.</p>
+    </div>
+    <div class="solution-box" id="sol-4-1">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$texte</span> = <span class="tk-str">"PHP a été créé en 1994 par Rasmus Lerdorf."</span>;
+
+<span class="tk-fn">file_put_contents</span>(<span class="tk-str">"citation.txt"</span>, <span class="tk-kw">$texte</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Fichier créé.&lt;br&gt;"</span>;
+
+<span class="tk-kw">$contenu</span> = <span class="tk-fn">file_get_contents</span>(<span class="tk-str">"citation.txt"</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Contenu : $contenu"</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Le fichier est créé dans le même dossier que le script PHP. <strong>Si le fichier existait déjà</strong>, son contenu serait remplacé — exactement ce qu'il nous faut ici. Pour ajouter sans écraser, il faudra le drapeau <code>FILE_APPEND</code> (exo suivant).</p>
+    </div>
+  </div>
+
+  <!-- EXO 4.2 -->
+  <div class="exercise" id="ex-4-2">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 4.2</div>
+      <div class="exercise-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-4-2')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Journal de bord</h3>
+    <p>Écrivez une fonction <code>noterDansJournal($message)</code> qui ajoute une ligne au fichier <code>journal.txt</code> au format <code>[YYYY-MM-DD HH:MM:SS] message</code>. Les anciennes lignes doivent être <strong>conservées</strong>.</p>
+    <p>Appelez la fonction 3 fois avec des messages différents (mettez un <code>sleep(1);</code> entre chaque appel pour voir l'heure changer). Affichez ensuite le contenu du fichier.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu (contenu de journal.txt)</span>
+      <pre>[2025-12-06 09:15:00] Démarrage de la session
+[2025-12-06 09:15:01] Utilisateur connecté
+[2025-12-06 09:15:02] Article publié</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-4-2')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-4-2')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-4-2">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li>Pour la date au bon format : <code>date("Y-m-d H:i:s")</code>.</li>
+        <li>Pour ajouter sans écraser : <code>FILE_APPEND</code> en 3ᵉ argument de <code>file_put_contents</code>.</li>
+        <li>N'oubliez pas le <code>\n</code> à la fin de chaque ligne pour passer à la suivante.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-4-2">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">noterDansJournal</span>(<span class="tk-kw">$message</span>) {
+    <span class="tk-kw">$date</span> = <span class="tk-fn">date</span>(<span class="tk-str">"Y-m-d H:i:s"</span>);
+    <span class="tk-kw">$ligne</span> = <span class="tk-str">"[$date] $message\n"</span>;
+    <span class="tk-fn">file_put_contents</span>(<span class="tk-str">"journal.txt"</span>, <span class="tk-kw">$ligne</span>, <span class="tk-kw">FILE_APPEND</span>);
+}
+
+<span class="tk-fn">noterDansJournal</span>(<span class="tk-str">"Démarrage de la session"</span>);
+<span class="tk-fn">sleep</span>(<span class="tk-num">1</span>);
+<span class="tk-fn">noterDansJournal</span>(<span class="tk-str">"Utilisateur connecté"</span>);
+<span class="tk-fn">sleep</span>(<span class="tk-num">1</span>);
+<span class="tk-fn">noterDansJournal</span>(<span class="tk-str">"Article publié"</span>);
+
+<span class="tk-fn">echo</span> <span class="tk-str">"&lt;pre&gt;"</span> . <span class="tk-fn">file_get_contents</span>(<span class="tk-str">"journal.txt"</span>) . <span class="tk-str">"&lt;/pre&gt;"</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Sans <code>FILE_APPEND</code>, chaque appel écraserait l'intégralité du journal et il ne resterait que la dernière ligne. <strong>C'est le piège du QCM Q21</strong>. La balise <code>&lt;pre&gt;</code> affiche le texte tel quel, en respectant les sauts de ligne.</p>
+      <p><strong>En production :</strong> ce code est utilisé dans tous les sites pour tracer les actions importantes. C'est exactement ce que vous adapterez pour le WebBlog cet après-midi.</p>
+    </div>
+  </div>
+
+  <!-- EXO 4.3 -->
+  <div class="exercise" id="ex-4-3">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 4.3</div>
+      <div class="exercise-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-4-3')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Compteur de visites</h3>
+    <p>Créez un script <code>compteur.php</code> qui à chaque appel :</p>
+    <ol>
+      <li>lit le contenu du fichier <code>visites.txt</code> (qui contient un nombre, ou est inexistant la première fois) ;</li>
+      <li>incrémente ce nombre de 1 ;</li>
+      <li>écrit le nouveau nombre dans le fichier ;</li>
+      <li>affiche « Vous êtes le visiteur n° X. »</li>
+    </ol>
+    <p>À chaque actualisation de la page, le compteur doit augmenter de 1.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu (3 actualisations)</span>
+      <pre>1er appel  → Vous êtes le visiteur n° 1.
+2e appel   → Vous êtes le visiteur n° 2.
+3e appel   → Vous êtes le visiteur n° 3.</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-4-3')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-4-3')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-4-3">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li>Toujours commencer par <code>file_exists("visites.txt")</code> — sinon erreur au premier appel.</li>
+        <li>Si le fichier n'existe pas : initialiser <code>$nombre = 0</code>. Sinon : <code>$nombre = (int) file_get_contents("visites.txt")</code> (le <code>(int)</code> convertit la chaîne lue en entier).</li>
+        <li>Incrémenter, puis écrire avec <code>file_put_contents</code> <strong>sans</strong> <code>FILE_APPEND</code> (on veut écraser la valeur précédente, pas l'ajouter à la suite).</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-4-3">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$fichier</span> = <span class="tk-str">"visites.txt"</span>;
+
+<span class="tk-com">// 1. Lire (ou initialiser)</span>
+<span class="tk-kw">if</span> (<span class="tk-fn">file_exists</span>(<span class="tk-kw">$fichier</span>)) {
+    <span class="tk-kw">$nombre</span> = (<span class="tk-kw">int</span>) <span class="tk-fn">file_get_contents</span>(<span class="tk-kw">$fichier</span>);
+} <span class="tk-kw">else</span> {
+    <span class="tk-kw">$nombre</span> = <span class="tk-num">0</span>;
+}
+
+<span class="tk-com">// 2. Incrémenter</span>
+<span class="tk-kw">$nombre</span>++;
+
+<span class="tk-com">// 3. Écrire (sans FILE_APPEND — on remplace)</span>
+<span class="tk-fn">file_put_contents</span>(<span class="tk-kw">$fichier</span>, <span class="tk-kw">$nombre</span>);
+
+<span class="tk-com">// 4. Afficher</span>
+<span class="tk-fn">echo</span> <span class="tk-str">"Vous êtes le visiteur n° $nombre."</span>;
+<span class="tk-php">?&gt;</span></pre>
+      <p>Trois choses à noter :</p>
+      <ul>
+        <li><code>(int)</code> est un <strong>cast</strong> qui convertit la chaîne lue (par exemple <code>"42"</code>) en entier (<code>42</code>). Sans ça, on additionnerait une chaîne à un nombre — PHP le fait mais c'est sale.</li>
+        <li><strong>Pas de <code>FILE_APPEND</code></strong> cette fois : on veut <em>écraser</em> l'ancienne valeur par la nouvelle. Le compteur a une seule valeur, pas un historique.</li>
+        <li>Le <code>++</code> est l'incrément : équivalent à <code>$nombre = $nombre + 1</code>.</li>
+      </ul>
+      <p><strong>Limite :</strong> en cas d'accès concurrents (plusieurs visiteurs au même instant), deux scripts peuvent lire la même valeur et écrire la même nouvelle valeur — un visiteur est perdu. La parade s'appelle un <em>verrou fichier</em> (<code>flock</code>), hors programme aujourd'hui mais à connaître pour la prod.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DEFI FINAL
+     ============================================================ -->
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">05</div>
+    <div>
+      <div class="block-eyebrow">Défi de fin de matinée</div>
+      <h2>Combiner <em>les quatre blocs</em>.</h2>
+    </div>
+    <div class="block-duration">~30 min · 1 exo</div>
+  </div>
+  <p class="block-intro">Un dernier exercice qui réunit fonctions, tableaux associatifs, manipulation de chaînes et fichiers. Si vous arrivez à le terminer avant midi, vous êtes parés pour le projet WebBlog de l'après-midi.</p>
+
+  <!-- EXO 5.1 -->
+  <div class="exercise" id="ex-5-1">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 5.1</div>
+      <div class="exercise-meta">
+        <span class="duration">30 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-5-1')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Mini-annuaire de contacts</h3>
+    <p>Construisez un script qui gère un annuaire de contacts. Chaque contact est un tableau associatif avec : <code>nom</code>, <code>email</code>, <code>telephone</code>. L'annuaire entier est stocké dans le fichier <code>contacts.txt</code>, un contact par ligne au format <code>nom|email|telephone</code>.</p>
+    <p>Le script doit comporter :</p>
+    <ol>
+      <li>une fonction <code>ajouterContact($nom, $email, $tel)</code> qui :
+        <ul>
+          <li>valide que l'email contient un <code>@</code> (sinon retourne false sans rien faire) ;</li>
+          <li>met le nom en majuscule à la première lettre (<code>ucfirst</code>) ;</li>
+          <li>nettoie tous les champs avec <code>trim</code> ;</li>
+          <li>ajoute la ligne au fichier (sans écraser).</li>
+        </ul>
+      </li>
+      <li>une fonction <code>listerContacts()</code> qui lit le fichier, retourne un tableau multidimensionnel (un sous-tableau associatif par contact), et le retourne.</li>
+      <li>un appel des deux : ajoutez 3 contacts (dont un avec un email invalide), puis affichez la liste finale.</li>
+    </ol>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Contact "marie dupont" ajouté.
+Contact "PIERRE" REJETÉ (email invalide).
+Contact "alice martin" ajouté.
+
+=== ANNUAIRE ===
+• Marie dupont — marie@gmail.com — 0601020304
+• Alice martin — alice@yahoo.fr — 0612345678</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-5-1')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-5-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-5-1">
+      <div class="hint-box-title">Indice — Plan d'attaque</div>
+      <ol>
+        <li><strong>ajouterContact</strong> : trim chaque paramètre, ucfirst sur le nom, vérifier <code>str_contains($email, "@")</code>, construire la ligne <code>"$nom|$email|$tel\n"</code>, écrire avec <code>FILE_APPEND</code>.</li>
+        <li><strong>listerContacts</strong> : <code>file("contacts.txt")</code> donne un tableau de lignes. Pour chaque ligne, <code>explode("|", $ligne)</code> donne un tableau de 3 morceaux. Construire un sous-tableau associatif.</li>
+        <li>Pour effacer le fichier avant chaque test : <code>file_put_contents("contacts.txt", "")</code>.</li>
+      </ol>
+    </div>
+    <div class="solution-box" id="sol-5-1">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$fichier</span> = <span class="tk-str">"contacts.txt"</span>;
+
+<span class="tk-com">// On efface au début pour repartir propre à chaque test</span>
+<span class="tk-fn">file_put_contents</span>(<span class="tk-kw">$fichier</span>, <span class="tk-str">""</span>);
+
+<span class="tk-kw">function</span> <span class="tk-fn">ajouterContact</span>(<span class="tk-kw">$nom</span>, <span class="tk-kw">$email</span>, <span class="tk-kw">$tel</span>) {
+    <span class="tk-kw">$nom</span>   = <span class="tk-fn">ucfirst</span>(<span class="tk-fn">trim</span>(<span class="tk-kw">$nom</span>));
+    <span class="tk-kw">$email</span> = <span class="tk-fn">trim</span>(<span class="tk-kw">$email</span>);
+    <span class="tk-kw">$tel</span>   = <span class="tk-fn">trim</span>(<span class="tk-kw">$tel</span>);
+
+    <span class="tk-kw">if</span> (!<span class="tk-fn">str_contains</span>(<span class="tk-kw">$email</span>, <span class="tk-str">"@"</span>)) {
+        <span class="tk-kw">return</span> <span class="tk-kw">false</span>;
+    }
+
+    <span class="tk-kw">$ligne</span> = <span class="tk-str">"$nom|$email|$tel\n"</span>;
+    <span class="tk-fn">file_put_contents</span>(<span class="tk-str">"contacts.txt"</span>, <span class="tk-kw">$ligne</span>, <span class="tk-kw">FILE_APPEND</span>);
+    <span class="tk-kw">return</span> <span class="tk-kw">true</span>;
+}
+
+<span class="tk-kw">function</span> <span class="tk-fn">listerContacts</span>() {
+    <span class="tk-kw">$contacts</span> = [];
+    <span class="tk-kw">if</span> (!<span class="tk-fn">file_exists</span>(<span class="tk-str">"contacts.txt"</span>)) <span class="tk-kw">return</span> <span class="tk-kw">$contacts</span>;
+
+    <span class="tk-kw">$lignes</span> = <span class="tk-fn">file</span>(<span class="tk-str">"contacts.txt"</span>, <span class="tk-kw">FILE_IGNORE_NEW_LINES</span>);
+    <span class="tk-kw">foreach</span> (<span class="tk-kw">$lignes</span> <span class="tk-kw">as</span> <span class="tk-kw">$l</span>) {
+        <span class="tk-kw">$parts</span> = <span class="tk-fn">explode</span>(<span class="tk-str">"|"</span>, <span class="tk-kw">$l</span>);
+        <span class="tk-kw">$contacts</span>[] = [
+            <span class="tk-str">"nom"</span>       =&gt; <span class="tk-kw">$parts</span>[<span class="tk-num">0</span>],
+            <span class="tk-str">"email"</span>     =&gt; <span class="tk-kw">$parts</span>[<span class="tk-num">1</span>],
+            <span class="tk-str">"telephone"</span> =&gt; <span class="tk-kw">$parts</span>[<span class="tk-num">2</span>]
+        ];
+    }
+    <span class="tk-kw">return</span> <span class="tk-kw">$contacts</span>;
+}
+
+<span class="tk-com">// --- Tests ---</span>
+<span class="tk-kw">if</span> (<span class="tk-fn">ajouterContact</span>(<span class="tk-str">"  marie dupont "</span>, <span class="tk-str">"marie@gmail.com"</span>, <span class="tk-str">"0601020304"</span>)) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"Contact \"marie dupont\" ajouté.&lt;br&gt;"</span>;
+}
+<span class="tk-kw">if</span> (!<span class="tk-fn">ajouterContact</span>(<span class="tk-str">"PIERRE"</span>, <span class="tk-str">"pas-un-email"</span>, <span class="tk-str">"0701020304"</span>)) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"Contact \"PIERRE\" REJETÉ (email invalide).&lt;br&gt;"</span>;
+}
+<span class="tk-kw">if</span> (<span class="tk-fn">ajouterContact</span>(<span class="tk-str">"alice martin"</span>, <span class="tk-str">"alice@yahoo.fr"</span>, <span class="tk-str">"0612345678"</span>)) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"Contact \"alice martin\" ajouté.&lt;br&gt;"</span>;
+}
+
+<span class="tk-fn">echo</span> <span class="tk-str">"&lt;br&gt;=== ANNUAIRE ===&lt;br&gt;"</span>;
+<span class="tk-kw">foreach</span> (<span class="tk-fn">listerContacts</span>() <span class="tk-kw">as</span> <span class="tk-kw">$c</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"• $c[nom] — $c[email] — $c[telephone]&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>Cet exercice est un <strong>condensé</strong> de toute la matinée :</p>
+      <ul>
+        <li><strong>Fonctions</strong> avec paramètres + valeur de retour (Bloc 1).</li>
+        <li><strong>Tableau associatif</strong> et tableau multidimensionnel (Bloc 2).</li>
+        <li><strong>trim, ucfirst, str_contains, explode</strong> (Bloc 3).</li>
+        <li><strong>file_put_contents avec FILE_APPEND, file_exists, file</strong> (Bloc 4).</li>
+      </ul>
+      <p>Le drapeau <code>FILE_IGNORE_NEW_LINES</code> dans <code>file()</code> évite que chaque ligne lue contienne un <code>\n</code> en fin — sans lui, le téléphone aurait un retour à la ligne collé.</p>
+      <p><strong>C'est exactement le squelette du WebBlog</strong> : un article = un contact, ajouter = publier un article, lister = afficher la page d'accueil. Cet après-midi, on ajoute une interface HTML et on remplace les valeurs en dur par celles d'un formulaire (Jour 3).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FINALE - Vers l'après-midi
+     ============================================================ -->
+<div class="finale reveal">
+  <div class="finale-card">
+    <div class="finale-eyebrow">Cap sur l'après-midi</div>
+    <h2>Maintenant, place au <em>WebBlog</em>.</h2>
+    <p>Si vous avez fait le défi 5.1, vous avez déjà construit <strong>50 % du WebBlog</strong> : une fonction qui ajoute une donnée, une fonction qui les liste, le tout persistant dans un fichier. Cet après-midi, on rajoute l'interface HTML, le formulaire de saisie, et on l'enveloppe dans une vraie page.</p>
+    <p>Si vous n'avez pas eu le temps de tout faire : pas grave, terminez ce qui reste après le déjeuner. Mais essayez au minimum d'avoir validé les <strong>blocs 1 et 4</strong>, parce qu'ils sont au cœur du projet de l'après-midi.</p>
+    <div class="pm-time">▶ Reprise : 14h00 — Brief WebBlog</div>
+  </div>
+</div>
+
+<div class="end-mark">— Fin des exercices du matin —</div>
+<div class="end-spacer"></div>
+
+<!-- ============================================================
+     PROGRESS WIDGET
+     ============================================================ -->
+<div class="progress-widget">
+  <div class="pw-ring">
+    <svg viewBox="0 0 36 36">
+      <circle class="bg-ring" cx="18" cy="18" r="15"></circle>
+      <circle class="fg-ring" cx="18" cy="18" r="15"
+              stroke-dasharray="0 94.2"></circle>
+    </svg>
+  </div>
+  <div>
+    <div class="pw-count"><span class="pw-done" id="pwDone">0</span> <span style="color:var(--text-dim)">/ 20</span></div>
+    <div class="pw-label">exos validés</div>
+  </div>
+</div>
+
+<script>
+  // PROGRESS BAR (scroll)
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = (window.scrollY / max) * 100;
+    progressBar.style.width = pct + '%';
+  });
+
+  // REVEAL ON SCROLL
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(r => io.observe(r));
+
+  // Mots de passe par solution (un par exercice).
+  // Le prof peut les diffuser au compte-gouttes après le délai d'auto-correction.
+  const SOLUTION_PASSWORDS = {
+    'sol-0-1': 'hello',
+    'sol-0-2': 'echo',
+    'sol-0-3': 'concat',
+    'sol-0-4': 'typage',
+    'sol-0-5': 'casting',
+    'sol-1-1': 'function',
+    'sol-1-2': 'return',
+    'sol-1-3': 'scope',
+    'sol-1-4': 'default',
+    'sol-2-1': 'array',
+    'sol-2-2': 'index',
+    'sol-2-3': 'assoc',
+    'sol-2-4': 'multi',
+    'sol-3-1': 'strlen',
+    'sol-3-2': 'substr',
+    'sol-3-3': 'trim',
+    'sol-4-1': 'foreach',
+    'sol-4-2': 'while',
+    'sol-4-3': 'break',
+    'sol-5-1': 'webblog'
+  };
+  const unlockedSolutions = new Set();
+
+  // TOGGLE BOX (hints + solutions)
+  function toggleBox(btn, targetId) {
+    const box = document.getElementById(targetId);
+
+    // Les solutions sont protégées par un MDP unique.
+    if (targetId.startsWith('sol-') && !unlockedSolutions.has(targetId)) {
+      const expected = SOLUTION_PASSWORDS[targetId];
+      if (!expected) {
+        // Pas de MDP configuré pour cette solution : on ouvre normalement.
+        unlockedSolutions.add(targetId);
+      } else {
+        const entered = prompt('🔐 Mot de passe pour déverrouiller la solution :');
+        if (entered === null) return;
+        if (entered.trim().toLowerCase() !== expected.toLowerCase()) {
+          alert('❌ Mot de passe incorrect.');
+          return;
+        }
+        unlockedSolutions.add(targetId);
+      }
+    }
+
+    box.classList.toggle('open');
+    btn.classList.toggle('open');
+  }
+
+  // DONE TOGGLE — mémoire en session uniquement (pas de localStorage)
+  const totalExos = document.querySelectorAll('.exercise').length;
+  const pwDone = document.getElementById('pwDone');
+  const fgRing = document.querySelector('.progress-widget .fg-ring');
+  const circumference = 94.2; // 2*PI*15
+
+  function updateProgress() {
+    const doneCount = document.querySelectorAll('.exercise.done').length;
+    pwDone.textContent = doneCount;
+    const ratio = doneCount / totalExos;
+    fgRing.setAttribute('stroke-dasharray', `${ratio * circumference} ${circumference}`);
+  }
+
+  function toggleDone(exId) {
+    const ex = document.getElementById(exId);
+    ex.classList.toggle('done');
+    const btn = ex.querySelector('.done-toggle');
+    const check = btn.querySelector('.check');
+    if (ex.classList.contains('done')) {
+      check.textContent = '●';
+      btn.lastChild.textContent = ' Fait';
+    } else {
+      check.textContent = '○';
+      btn.lastChild.textContent = ' Fait';
+    }
+    updateProgress();
+  }
+
+  updateProgress();
+</script>
+
+</body>
+</html>
