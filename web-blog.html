@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebBlog — Tuto pas-à-pas · J1 · J2 · J3</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.7; color: var(--text);
+    background: var(--bg); -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; position: relative; min-height: 100vh;
+  }
+  ::selection { background: var(--primary); color: var(--bg); }
+  :root {
+    --bg: #0a0a0f; --bg-soft: #11111a; --bg-elev: #16161f;
+    --card: rgba(255,255,255,0.025); --card-hover: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.14);
+    --text: #e8e8ed; --text-soft: #a0a0b0; --text-dim: #6b6b78;
+    --primary: #a78bfa; --primary-bright: #c4b5fd;
+    --primary-glow: rgba(167,139,250,0.15);
+    --accent: #fb923c; --accent-soft: rgba(251,146,60,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --amber: #fbbf24; --amber-soft: rgba(251,191,36,0.1);
+    --blue: #60a5fa; --blue-soft: rgba(96,165,250,0.1);
+    --code-bg: #0d0d18;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+    background-size: 28px 28px; pointer-events: none; z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167,139,250,0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(251,146,60,0.05), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  main, section, .hero { position: relative; z-index: 1; }
+
+  .progress-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    z-index: 1000; width: 0%; transition: width 0.1s ease;
+    box-shadow: 0 0 12px var(--primary-glow);
+  }
+  .hero {
+    display: flex; flex-direction: column;
+    padding: 4rem 2rem 3rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    padding: 0.5rem 1rem; border: 1px solid var(--border);
+    border-radius: 999px; font-size: 0.78rem; font-weight: 500;
+    color: var(--text-soft); width: fit-content; margin-bottom: 2rem;
+    background: var(--card); backdrop-filter: blur(10px);
+    opacity: 0; animation: slideUp 0.8s 0.1s var(--easing) forwards;
+  }
+  .hero-eyebrow .dot {
+    width: 7px; height: 7px; background: var(--green);
+    border-radius: 50%; box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .hero-eyebrow .sep { color: var(--text-dim); }
+  .hero-eyebrow .accent { color: var(--accent); font-weight: 600; }
+  .hero h1 {
+    font-size: clamp(2.8rem, 7vw, 5.5rem); font-weight: 800;
+    line-height: 0.95; letter-spacing: -0.04em;
+    margin-bottom: 2rem; color: var(--text);
+    opacity: 0; animation: slideUp 0.8s 0.2s var(--easing) forwards;
+  }
+  .hero h1 .line { display: block; }
+  .hero h1 .word-accent {
+    background: linear-gradient(135deg, var(--primary) 20%, var(--accent) 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    font-style: italic; font-weight: 700;
+  }
+  .hero h1 .word-outline {
+    color: transparent; -webkit-text-stroke: 1.5px var(--text-soft);
+    font-style: italic; font-weight: 700;
+  }
+  .hero-lead {
+    font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--text-soft);
+    max-width: 700px; line-height: 1.65;
+    opacity: 0; animation: slideUp 0.8s 0.3s var(--easing) forwards;
+  }
+  .hero-meta {
+    margin-top: 3rem; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.6rem; max-width: 820px;
+    padding-top: 2rem; border-top: 1px solid var(--border);
+    opacity: 0; animation: slideUp 0.8s 0.5s var(--easing) forwards;
+  }
+  .hero-meta-item .num {
+    font-size: 2.2rem; font-weight: 700;
+    font-feature-settings: "tnum"; letter-spacing: -0.02em;
+    background: linear-gradient(180deg, var(--text), var(--text-soft));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .hero-meta-item .label {
+    font-size: 0.78rem; color: var(--text-dim);
+    margin-top: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.4); } }
+
+  section.block {
+    max-width: 1100px; margin: 0 auto;
+    padding: 4rem 2rem 2rem; position: relative;
+  }
+  section.block::before {
+    content: ''; position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%); width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .block-header {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 2rem; align-items: baseline; margin-bottom: 1.5rem;
+  }
+  .block-num {
+    font-size: clamp(3rem, 6vw, 5rem); font-weight: 800;
+    font-style: italic; letter-spacing: -0.04em;
+    line-height: 0.9; color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    user-select: none; font-feature-settings: "tnum";
+  }
+  .block-eyebrow {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 0.6rem;
+  }
+  .block-header h2 {
+    font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.025em;
+    color: var(--text);
+  }
+  .block-header h2 em {
+    font-style: italic; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .block-duration {
+    font-size: 0.85rem; color: var(--text-dim);
+    text-align: right; font-family: "JetBrains Mono", monospace;
+    padding: 0.4rem 0.9rem; border: 1px solid var(--border);
+    border-radius: 999px; background: var(--card); white-space: nowrap;
+  }
+  .block-intro {
+    font-size: 1rem; color: var(--text-soft);
+    margin-bottom: 1.8rem; max-width: 780px; line-height: 1.65;
+  }
+  .block-intro code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.12rem 0.45rem; border-radius: 5px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+
+  .reveal { opacity: 1; transform: none; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  .step {
+    background: var(--card); backdrop-filter: blur(10px);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 1.8rem 2rem; margin: 1.4rem 0;
+    position: relative; overflow: hidden;
+    transition: all 0.35s var(--easing);
+  }
+  .step::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .step.done {
+    border-color: rgba(74,222,128,0.3);
+    background: linear-gradient(135deg, rgba(74,222,128,0.04), rgba(255,255,255,0.015));
+  }
+  .step.done::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+  .step-head {
+    display: flex; align-items: flex-start; gap: 1rem;
+    margin-bottom: 1rem; flex-wrap: wrap;
+  }
+  .step-id {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--accent); background: var(--accent-soft);
+    border: 1px solid rgba(251,146,60,0.2);
+    padding: 0.3rem 0.7rem; border-radius: 7px; white-space: nowrap;
+  }
+  .step-meta {
+    display: flex; align-items: center; gap: 0.7rem;
+    flex-wrap: wrap; margin-left: auto;
+    font-size: 0.78rem; color: var(--text-dim);
+  }
+  .duration {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem; color: var(--text-dim);
+    padding: 0.18rem 0.55rem;
+    border: 1px solid var(--border); border-radius: 6px;
+  }
+  .done-toggle {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 7px; padding: 0.3rem 0.7rem;
+    color: var(--text-dim); font-size: 0.78rem;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.25s var(--easing);
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .done-toggle:hover { border-color: var(--green); color: var(--green); }
+  .step.done .done-toggle {
+    background: var(--green-soft); border-color: var(--green); color: var(--green);
+  }
+  .step h3 {
+    font-size: 1.22rem; font-weight: 700;
+    margin: 0 0 0.7rem; color: var(--text);
+    letter-spacing: -0.005em; line-height: 1.35;
+  }
+  .step p {
+    color: var(--text-soft); margin-bottom: 0.8rem;
+    line-height: 1.65; max-width: 820px;
+  }
+  .step p code, .step li code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.12rem 0.45rem; border-radius: 5px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .step strong { color: var(--text); }
+  .step ul, .step ol {
+    margin: 0.6rem 0 1rem 1.5rem; color: var(--text-soft);
+  }
+  .step li { margin-bottom: 0.3rem; }
+  .step li::marker { color: var(--accent); }
+
+  .what-todo {
+    background: linear-gradient(135deg, rgba(167,139,250,0.06), rgba(251,146,60,0.03));
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    margin: 0.4rem 0 1.2rem;
+    font-size: 0.95rem; color: var(--text-soft);
+  }
+  .what-todo strong { color: var(--primary-bright); }
+
+  .file-path {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem; color: var(--primary-bright);
+    background: var(--bg-elev);
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 0.35rem 0.75rem;
+    margin: 0.5rem 0 0.8rem;
+  }
+  .file-path::before { content: '📄'; font-size: 0.9rem; }
+  .file-path.new::before { content: '✨'; }
+  .file-path.edit::before { content: '✏️'; }
+
+  pre.code {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.2rem;
+    margin: 0.7rem 0 1rem; overflow-x: auto;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.84rem; line-height: 1.7;
+    color: var(--text); white-space: pre;
+  }
+  pre.code .tk-php { color: #f97316; }
+  pre.code .tk-kw { color: #c4b5fd; }
+  pre.code .tk-str { color: #86efac; }
+  pre.code .tk-var { color: #fbbf24; }
+  pre.code .tk-com { color: var(--text-dim); font-style: italic; }
+  pre.code .tk-fn { color: #60a5fa; }
+  pre.code .tk-num { color: #f9a8d4; }
+  pre.code .tk-tag { color: #f87171; }
+  pre.code .tk-attr { color: #fbbf24; }
+  pre.code .tk-sql { color: #c4b5fd; font-weight: 600; }
+
+  .test-url {
+    display: flex; align-items: center; gap: 0.6rem;
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.7rem 1rem;
+    margin: 0.6rem 0 0.9rem; flex-wrap: wrap;
+  }
+  .test-url .lbl {
+    font-size: 0.72rem; font-weight: 600; color: var(--blue);
+    text-transform: uppercase; letter-spacing: 0.13em; white-space: nowrap;
+  }
+  .test-url code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem; color: var(--text);
+    background: transparent !important; border: none !important;
+    padding: 0 !important; word-break: break-all;
+  }
+
+  .expected {
+    background: linear-gradient(135deg, rgba(74,222,128,0.05), rgba(74,222,128,0.01));
+    border-left: 3px solid var(--green);
+    border-radius: 10px; padding: 0.9rem 1.1rem;
+    margin: 0.7rem 0 0.9rem;
+  }
+  .expected-title {
+    font-size: 0.72rem; font-weight: 700; color: var(--green);
+    text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 0.5rem;
+  }
+  .expected-content {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem; line-height: 1.6; color: var(--green);
+    white-space: pre-wrap;
+  }
+
+  .callout {
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.85rem 1.1rem; margin: 0.7rem 0;
+    font-size: 0.92rem; line-height: 1.6; color: var(--text-soft);
+  }
+  .callout strong { color: var(--text); }
+  .callout code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.12rem 0.4rem; border-radius: 5px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .callout.tip {
+    background: linear-gradient(135deg, rgba(96,165,250,0.05), rgba(96,165,250,0.01));
+    border-left: 3px solid var(--blue);
+  }
+  .callout.tip .title { color: var(--blue); }
+  .callout.warn {
+    background: linear-gradient(135deg, rgba(251,191,36,0.05), rgba(251,191,36,0.01));
+    border-left: 3px solid var(--amber);
+  }
+  .callout.warn .title { color: var(--amber); }
+  .callout.err {
+    background: linear-gradient(135deg, rgba(248,113,113,0.05), rgba(248,113,113,0.01));
+    border-left: 3px solid var(--red);
+  }
+  .callout.err .title { color: var(--red); }
+  .callout .title {
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 0.35rem;
+  }
+  .callout ul, .callout ol { margin: 0.3rem 0 0 1.2rem; }
+  .callout li { margin-bottom: 0.25rem; }
+
+  .progress-widget {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: rgba(13,13,24,0.92); backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 0.9rem 1.2rem; z-index: 100;
+    display: flex; align-items: center; gap: 0.9rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    transition: all 0.3s var(--easing);
+  }
+  .progress-widget:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .progress-widget .pw-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.05rem; font-weight: 700; color: var(--text);
+  }
+  .progress-widget .pw-count .pw-done { color: var(--green); }
+  .progress-widget .pw-label {
+    font-size: 0.72rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.3;
+  }
+  .progress-widget .pw-ring { width: 36px; height: 36px; position: relative; }
+  .progress-widget .pw-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .progress-widget .pw-ring circle { fill: none; stroke-width: 3; }
+  .progress-widget .pw-ring .bg-ring { stroke: var(--border); }
+  .progress-widget .pw-ring .fg-ring {
+    stroke: url(#pwGrad); stroke-linecap: round;
+    transition: stroke-dasharray 0.5s var(--easing);
+  }
+
+  .finale {
+    max-width: 1100px; margin: 0 auto;
+    padding: 4rem 2rem 2rem;
+  }
+  .finale-card {
+    background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(251,146,60,0.05));
+    border: 1px solid var(--border-strong); border-radius: 22px;
+    padding: 2.6rem 2.4rem;
+    position: relative; overflow: hidden; text-align: center;
+  }
+  .finale-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+  }
+  .finale-eyebrow {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 0.9rem;
+  }
+  .finale-card h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+    color: var(--text); margin-bottom: 1rem;
+  }
+  .finale-card h2 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .finale-card p {
+    color: var(--text-soft); max-width: 720px; margin: 0 auto 1rem; line-height: 1.65;
+  }
+  .end-spacer { height: 5rem; }
+
+  @media (max-width: 800px) {
+    .block-header { grid-template-columns: 1fr; gap: 0.6rem; }
+    .block-num { font-size: 3.5rem; }
+    .block-duration { justify-self: start; }
+    section.block { padding: 3rem 1.2rem 1.5rem; }
+    .step { padding: 1.4rem 1.3rem; }
+    .hero { padding: 3rem 1.2rem; }
+    .progress-widget { bottom: 1rem; right: 1rem; padding: 0.7rem 1rem; }
+    .progress-widget .pw-label { display: none; }
+    .finale { padding: 3rem 1.2rem 1.5rem; }
+    .finale-card { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="pwGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    <span>1PHP3</span>
+    <span class="sep">·</span>
+    <span>Projet fil rouge</span>
+    <span class="sep">·</span>
+    <span class="accent">WebBlog</span>
+  </div>
+  <h1>
+    <span class="line"><span class="word-outline">De zéro</span></span>
+    <span class="line">à votre <span class="word-accent">blog en PHP.</span></span>
+  </h1>
+  <p class="hero-lead">Tutoriel pas-à-pas pour construire <strong>WebBlog</strong> sur 3 jours. Chaque étape est numérotée, chaque fichier indiqué, chaque ligne de code prête à recopier. <strong>Suivez les étapes dans l'ordre</strong> — chaque jour s'appuie sur le précédent.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="num">16</div><div class="label">étapes</div></div>
+    <div class="hero-meta-item"><div class="num">3</div><div class="label">jours</div></div>
+    <div class="hero-meta-item"><div class="num">7</div><div class="label">fichiers PHP</div></div>
+    <div class="hero-meta-item"><div class="num">1</div><div class="label">base MySQL</div></div>
+  </div>
+</section>
+
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">00</div>
+    <div>
+      <div class="block-eyebrow">Setup · Avant de commencer</div>
+      <h2>Préparer <em>l'environnement</em>.</h2>
+    </div>
+    <div class="block-duration">~10 min · 3 étapes</div>
+  </div>
+  <p class="block-intro">Avant tout, on vérifie que le serveur local fonctionne et on crée le dossier qui hébergera tout le projet. <strong>Tous les fichiers WebBlog vivent dans un seul dossier</strong> : <code>webblog/</code>.</p>
+
+  <div class="step" id="step-0-1">
+    <div class="step-head">
+      <div class="step-id">SETUP 0.1</div>
+      <div class="step-meta">
+        <span class="duration">2 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-0-1')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Lancer votre serveur local</h3>
+    <p class="what-todo"><strong>Objectif :</strong> avoir Apache + PHP + MySQL démarrés sur votre machine.</p>
+    <p><strong>🪟 Sous Windows</strong> — selon le logiciel installé :</p>
+    <ul>
+      <li><strong>XAMPP</strong> : ouvrez le <em>XAMPP Control Panel</em>, cliquez sur les boutons <code>Start</code> à côté de <code>Apache</code> puis <code>MySQL</code>. Les deux lignes doivent passer en <strong>vert</strong>.</li>
+      <li><strong>Laragon</strong> : ouvrez Laragon, cliquez sur le gros bouton <strong>« Démarrer Tout »</strong> (en haut à gauche).</li>
+      <li><strong>WAMP</strong> : double-cliquez sur l'icône WAMP, attendez que l'icône de la barre des tâches passe en <strong>vert</strong> (rouge = arrêté, orange = un service planté).</li>
+    </ul>
+    <p><strong>🍎 Sous Mac</strong> :</p>
+    <ul>
+      <li><strong>MAMP</strong> : lancez l'app MAMP, cliquez sur <strong>« Start Servers »</strong> en haut à droite. Les deux pastilles (Apache + MySQL) doivent devenir vertes.</li>
+    </ul>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">La page d'accueil de votre serveur local s'affiche (XAMPP, WAMP, ou Laragon).
+Vous ne devez PAS voir « Cette page ne fonctionne pas » ou « Connection refused ».</div>
+    </div>
+    <div class="callout err">
+      <div class="title">⚠️ Erreur : « Port 80 déjà utilisé »</div>
+      <p>Skype ou un autre logiciel utilise déjà le port 80. <strong>Solutions :</strong> fermer Skype, ou changer le port d'Apache dans la config XAMPP/WAMP (par ex. <code>8080</code>, et utiliser <code>http://localhost:8080/</code>).</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-0-2">
+    <div class="step-head">
+      <div class="step-id">SETUP 0.2</div>
+      <div class="step-meta">
+        <span class="duration">3 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-0-2')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer le dossier <code>webblog/</code></h3>
+    <p class="what-todo"><strong>Objectif :</strong> créer un dossier dans la zone publique du serveur local pour héberger le projet.</p>
+    <p><strong>🪟 Sous Windows</strong> — selon le logiciel :</p>
+    <ul>
+      <li><strong>XAMPP</strong> : <code>C:\xampp\htdocs\</code></li>
+      <li><strong>Laragon</strong> : <code>C:\laragon\www\</code></li>
+      <li><strong>WAMP</strong> : <code>C:\wamp64\www\</code></li>
+    </ul>
+    <p><strong>🍎 Sous Mac (MAMP)</strong> : <code>/Applications/MAMP/htdocs/</code></p>
+    <p>Dans ce dossier, créez un nouveau sous-dossier nommé exactement <code>webblog</code> (tout en minuscules, sans accent, sans espace).</p>
+    <div class="file-path new">Chemin final attendu :  [htdocs ou www]/webblog/</div>
+    <div class="callout tip">
+      <div class="title">💡 Astuce — Ouvrir directement le dossier</div>
+      <ul>
+        <li><strong>XAMPP (Windows)</strong> : Control Panel → bouton <strong>Explorer</strong> (en haut à droite).</li>
+        <li><strong>Laragon (Windows)</strong> : clic droit dans la fenêtre Laragon → <strong>www</strong>.</li>
+        <li><strong>MAMP (Mac)</strong> : Finder → menu <em>Aller</em> → <em>Aller au dossier…</em> → coller <code>/Applications/MAMP/htdocs/</code>.</li>
+      </ul>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ Windows — Afficher les extensions de fichiers</div>
+      <p>Par défaut, Windows cache les extensions (vous voyez <code>test</code> au lieu de <code>test.php</code>). Activez-les : <strong>Explorateur de fichiers → onglet Affichage → cochez « Extensions des noms de fichiers »</strong>. Sinon vous risquez de créer <code>index.php.txt</code> sans vous en rendre compte.</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-0-3">
+    <div class="step-head">
+      <div class="step-id">SETUP 0.3</div>
+      <div class="step-meta">
+        <span class="duration">3 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-0-3')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Tester que PHP fonctionne</h3>
+    <p class="what-todo"><strong>Objectif :</strong> créer un mini-fichier de test pour vérifier que PHP s'exécute bien.</p>
+    <p>Ouvrez votre éditeur (VS Code, Sublime, PHPStorm…) et créez un nouveau fichier dans <code>webblog/</code>.</p>
+    <div class="file-path new">webblog/test.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-fn">echo</span> <span class="tk-str">"Bonjour ! PHP fonctionne."</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <p>Sauvegardez le fichier (Ctrl+S).</p>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/test.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">Bonjour ! PHP fonctionne.</div>
+    </div>
+    <div class="callout err">
+      <div class="title">⚠️ Si vous voyez le code PHP brut à l'écran</div>
+      <p>C'est qu'Apache n'interprète pas le PHP. Causes possibles :</p>
+      <ul>
+        <li>Vous avez ouvert le fichier en double-cliquant dessus (URL <code>file:///...</code>) au lieu de passer par <code>http://localhost/...</code>.</li>
+        <li>Apache n'est pas démarré (retour à <strong>SETUP 0.1</strong>).</li>
+        <li>Le fichier n'est pas dans le bon dossier (vérifier <strong>SETUP 0.2</strong>).</li>
+      </ul>
+    </div>
+    <p style="margin-top:1rem">Une fois le test concluant, vous pouvez <strong>supprimer ce fichier</strong> — il ne sert qu'à valider l'environnement.</p>
+  </div>
+</section>
+
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">01</div>
+    <div>
+      <div class="block-eyebrow">Jour 1 · Page d'accueil dynamique</div>
+      <h2>Premiers <em>signes de vie</em>.</h2>
+    </div>
+    <div class="block-duration">~50 min · 3 étapes</div>
+  </div>
+  <p class="block-intro">On crée <code>index.php</code>, la page d'accueil du blog. Elle affichera la date du jour, un message qui change selon l'heure, et la liste des articles dans des cartes Bootstrap. <strong>À la fin du Jour 1 :</strong> on a une page d'accueil dynamique, mais les articles sont encore codés en dur.</p>
+
+  <div class="step" id="step-1-1">
+    <div class="step-head">
+      <div class="step-id">JOUR 1 — ÉTAPE 1</div>
+      <div class="step-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-1-1')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer <code>index.php</code> avec date et heure</h3>
+    <p class="what-todo"><strong>Objectif :</strong> créer la page d'accueil et afficher la date et l'heure actuelles.</p>
+    <p>Dans votre dossier <code>webblog/</code>, créez un nouveau fichier nommé <code>index.php</code>. Recopiez ce code intégralement :</p>
+    <div class="file-path new">webblog/index.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-com">// On récupère la date et l'heure actuelles dans des variables</span>
+<span class="tk-kw">$dateActuelle</span>  = <span class="tk-fn">date</span>(<span class="tk-str">"d/m/Y"</span>);
+<span class="tk-kw">$heureActuelle</span> = <span class="tk-fn">date</span>(<span class="tk-str">"H:i:s"</span>);
+<span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"fr"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;head&gt;</span>
+    <span class="tk-tag">&lt;meta</span> <span class="tk-attr">charset</span>=<span class="tk-str">"UTF-8"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;title&gt;</span>WebBlog — Accueil<span class="tk-tag">&lt;/title&gt;</span>
+    <span class="tk-com">&lt;!-- Bootstrap via CDN, pas besoin de télécharger --&gt;</span>
+    <span class="tk-tag">&lt;link</span> <span class="tk-attr">rel</span>=<span class="tk-str">"stylesheet"</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;/head&gt;</span>
+<span class="tk-tag">&lt;body&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"container mt-5"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;h1&gt;</span>WebBlog<span class="tk-tag">&lt;/h1&gt;</span>
+        <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"lead"</span><span class="tk-tag">&gt;</span>
+            Nous sommes le <span class="tk-php">&lt;?=</span> <span class="tk-kw">$dateActuelle</span> <span class="tk-php">?&gt;</span>,
+            il est <span class="tk-php">&lt;?=</span> <span class="tk-kw">$heureActuelle</span> <span class="tk-php">?&gt;</span>.
+        <span class="tk-tag">&lt;/p&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-tag">&lt;/body&gt;</span>
+<span class="tk-tag">&lt;/html&gt;</span></pre>
+    <div class="callout tip">
+      <div class="title">💡 La balise courte <code>&lt;?= ?&gt;</code></div>
+      <p><code>&lt;?= $var ?&gt;</code> est un raccourci pour <code>&lt;?php echo $var; ?&gt;</code>. Strictement équivalent, mais beaucoup plus court dans les templates HTML.</p>
+    </div>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/index.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">WebBlog (en grand titre)
+
+Nous sommes le 06/12/2025, il est 14:23:47.
+
+(L'heure change à chaque actualisation de la page.)</div>
+    </div>
+  </div>
+
+  <div class="step" id="step-1-2">
+    <div class="step-head">
+      <div class="step-id">JOUR 1 — ÉTAPE 2</div>
+      <div class="step-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-1-2')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Ajouter le message conditionnel selon l'heure</h3>
+    <p class="what-todo"><strong>Objectif :</strong> afficher « Bonjour », « Bon après-midi » ou « Bonsoir » selon l'heure de la journée.</p>
+    <p>Modifiez le <strong>bloc PHP du haut</strong> de <code>index.php</code> pour ajouter un <code>if/elseif/else</code> :</p>
+    <div class="file-path edit">webblog/index.php (modifier le bloc PHP du haut)</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$dateActuelle</span>  = <span class="tk-fn">date</span>(<span class="tk-str">"d/m/Y"</span>);
+<span class="tk-kw">$heureActuelle</span> = <span class="tk-fn">date</span>(<span class="tk-str">"H:i:s"</span>);
+
+<span class="tk-com">// On extrait juste l'heure (0 à 23) pour la comparaison</span>
+<span class="tk-kw">$heure</span> = <span class="tk-fn">date</span>(<span class="tk-str">"H"</span>);
+
+<span class="tk-kw">if</span> (<span class="tk-kw">$heure</span> &lt; <span class="tk-num">12</span>) {
+    <span class="tk-kw">$message</span> = <span class="tk-str">"Bonjour ! Bienvenue sur WebBlog"</span>;
+} <span class="tk-kw">elseif</span> (<span class="tk-kw">$heure</span> &lt; <span class="tk-num">18</span>) {
+    <span class="tk-kw">$message</span> = <span class="tk-str">"Bon après-midi ! Bienvenue sur WebBlog"</span>;
+} <span class="tk-kw">else</span> {
+    <span class="tk-kw">$message</span> = <span class="tk-str">"Bonsoir ! Bienvenue sur WebBlog"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+    <p>Puis modifiez le <code>&lt;h1&gt;</code> du HTML pour afficher la variable <code>$message</code> :</p>
+    <div class="file-path edit">webblog/index.php (modifier le &lt;h1&gt;)</div>
+<pre class="code"><span class="tk-tag">&lt;h1&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-kw">$message</span> <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/h1&gt;</span></pre>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/index.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu (vers 14h)</div>
+      <div class="expected-content">Bon après-midi ! Bienvenue sur WebBlog
+
+Nous sommes le 06/12/2025, il est 14:23:47.</div>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 Comment tester les autres messages ?</div>
+      <p>Sans changer l'heure du système, remplacez temporairement <code>$heure = date("H");</code> par <code>$heure = 9;</code> (ou <code>20</code>) pour voir le résultat des autres cas. <strong>Remettez <code>date("H")</code> ensuite</strong>.</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-1-3">
+    <div class="step-head">
+      <div class="step-id">JOUR 1 — ÉTAPE 3</div>
+      <div class="step-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-1-3')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Afficher la liste des articles en cartes Bootstrap</h3>
+    <p class="what-todo"><strong>Objectif :</strong> ajouter un tableau de 5 titres d'articles, et les afficher dans des cartes avec une boucle <code>foreach</code>.</p>
+    <p>Dans le <strong>bloc PHP du haut</strong>, ajoutez à la suite des autres lignes :</p>
+    <div class="file-path edit">webblog/index.php (ajouter dans le PHP du haut)</div>
+<pre class="code"><span class="tk-com">// Tableau de titres d'articles (en dur pour le moment)</span>
+<span class="tk-kw">$articles</span> = [
+    <span class="tk-str">"Pourquoi PHP en 2025 ?"</span>,
+    <span class="tk-str">"Découvrir Bootstrap en 30 minutes"</span>,
+    <span class="tk-str">"Mes 5 outils dev favoris"</span>,
+    <span class="tk-str">"VS Code : les extensions essentielles"</span>,
+    <span class="tk-str">"Git pour les nuls"</span>
+];</pre>
+    <p>Puis, dans le <strong>HTML</strong>, à l'intérieur de la <code>&lt;div class="container"&gt;</code>, juste après le <code>&lt;p&gt;</code> de la date, ajoutez ceci :</p>
+    <div class="file-path edit">webblog/index.php (ajouter dans le HTML)</div>
+<pre class="code"><span class="tk-tag">&lt;hr&gt;</span>
+<span class="tk-tag">&lt;h2&gt;</span>Articles publiés (<span class="tk-php">&lt;?=</span> <span class="tk-fn">count</span>(<span class="tk-kw">$articles</span>) <span class="tk-php">?&gt;</span>)<span class="tk-tag">&lt;/h2&gt;</span>
+
+<span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"row"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-php">&lt;?php</span> <span class="tk-kw">foreach</span> (<span class="tk-kw">$articles</span> <span class="tk-kw">as</span> <span class="tk-kw">$titre</span>) : <span class="tk-php">?&gt;</span>
+        <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"col-md-6 mb-3"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"card"</span><span class="tk-tag">&gt;</span>
+                <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-body"</span><span class="tk-tag">&gt;</span>
+                    <span class="tk-tag">&lt;h5</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-title"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-kw">$titre</span> <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/h5&gt;</span>
+                <span class="tk-tag">&lt;/div&gt;</span>
+            <span class="tk-tag">&lt;/div&gt;</span>
+        <span class="tk-tag">&lt;/div&gt;</span>
+    <span class="tk-php">&lt;?php</span> <span class="tk-kw">endforeach</span>; <span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;/div&gt;</span></pre>
+    <div class="callout tip">
+      <div class="title">💡 La syntaxe <code>foreach (...) : ... endforeach;</code></div>
+      <p>Quand le <code>foreach</code> contient du HTML, on utilise cette syntaxe alternative à la place des accolades. C'est strictement équivalent, juste plus lisible quand on alterne PHP et HTML.</p>
+    </div>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/index.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">Bon après-midi ! Bienvenue sur WebBlog
+Nous sommes le 06/12/2025, il est 14:23:47.
+
+──────────────
+
+Articles publiés (5)
+
+┌─────────────────────────┐  ┌─────────────────────────┐
+│ Pourquoi PHP en 2025 ?  │  │ Découvrir Bootstrap...  │
+└─────────────────────────┘  └─────────────────────────┘
+┌─────────────────────────┐  ┌─────────────────────────┐
+│ Mes 5 outils dev fav... │  │ VS Code : les extens... │
+└─────────────────────────┘  └─────────────────────────┘
+┌─────────────────────────┐
+│ Git pour les nuls       │
+└─────────────────────────┘</div>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ Si les cartes ne sont pas stylées</div>
+      <p>Vérifiez que la balise <code>&lt;link rel="stylesheet" href="..."&gt;</code> de Bootstrap est bien dans le <code>&lt;head&gt;</code> et que votre machine a accès à internet (Bootstrap est chargé via CDN).</p>
+    </div>
+    <div class="callout tip">
+      <div class="title">🎉 Checkpoint — Fin du Jour 1</div>
+      <p>À ce stade, vous avez : page d'accueil dynamique, message qui change selon l'heure, liste d'articles en cartes Bootstrap. <strong>Sauvegardez bien le fichier</strong> — on le reprendra au Jour 2 pour intégrer les fonctions utilitaires.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">02</div>
+    <div>
+      <div class="block-eyebrow">Jour 2 · Fonctions utilitaires & données structurées</div>
+      <h2>Du code <em>réutilisable</em>.</h2>
+    </div>
+    <div class="block-duration">~90 min · 4 étapes</div>
+  </div>
+  <p class="block-intro">On crée <code>functions.php</code> — une bibliothèque de fonctions réutilisables — puis <code>articles.php</code> avec un vrai tableau d'articles. Enfin, un système de logs pour tracer ce qui se passe. <strong>À la fin du Jour 2 :</strong> code propre, fonctions partagées, mais les articles sont toujours en mémoire (perdus à chaque redémarrage).</p>
+
+  <div class="step" id="step-2-1">
+    <div class="step-head">
+      <div class="step-id">JOUR 2 — ÉTAPE 1</div>
+      <div class="step-meta">
+        <span class="duration">30 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-2-1')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer <code>functions.php</code> — la boîte à outils</h3>
+    <p class="what-todo"><strong>Objectif :</strong> centraliser dans un seul fichier les 3 fonctions utilitaires que toutes les pages du blog vont utiliser : formater une date, générer un extrait, compter les mots.</p>
+    <p>Dans <code>webblog/</code>, créez un nouveau fichier :</p>
+    <div class="file-path new">webblog/functions.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-com">// =====================================================</span>
+<span class="tk-com">// Bibliothèque de fonctions utilitaires de WebBlog</span>
+<span class="tk-com">// =====================================================</span>
+
+<span class="tk-com">// Formater une date du format "2025-12-06" vers "6 décembre 2025"</span>
+<span class="tk-kw">function</span> <span class="tk-fn">formaterDate</span>(<span class="tk-kw">$date</span>) {
+    <span class="tk-kw">$mois</span> = [<span class="tk-str">""</span>, <span class="tk-str">"janvier"</span>, <span class="tk-str">"février"</span>, <span class="tk-str">"mars"</span>, <span class="tk-str">"avril"</span>, <span class="tk-str">"mai"</span>, <span class="tk-str">"juin"</span>,
+             <span class="tk-str">"juillet"</span>, <span class="tk-str">"août"</span>, <span class="tk-str">"septembre"</span>, <span class="tk-str">"octobre"</span>, <span class="tk-str">"novembre"</span>, <span class="tk-str">"décembre"</span>];
+
+    <span class="tk-kw">$annee</span>    = <span class="tk-fn">substr</span>(<span class="tk-kw">$date</span>, <span class="tk-num">0</span>, <span class="tk-num">4</span>);   <span class="tk-com">// "2025"</span>
+    <span class="tk-kw">$numMois</span>  = (<span class="tk-kw">int</span>) <span class="tk-fn">substr</span>(<span class="tk-kw">$date</span>, <span class="tk-num">5</span>, <span class="tk-num">2</span>);  <span class="tk-com">// 12</span>
+    <span class="tk-kw">$jour</span>     = (<span class="tk-kw">int</span>) <span class="tk-fn">substr</span>(<span class="tk-kw">$date</span>, <span class="tk-num">8</span>, <span class="tk-num">2</span>);  <span class="tk-com">// 6</span>
+
+    <span class="tk-kw">return</span> <span class="tk-kw">$jour</span> . <span class="tk-str">" "</span> . <span class="tk-kw">$mois</span>[<span class="tk-kw">$numMois</span>] . <span class="tk-str">" "</span> . <span class="tk-kw">$annee</span>;
+}
+
+<span class="tk-com">// Couper un texte trop long et ajouter "..."</span>
+<span class="tk-kw">function</span> <span class="tk-fn">genererExtrait</span>(<span class="tk-kw">$texte</span>, <span class="tk-kw">$longueur</span> = <span class="tk-num">150</span>) {
+    <span class="tk-kw">if</span> (<span class="tk-fn">strlen</span>(<span class="tk-kw">$texte</span>) &lt;= <span class="tk-kw">$longueur</span>) {
+        <span class="tk-kw">return</span> <span class="tk-kw">$texte</span>;
+    }
+    <span class="tk-kw">return</span> <span class="tk-fn">substr</span>(<span class="tk-kw">$texte</span>, <span class="tk-num">0</span>, <span class="tk-kw">$longueur</span>) . <span class="tk-str">"..."</span>;
+}
+
+<span class="tk-com">// Compter le nombre de mots d'un texte</span>
+<span class="tk-kw">function</span> <span class="tk-fn">compterMots</span>(<span class="tk-kw">$texte</span>) {
+    <span class="tk-kw">$mots</span> = <span class="tk-fn">explode</span>(<span class="tk-str">" "</span>, <span class="tk-fn">trim</span>(<span class="tk-kw">$texte</span>));
+    <span class="tk-kw">return</span> <span class="tk-fn">count</span>(<span class="tk-kw">$mots</span>);
+}
+<span class="tk-php">?&gt;</span></pre>
+    <div class="callout tip">
+      <div class="title">💡 Pourquoi un fichier séparé ?</div>
+      <p>Tant qu'on n'a qu'une page, on pourrait mettre ces fonctions directement dans <code>index.php</code>. Mais dès qu'on aura plusieurs pages (<code>articles.php</code>, <code>article.php</code>, etc.) qui veulent toutes formater une date, on n'aura à le <strong>maintenir qu'à un seul endroit</strong> : <code>functions.php</code>. Si la règle de formatage change, on modifie cette fonction et toutes les pages suivent.</p>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ Ce fichier ne s'affiche pas tout seul</div>
+      <p><code>functions.php</code> ne contient que des fonctions, pas de <code>echo</code>. Si vous l'ouvrez avec <code>http://localhost/webblog/functions.php</code>, vous obtiendrez une page <strong>blanche</strong>. C'est normal — il sert à être <code>require</code>'d par d'autres pages.</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-2-2">
+    <div class="step-head">
+      <div class="step-id">JOUR 2 — ÉTAPE 2</div>
+      <div class="step-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-2-2')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer <code>articles.php</code> — un vrai tableau multidim</h3>
+    <p class="what-todo"><strong>Objectif :</strong> remplacer le tableau simple de titres par un <strong>tableau multidimensionnel</strong> où chaque article est un tableau associatif (id, titre, contenu, auteur, date).</p>
+    <p>Créez un nouveau fichier :</p>
+    <div class="file-path new">webblog/articles.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-com">// On importe nos fonctions utilitaires</span>
+<span class="tk-kw">require</span> <span class="tk-str">"functions.php"</span>;
+
+<span class="tk-com">// Tableau multidimensionnel : un tableau d'articles,</span>
+<span class="tk-com">// chaque article étant un tableau associatif</span>
+<span class="tk-kw">$articles</span> = [
+    [
+        <span class="tk-str">"id"</span>      =&gt; <span class="tk-num">1</span>,
+        <span class="tk-str">"titre"</span>   =&gt; <span class="tk-str">"Pourquoi PHP en 2025 ?"</span>,
+        <span class="tk-str">"contenu"</span> =&gt; <span class="tk-str">"PHP a beaucoup évolué depuis ses débuts. Aujourd'hui, c'est un langage moderne, rapide, et toujours largement utilisé par Facebook, Wikipedia et WordPress. PHP 8.x apporte de vraies améliorations de performance."</span>,
+        <span class="tk-str">"auteur"</span>  =&gt; <span class="tk-str">"Marie Dupont"</span>,
+        <span class="tk-str">"date"</span>    =&gt; <span class="tk-str">"2025-12-06"</span>
+    ],
+    [
+        <span class="tk-str">"id"</span>      =&gt; <span class="tk-num">2</span>,
+        <span class="tk-str">"titre"</span>   =&gt; <span class="tk-str">"Découvrir Bootstrap en 30 minutes"</span>,
+        <span class="tk-str">"contenu"</span> =&gt; <span class="tk-str">"Bootstrap est un framework CSS qui permet de créer des interfaces propres rapidement, sans écrire de CSS à la main. Il propose une grille, des composants, et un design responsive prêt à l'emploi."</span>,
+        <span class="tk-str">"auteur"</span>  =&gt; <span class="tk-str">"Pierre Martin"</span>,
+        <span class="tk-str">"date"</span>    =&gt; <span class="tk-str">"2025-12-04"</span>
+    ],
+    [
+        <span class="tk-str">"id"</span>      =&gt; <span class="tk-num">3</span>,
+        <span class="tk-str">"titre"</span>   =&gt; <span class="tk-str">"Mes 5 outils dev favoris"</span>,
+        <span class="tk-str">"contenu"</span> =&gt; <span class="tk-str">"Aujourd'hui je partage les 5 outils qui ont changé mon quotidien de développeur : VS Code, Git, Postman, Docker, et Insomnia. Chacun résout un problème bien précis."</span>,
+        <span class="tk-str">"auteur"</span>  =&gt; <span class="tk-str">"Lucas Bernard"</span>,
+        <span class="tk-str">"date"</span>    =&gt; <span class="tk-str">"2025-12-02"</span>
+    ],
+    [
+        <span class="tk-str">"id"</span>      =&gt; <span class="tk-num">4</span>,
+        <span class="tk-str">"titre"</span>   =&gt; <span class="tk-str">"VS Code : les extensions essentielles"</span>,
+        <span class="tk-str">"contenu"</span> =&gt; <span class="tk-str">"Prettier, ESLint, GitLens, Live Server, et PHP Intelephense. Avec ces 5 extensions, votre éditeur devient une vraie IDE."</span>,
+        <span class="tk-str">"auteur"</span>  =&gt; <span class="tk-str">"Sophie Lemoine"</span>,
+        <span class="tk-str">"date"</span>    =&gt; <span class="tk-str">"2025-11-30"</span>
+    ],
+    [
+        <span class="tk-str">"id"</span>      =&gt; <span class="tk-num">5</span>,
+        <span class="tk-str">"titre"</span>   =&gt; <span class="tk-str">"Git pour les nuls"</span>,
+        <span class="tk-str">"contenu"</span> =&gt; <span class="tk-str">"add, commit, push, pull : voilà les 4 commandes qui couvrent 90% des cas d'usage. On voit comment les enchaîner pour partager son code en équipe."</span>,
+        <span class="tk-str">"auteur"</span>  =&gt; <span class="tk-str">"Lucas Bernard"</span>,
+        <span class="tk-str">"date"</span>    =&gt; <span class="tk-str">"2025-11-28"</span>
+    ]
+];
+<span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"fr"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;head&gt;</span>
+    <span class="tk-tag">&lt;meta</span> <span class="tk-attr">charset</span>=<span class="tk-str">"UTF-8"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;title&gt;</span>WebBlog — Articles<span class="tk-tag">&lt;/title&gt;</span>
+    <span class="tk-tag">&lt;link</span> <span class="tk-attr">rel</span>=<span class="tk-str">"stylesheet"</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;/head&gt;</span>
+<span class="tk-tag">&lt;body&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"container mt-5"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;h1&gt;</span>WebBlog — Tous les articles<span class="tk-tag">&lt;/h1&gt;</span>
+        <span class="tk-tag">&lt;p&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">count</span>(<span class="tk-kw">$articles</span>) <span class="tk-php">?&gt;</span> articles publiés.<span class="tk-tag">&lt;/p&gt;</span>
+        <span class="tk-com">&lt;!-- L'affichage des cartes vient à l'étape suivante --&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-tag">&lt;/body&gt;</span>
+<span class="tk-tag">&lt;/html&gt;</span></pre>
+    <div class="callout tip">
+      <div class="title">💡 La directive <code>require</code></div>
+      <p><code>require "functions.php";</code> charge le fichier comme s'il faisait partie du fichier courant. Toutes les fonctions définies dedans deviennent utilisables ici. <strong>Différence avec <code>include</code></strong> : <code>require</code> stoppe le script si le fichier est introuvable, alors qu'<code>include</code> continue avec un warning. Pour un fichier essentiel comme <code>functions.php</code>, on préfère <code>require</code>.</p>
+    </div>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/articles.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">WebBlog — Tous les articles
+
+5 articles publiés.</div>
+    </div>
+  </div>
+
+  <div class="step" id="step-2-3">
+    <div class="step-head">
+      <div class="step-id">JOUR 2 — ÉTAPE 3</div>
+      <div class="step-meta">
+        <span class="duration">25 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-2-3')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Afficher les articles avec les fonctions utilitaires</h3>
+    <p class="what-todo"><strong>Objectif :</strong> dans <code>articles.php</code>, parcourir le tableau et afficher chaque article dans une carte avec titre, extrait, date formatée et nombre de mots — en utilisant les fonctions du fichier <code>functions.php</code>.</p>
+    <p>Remplacez le commentaire <code>&lt;!-- L'affichage des cartes vient à l'étape suivante --&gt;</code> par ce bloc :</p>
+    <div class="file-path edit">webblog/articles.php (remplacer le commentaire)</div>
+<pre class="code"><span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"row mt-4"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-php">&lt;?php</span> <span class="tk-kw">foreach</span> (<span class="tk-kw">$articles</span> <span class="tk-kw">as</span> <span class="tk-kw">$article</span>) : <span class="tk-php">?&gt;</span>
+        <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"col-md-6 mb-4"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"card h-100"</span><span class="tk-tag">&gt;</span>
+                <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-body"</span><span class="tk-tag">&gt;</span>
+                    <span class="tk-tag">&lt;h5</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-title"</span><span class="tk-tag">&gt;</span>
+                        <span class="tk-php">&lt;?=</span> <span class="tk-kw">$article</span>[<span class="tk-str">"titre"</span>] <span class="tk-php">?&gt;</span>
+                    <span class="tk-tag">&lt;/h5&gt;</span>
+                    <span class="tk-tag">&lt;h6</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-subtitle mb-2 text-muted"</span><span class="tk-tag">&gt;</span>
+                        Par <span class="tk-php">&lt;?=</span> <span class="tk-kw">$article</span>[<span class="tk-str">"auteur"</span>] <span class="tk-php">?&gt;</span>
+                        — <span class="tk-php">&lt;?=</span> <span class="tk-fn">formaterDate</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"date"</span>]) <span class="tk-php">?&gt;</span>
+                    <span class="tk-tag">&lt;/h6&gt;</span>
+                    <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-text"</span><span class="tk-tag">&gt;</span>
+                        <span class="tk-php">&lt;?=</span> <span class="tk-fn">genererExtrait</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"contenu"</span>], <span class="tk-num">120</span>) <span class="tk-php">?&gt;</span>
+                    <span class="tk-tag">&lt;/p&gt;</span>
+                    <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"text-muted small"</span><span class="tk-tag">&gt;</span>
+                        <span class="tk-php">&lt;?=</span> <span class="tk-fn">compterMots</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"contenu"</span>]) <span class="tk-php">?&gt;</span> mots
+                    <span class="tk-tag">&lt;/p&gt;</span>
+                <span class="tk-tag">&lt;/div&gt;</span>
+            <span class="tk-tag">&lt;/div&gt;</span>
+        <span class="tk-tag">&lt;/div&gt;</span>
+    <span class="tk-php">&lt;?php</span> <span class="tk-kw">endforeach</span>; <span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;/div&gt;</span></pre>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/articles.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">WebBlog — Tous les articles
+5 articles publiés.
+
+┌──────────────────────────────────┐  ┌──────────────────────────────────┐
+│ Pourquoi PHP en 2025 ?           │  │ Découvrir Bootstrap en 30 min... │
+│ Par Marie Dupont — 6 décembre... │  │ Par Pierre Martin — 4 décembre...│
+│                                  │  │                                  │
+│ PHP a beaucoup évolué depuis...  │  │ Bootstrap est un framework CSS...│
+│ 34 mots                          │  │ 28 mots                          │
+└──────────────────────────────────┘  └──────────────────────────────────┘
+(... 3 autres cartes)</div>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 La date est en français !</div>
+      <p>Grâce à <code>formaterDate("2025-12-06")</code>, la date s'affiche <strong>« 6 décembre 2025 »</strong> au lieu de <strong>« 2025-12-06 »</strong>. Si demain la règle change (par exemple : ajouter le jour de la semaine), on modifie une seule fonction et toutes les pages suivent automatiquement.</p>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ « Call to undefined function formaterDate() »</div>
+      <p>Vous avez oublié la ligne <code>require "functions.php";</code> tout en haut de <code>articles.php</code>. PHP ne trouve pas la fonction parce que le fichier qui la définit n'a pas été chargé. Vérifiez aussi que <code>functions.php</code> est bien dans le même dossier.</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-2-4">
+    <div class="step-head">
+      <div class="step-id">JOUR 2 — ÉTAPE 4</div>
+      <div class="step-meta">
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-2-4')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Mettre en place le système de logs</h3>
+    <p class="what-todo"><strong>Objectif :</strong> chaque fois qu'une page est consultée, on écrit une ligne dans un fichier de logs. C'est exactement ce que fait Amazon, Netflix, et tous les sites web sérieux pour tracer ce qui se passe.</p>
+    <p><strong>1) Ajoutez cette fonction à la fin de <code>functions.php</code></strong> (juste avant le <code>?&gt;</code> final) :</p>
+    <div class="file-path edit">webblog/functions.php (ajouter à la fin)</div>
+<pre class="code"><span class="tk-com">// Écrire une ligne dans le fichier de logs</span>
+<span class="tk-kw">function</span> <span class="tk-fn">logAction</span>(<span class="tk-kw">$action</span>) {
+    <span class="tk-com">// On crée le dossier logs/ s'il n'existe pas</span>
+    <span class="tk-kw">if</span> (!<span class="tk-fn">is_dir</span>(<span class="tk-str">"logs"</span>)) {
+        <span class="tk-fn">mkdir</span>(<span class="tk-str">"logs"</span>);
+    }
+    <span class="tk-kw">$date</span> = <span class="tk-fn">date</span>(<span class="tk-str">"Y-m-d H:i:s"</span>);
+    <span class="tk-kw">$ligne</span> = <span class="tk-str">"[$date] $action\n"</span>;
+    <span class="tk-fn">file_put_contents</span>(<span class="tk-str">"logs/actions.log"</span>, <span class="tk-kw">$ligne</span>, <span class="tk-kw">FILE_APPEND</span>);
+}</pre>
+    <p><strong>2) Dans <code>articles.php</code></strong>, juste après la ligne <code>require "functions.php";</code>, ajoutez :</p>
+    <div class="file-path edit">webblog/articles.php (ajouter après le require)</div>
+<pre class="code"><span class="tk-fn">logAction</span>(<span class="tk-str">"Page articles consultée"</span>);</pre>
+    <p><strong>3) Créez une page pour visualiser les logs</strong> :</p>
+    <div class="file-path new">webblog/voir-logs.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$cheminLog</span> = <span class="tk-str">"logs/actions.log"</span>;
+
+<span class="tk-kw">if</span> (<span class="tk-fn">file_exists</span>(<span class="tk-kw">$cheminLog</span>)) {
+    <span class="tk-kw">$contenu</span> = <span class="tk-fn">file_get_contents</span>(<span class="tk-kw">$cheminLog</span>);
+} <span class="tk-kw">else</span> {
+    <span class="tk-kw">$contenu</span> = <span class="tk-str">"Aucun log pour le moment."</span>;
+}
+<span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"fr"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;head&gt;</span>
+    <span class="tk-tag">&lt;meta</span> <span class="tk-attr">charset</span>=<span class="tk-str">"UTF-8"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;title&gt;</span>WebBlog — Logs<span class="tk-tag">&lt;/title&gt;</span>
+    <span class="tk-tag">&lt;link</span> <span class="tk-attr">rel</span>=<span class="tk-str">"stylesheet"</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;/head&gt;</span>
+<span class="tk-tag">&lt;body&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"container mt-5"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;h1&gt;</span>Logs des actions<span class="tk-tag">&lt;/h1&gt;</span>
+        <span class="tk-tag">&lt;pre</span> <span class="tk-attr">class</span>=<span class="tk-str">"bg-dark text-light p-3 rounded"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-kw">$contenu</span> <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/pre&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-tag">&lt;/body&gt;</span>
+<span class="tk-tag">&lt;/html&gt;</span></pre>
+    <div class="test-url">
+      <span class="lbl">À tester</span>
+      <code>1) Aller sur articles.php → actualiser 3 fois → 2) Aller sur voir-logs.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu (voir-logs.php)</div>
+      <div class="expected-content">Logs des actions
+
+[2025-12-06 09:15:00] Page articles consultée
+[2025-12-06 09:15:03] Page articles consultée
+[2025-12-06 09:15:07] Page articles consultée</div>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 Le drapeau <code>FILE_APPEND</code></div>
+      <p>Sans <code>FILE_APPEND</code>, chaque appel à <code>logAction()</code> <strong>écraserait</strong> tout le contenu du fichier, et il ne resterait que la dernière ligne. Avec <code>FILE_APPEND</code>, chaque appel ajoute simplement la ligne à la suite — c'est ce qu'il nous faut pour un journal qui grossit.</p>
+    </div>
+    <div class="callout tip">
+      <div class="title">🎉 Checkpoint — Fin du Jour 2</div>
+      <p>À ce stade, vous avez : 3 fonctions utilitaires réutilisables, un tableau d'articles structuré, des cartes formatées avec date et extrait, et un système de logs en fichier. <strong>Le seul défaut</strong> : les articles sont toujours codés en dur dans <code>articles.php</code>. Si le serveur redémarre, vous ne pouvez pas en ajouter sans modifier le code. C'est ce qu'on règle au Jour 3.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block reveal">
+  <div class="block-header">
+    <div class="block-num">03</div>
+    <div>
+      <div class="block-eyebrow">Jour 3 · Formulaires & base MySQL</div>
+      <h2>Des données <em>persistantes</em>.</h2>
+    </div>
+    <div class="block-duration">~3h · 6 étapes</div>
+  </div>
+  <p class="block-intro">On crée un formulaire d'ajout d'article, on connecte WebBlog à MySQL via PDO, on insère et on lit depuis la base. <strong>À la fin du Jour 3 :</strong> blog fonctionnel — créer, lister, lire en détail. Plus aucun article codé en dur, tout vient de la BDD.</p>
+
+  <div class="step" id="step-3-1">
+    <div class="step-head">
+      <div class="step-id">JOUR 3 — ÉTAPE 1</div>
+      <div class="step-meta">
+        <span class="duration">25 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-3-1')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer le formulaire d'ajout d'article (sans validation)</h3>
+    <p class="what-todo"><strong>Objectif :</strong> créer une page <code>ajouter-article.php</code> avec un formulaire HTML qui pose les questions au visiteur — sans encore valider ni enregistrer.</p>
+    <p>Créez un nouveau fichier :</p>
+    <div class="file-path new">webblog/ajouter-article.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"functions.php"</span>;
+<span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"fr"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;head&gt;</span>
+    <span class="tk-tag">&lt;meta</span> <span class="tk-attr">charset</span>=<span class="tk-str">"UTF-8"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;title&gt;</span>WebBlog — Ajouter un article<span class="tk-tag">&lt;/title&gt;</span>
+    <span class="tk-tag">&lt;link</span> <span class="tk-attr">rel</span>=<span class="tk-str">"stylesheet"</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;/head&gt;</span>
+<span class="tk-tag">&lt;body&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"container mt-5"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;h1&gt;</span>Ajouter un article<span class="tk-tag">&lt;/h1&gt;</span>
+
+        <span class="tk-tag">&lt;form</span> <span class="tk-attr">method</span>=<span class="tk-str">"POST"</span> <span class="tk-attr">action</span>=<span class="tk-str">"ajouter-article.php"</span> <span class="tk-attr">class</span>=<span class="tk-str">"mt-4"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"mb-3"</span><span class="tk-tag">&gt;</span>
+                <span class="tk-tag">&lt;label</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-label"</span><span class="tk-tag">&gt;</span>Titre<span class="tk-tag">&lt;/label&gt;</span>
+                <span class="tk-tag">&lt;input</span> <span class="tk-attr">type</span>=<span class="tk-str">"text"</span> <span class="tk-attr">name</span>=<span class="tk-str">"titre"</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-control"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-tag">&lt;/div&gt;</span>
+
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"mb-3"</span><span class="tk-tag">&gt;</span>
+                <span class="tk-tag">&lt;label</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-label"</span><span class="tk-tag">&gt;</span>Catégorie<span class="tk-tag">&lt;/label&gt;</span>
+                <span class="tk-tag">&lt;select</span> <span class="tk-attr">name</span>=<span class="tk-str">"categorie"</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-select"</span><span class="tk-tag">&gt;</span>
+                    <span class="tk-tag">&lt;option</span> <span class="tk-attr">value</span>=<span class="tk-str">""</span><span class="tk-tag">&gt;</span>-- Choisir --<span class="tk-tag">&lt;/option&gt;</span>
+                    <span class="tk-tag">&lt;option</span> <span class="tk-attr">value</span>=<span class="tk-str">"Technologie"</span><span class="tk-tag">&gt;</span>Technologie<span class="tk-tag">&lt;/option&gt;</span>
+                    <span class="tk-tag">&lt;option</span> <span class="tk-attr">value</span>=<span class="tk-str">"Voyage"</span><span class="tk-tag">&gt;</span>Voyage<span class="tk-tag">&lt;/option&gt;</span>
+                    <span class="tk-tag">&lt;option</span> <span class="tk-attr">value</span>=<span class="tk-str">"Cuisine"</span><span class="tk-tag">&gt;</span>Cuisine<span class="tk-tag">&lt;/option&gt;</span>
+                    <span class="tk-tag">&lt;option</span> <span class="tk-attr">value</span>=<span class="tk-str">"Lifestyle"</span><span class="tk-tag">&gt;</span>Lifestyle<span class="tk-tag">&lt;/option&gt;</span>
+                <span class="tk-tag">&lt;/select&gt;</span>
+            <span class="tk-tag">&lt;/div&gt;</span>
+
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"mb-3"</span><span class="tk-tag">&gt;</span>
+                <span class="tk-tag">&lt;label</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-label"</span><span class="tk-tag">&gt;</span>Contenu<span class="tk-tag">&lt;/label&gt;</span>
+                <span class="tk-tag">&lt;textarea</span> <span class="tk-attr">name</span>=<span class="tk-str">"contenu"</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-control"</span> <span class="tk-attr">rows</span>=<span class="tk-str">"6"</span><span class="tk-tag">&gt;&lt;/textarea&gt;</span>
+            <span class="tk-tag">&lt;/div&gt;</span>
+
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"mb-3"</span><span class="tk-tag">&gt;</span>
+                <span class="tk-tag">&lt;label</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-label"</span><span class="tk-tag">&gt;</span>Tags (séparés par des virgules)<span class="tk-tag">&lt;/label&gt;</span>
+                <span class="tk-tag">&lt;input</span> <span class="tk-attr">type</span>=<span class="tk-str">"text"</span> <span class="tk-attr">name</span>=<span class="tk-str">"tags"</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-control"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-tag">&lt;/div&gt;</span>
+
+            <span class="tk-tag">&lt;button</span> <span class="tk-attr">type</span>=<span class="tk-str">"submit"</span> <span class="tk-attr">class</span>=<span class="tk-str">"btn btn-primary"</span><span class="tk-tag">&gt;</span>Publier<span class="tk-tag">&lt;/button&gt;</span>
+        <span class="tk-tag">&lt;/form&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-tag">&lt;/body&gt;</span>
+<span class="tk-tag">&lt;/html&gt;</span></pre>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/ajouter-article.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">Ajouter un article
+
+Titre        : [_______________________________]
+Catégorie    : [-- Choisir --        ▼]
+Contenu      : [_______________________________]
+               [                               ]
+               [                               ]
+Tags         : [_______________________________]
+
+[ Publier ]</div>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ Pour le moment, le bouton « Publier » ne fait rien</div>
+      <p>Le formulaire envoie les données vers la même page (<code>action="ajouter-article.php"</code>) en POST, mais on n'a pas encore écrit le code qui traite ces données. C'est l'étape suivante.</p>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 Différence POST vs GET</div>
+      <p>On utilise <code>method="POST"</code> parce que les données ne doivent pas apparaître dans l'URL (sinon n'importe qui pourrait poster un article rien qu'en bricolant l'URL). <strong>POST = données dans le corps de la requête, GET = données dans l'URL.</strong></p>
+    </div>
+  </div>
+
+  <div class="step" id="step-3-2">
+    <div class="step-head">
+      <div class="step-id">JOUR 3 — ÉTAPE 2</div>
+      <div class="step-meta">
+        <span class="duration">35 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-3-2')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Valider le formulaire et afficher les erreurs</h3>
+    <p class="what-todo"><strong>Objectif :</strong> quand l'utilisateur soumet le formulaire, on vérifie que les données sont correctes. Si oui, on affiche l'article ; sinon on affiche les erreurs en rouge et on conserve ce qui a été saisi.</p>
+    <p>Modifiez le <strong>bloc PHP du haut</strong> de <code>ajouter-article.php</code> :</p>
+    <div class="file-path edit">webblog/ajouter-article.php (remplacer le PHP du haut)</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"functions.php"</span>;
+
+<span class="tk-com">// On prépare des variables pour conserver les valeurs et les erreurs</span>
+<span class="tk-kw">$erreurs</span>    = [];
+<span class="tk-kw">$titre</span>      = <span class="tk-str">""</span>;
+<span class="tk-kw">$categorie</span>  = <span class="tk-str">""</span>;
+<span class="tk-kw">$contenu</span>    = <span class="tk-str">""</span>;
+<span class="tk-kw">$tags</span>       = <span class="tk-str">""</span>;
+<span class="tk-kw">$succes</span>     = <span class="tk-kw">false</span>;
+
+<span class="tk-com">// On ne valide que si le formulaire a été soumis (en POST)</span>
+<span class="tk-kw">if</span> (<span class="tk-kw">$_SERVER</span>[<span class="tk-str">"REQUEST_METHOD"</span>] === <span class="tk-str">"POST"</span>) {
+
+    <span class="tk-com">// On récupère et on nettoie chaque champ</span>
+    <span class="tk-kw">$titre</span>     = <span class="tk-fn">trim</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">"titre"</span>]);
+    <span class="tk-kw">$categorie</span> = <span class="tk-fn">trim</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">"categorie"</span>]);
+    <span class="tk-kw">$contenu</span>   = <span class="tk-fn">trim</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">"contenu"</span>]);
+    <span class="tk-kw">$tags</span>      = <span class="tk-fn">trim</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">"tags"</span>]);
+
+    <span class="tk-com">// Validation du titre</span>
+    <span class="tk-kw">if</span> (<span class="tk-fn">strlen</span>(<span class="tk-kw">$titre</span>) &lt; <span class="tk-num">5</span>) {
+        <span class="tk-kw">$erreurs</span>[<span class="tk-str">"titre"</span>] = <span class="tk-str">"Le titre doit faire au moins 5 caractères."</span>;
+    } <span class="tk-kw">elseif</span> (<span class="tk-fn">strlen</span>(<span class="tk-kw">$titre</span>) &gt; <span class="tk-num">200</span>) {
+        <span class="tk-kw">$erreurs</span>[<span class="tk-str">"titre"</span>] = <span class="tk-str">"Le titre ne doit pas dépasser 200 caractères."</span>;
+    }
+
+    <span class="tk-com">// Validation de la catégorie (on vérifie qu'elle fait partie des choix valides)</span>
+    <span class="tk-kw">$categoriesValides</span> = [<span class="tk-str">"Technologie"</span>, <span class="tk-str">"Voyage"</span>, <span class="tk-str">"Cuisine"</span>, <span class="tk-str">"Lifestyle"</span>];
+    <span class="tk-kw">if</span> (!<span class="tk-fn">in_array</span>(<span class="tk-kw">$categorie</span>, <span class="tk-kw">$categoriesValides</span>)) {
+        <span class="tk-kw">$erreurs</span>[<span class="tk-str">"categorie"</span>] = <span class="tk-str">"Veuillez choisir une catégorie valide."</span>;
+    }
+
+    <span class="tk-com">// Validation du contenu</span>
+    <span class="tk-kw">if</span> (<span class="tk-fn">strlen</span>(<span class="tk-kw">$contenu</span>) &lt; <span class="tk-num">50</span>) {
+        <span class="tk-kw">$erreurs</span>[<span class="tk-str">"contenu"</span>] = <span class="tk-str">"Le contenu doit faire au moins 50 caractères."</span>;
+    }
+
+    <span class="tk-com">// Si aucune erreur, c'est validé !</span>
+    <span class="tk-kw">if</span> (<span class="tk-fn">count</span>(<span class="tk-kw">$erreurs</span>) === <span class="tk-num">0</span>) {
+        <span class="tk-kw">$succes</span> = <span class="tk-kw">true</span>;
+    }
+}
+<span class="tk-php">?&gt;</span></pre>
+    <p>Puis, dans le <strong>HTML</strong>, juste après <code>&lt;h1&gt;</code>, ajoutez le bloc de succès et modifiez chaque champ du formulaire pour afficher les erreurs et conserver les valeurs :</p>
+    <div class="file-path edit">webblog/ajouter-article.php (modifier le HTML)</div>
+<pre class="code"><span class="tk-tag">&lt;h1&gt;</span>Ajouter un article<span class="tk-tag">&lt;/h1&gt;</span>
+
+<span class="tk-php">&lt;?php</span> <span class="tk-kw">if</span> (<span class="tk-kw">$succes</span>) : <span class="tk-php">?&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"alert alert-success mt-4"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;h4&gt;</span>✅ Article validé !<span class="tk-tag">&lt;/h4&gt;</span>
+        <span class="tk-tag">&lt;p&gt;&lt;strong&gt;</span>Titre :<span class="tk-tag">&lt;/strong&gt;</span> <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$titre</span>) <span class="tk-php">?&gt;&lt;/p&gt;</span>
+        <span class="tk-tag">&lt;p&gt;&lt;strong&gt;</span>Catégorie :<span class="tk-tag">&lt;/strong&gt;</span> <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$categorie</span>) <span class="tk-php">?&gt;&lt;/p&gt;</span>
+        <span class="tk-tag">&lt;p&gt;&lt;strong&gt;</span>Extrait :<span class="tk-tag">&lt;/strong&gt;</span> <span class="tk-php">&lt;?=</span> <span class="tk-fn">genererExtrait</span>(<span class="tk-kw">$contenu</span>, <span class="tk-num">120</span>) <span class="tk-php">?&gt;&lt;/p&gt;</span>
+        <span class="tk-tag">&lt;p&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">compterMots</span>(<span class="tk-kw">$contenu</span>) <span class="tk-php">?&gt;</span> mots.<span class="tk-tag">&lt;/p&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-php">&lt;?php</span> <span class="tk-kw">endif</span>; <span class="tk-php">?&gt;</span>
+
+<span class="tk-tag">&lt;form</span> <span class="tk-attr">method</span>=<span class="tk-str">"POST"</span> <span class="tk-attr">action</span>=<span class="tk-str">"ajouter-article.php"</span> <span class="tk-attr">class</span>=<span class="tk-str">"mt-4"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"mb-3"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;label</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-label"</span><span class="tk-tag">&gt;</span>Titre<span class="tk-tag">&lt;/label&gt;</span>
+        <span class="tk-tag">&lt;input</span> <span class="tk-attr">type</span>=<span class="tk-str">"text"</span> <span class="tk-attr">name</span>=<span class="tk-str">"titre"</span> <span class="tk-attr">class</span>=<span class="tk-str">"form-control"</span>
+               <span class="tk-attr">value</span>=<span class="tk-str">"&lt;?= htmlspecialchars($titre) ?&gt;"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-php">&lt;?php</span> <span class="tk-kw">if</span> (<span class="tk-fn">isset</span>(<span class="tk-kw">$erreurs</span>[<span class="tk-str">"titre"</span>])) : <span class="tk-php">?&gt;</span>
+            <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"text-danger mt-1"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-kw">$erreurs</span>[<span class="tk-str">"titre"</span>] <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/div&gt;</span>
+        <span class="tk-php">&lt;?php</span> <span class="tk-kw">endif</span>; <span class="tk-php">?&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+    <span class="tk-com">&lt;!-- Faites pareil pour categorie, contenu, tags --&gt;</span>
+    <span class="tk-com">&lt;!-- (utilisez value="..." et $erreurs[...] sur chaque champ) --&gt;</span>
+<span class="tk-tag">&lt;/form&gt;</span></pre>
+    <div class="callout tip">
+      <div class="title">💡 <code>htmlspecialchars()</code> = sécurité essentielle</div>
+      <p>Si un utilisateur tape <code>&lt;script&gt;alert('hack')&lt;/script&gt;</code> dans le titre et qu'on l'affiche tel quel, le navigateur exécute le script (attaque XSS). <code>htmlspecialchars()</code> transforme les <code>&lt;</code> et <code>&gt;</code> en entités HTML inoffensives. <strong>À utiliser à chaque fois qu'on affiche des données utilisateur.</strong></p>
+    </div>
+    <div class="test-url">
+      <span class="lbl">À tester</span>
+      <code>1) Soumettre sans rien remplir → erreurs en rouge — 2) Remplir correctement → bloc vert de succès</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu (cas erreurs)</div>
+      <div class="expected-content">Titre        : [        ]
+               Le titre doit faire au moins 5 caractères.   (en rouge)
+Catégorie    : [-- Choisir --        ▼]
+               Veuillez choisir une catégorie valide.       (en rouge)
+Contenu      : [        ]
+               Le contenu doit faire au moins 50 caract...  (en rouge)</div>
+    </div>
+  </div>
+
+  <div class="step" id="step-3-3">
+    <div class="step-head">
+      <div class="step-id">JOUR 3 — ÉTAPE 3</div>
+      <div class="step-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-3-3')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer la base MySQL via phpMyAdmin</h3>
+    <p class="what-todo"><strong>Objectif :</strong> créer la base de données <code>webblog</code> avec 3 tables (<code>utilisateurs</code>, <code>categories</code>, <code>articles</code>) et insérer quelques catégories de départ.</p>
+    <p><strong>1) Ouvrir phpMyAdmin :</strong></p>
+    <div class="test-url">
+      <span class="lbl">🪟 Windows</span>
+      <code>http://localhost/phpmyadmin</code>
+    </div>
+    <div class="test-url">
+      <span class="lbl">🍎 Mac (MAMP)</span>
+      <code>http://localhost:8888/phpMyAdmin5/</code>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 Accès rapide à phpMyAdmin</div>
+      <ul>
+        <li><strong>XAMPP</strong> : XAMPP Control Panel → bouton <strong>Admin</strong> à côté de MySQL.</li>
+        <li><strong>Laragon</strong> : menu Laragon → <em>MySQL</em> → <em>phpMyAdmin</em>.</li>
+        <li><strong>MAMP</strong> : page d'accueil MAMP (<code>http://localhost:8888/</code>) → onglet <strong>Tools</strong> → <em>phpMyAdmin</em>.</li>
+      </ul>
+    </div>
+    <p><strong>2) Créer la base de données</strong> : dans le menu de gauche, cliquez sur « Nouvelle base de données ».</p>
+    <ul>
+      <li>Nom : <code>webblog</code></li>
+      <li>Interclassement : <code>utf8mb4_unicode_ci</code> (important pour les accents)</li>
+      <li>Cliquez sur <strong>Créer</strong>.</li>
+    </ul>
+    <p><strong>3) Créer les 3 tables</strong> : dans la base <code>webblog</code>, cliquez sur l'onglet <strong>SQL</strong> et collez ce code :</p>
+<pre class="code"><span class="tk-sql">CREATE TABLE</span> utilisateurs (
+    id <span class="tk-sql">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    nom <span class="tk-sql">VARCHAR</span>(<span class="tk-num">100</span>) <span class="tk-sql">NOT NULL</span>,
+    email <span class="tk-sql">VARCHAR</span>(<span class="tk-num">255</span>) <span class="tk-sql">UNIQUE NOT NULL</span>,
+    mot_de_passe <span class="tk-sql">VARCHAR</span>(<span class="tk-num">255</span>) <span class="tk-sql">NOT NULL</span>,
+    date_inscription <span class="tk-sql">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="tk-sql">CREATE TABLE</span> categories (
+    id <span class="tk-sql">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    nom <span class="tk-sql">VARCHAR</span>(<span class="tk-num">50</span>) <span class="tk-sql">NOT NULL</span>,
+    slug <span class="tk-sql">VARCHAR</span>(<span class="tk-num">50</span>) <span class="tk-sql">NOT NULL UNIQUE</span>
+);
+
+<span class="tk-sql">CREATE TABLE</span> articles (
+    id <span class="tk-sql">INT AUTO_INCREMENT PRIMARY KEY</span>,
+    titre <span class="tk-sql">VARCHAR</span>(<span class="tk-num">200</span>) <span class="tk-sql">NOT NULL</span>,
+    contenu <span class="tk-sql">TEXT NOT NULL</span>,
+    extrait <span class="tk-sql">VARCHAR</span>(<span class="tk-num">300</span>),
+    auteur_id <span class="tk-sql">INT NOT NULL</span>,
+    categorie_id <span class="tk-sql">INT</span>,
+    tags <span class="tk-sql">VARCHAR</span>(<span class="tk-num">255</span>),
+    date_publication <span class="tk-sql">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);</pre>
+    <p>Cliquez sur <strong>Exécuter</strong>. Les 3 tables doivent apparaître dans le menu de gauche.</p>
+    <p><strong>4) Insérer un utilisateur et des catégories de départ</strong> (onglet SQL à nouveau) :</p>
+<pre class="code"><span class="tk-sql">INSERT INTO</span> utilisateurs (nom, email, mot_de_passe) <span class="tk-sql">VALUES</span>
+    (<span class="tk-str">'Lucas Bernard'</span>, <span class="tk-str">'lucas@webblog.fr'</span>, <span class="tk-str">'temp'</span>);
+
+<span class="tk-sql">INSERT INTO</span> categories (nom, slug) <span class="tk-sql">VALUES</span>
+    (<span class="tk-str">'Technologie'</span>, <span class="tk-str">'technologie'</span>),
+    (<span class="tk-str">'Voyage'</span>,      <span class="tk-str">'voyage'</span>),
+    (<span class="tk-str">'Cuisine'</span>,     <span class="tk-str">'cuisine'</span>),
+    (<span class="tk-str">'Lifestyle'</span>,   <span class="tk-str">'lifestyle'</span>);</pre>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">Base "webblog" créée
+└── utilisateurs (1 ligne)
+└── categories   (4 lignes : Technologie, Voyage, Cuisine, Lifestyle)
+└── articles     (0 ligne)</div>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ Si vous voyez « #1064 - Erreur de syntaxe »</div>
+      <p>Vous avez probablement collé le code dans la mauvaise base ou hors de l'onglet SQL. Vérifiez que vous êtes bien <strong>dans la base webblog</strong> (le nom doit apparaître en haut), puis cliquez sur l'onglet <strong>SQL</strong>.</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-3-4">
+    <div class="step-head">
+      <div class="step-id">JOUR 3 — ÉTAPE 4</div>
+      <div class="step-meta">
+        <span class="duration">20 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-3-4')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Créer <code>config.php</code> — la connexion PDO</h3>
+    <p class="what-todo"><strong>Objectif :</strong> centraliser la connexion à la base dans un seul fichier que toutes les pages incluront.</p>
+    <p>Créez un nouveau fichier :</p>
+    <div class="file-path new">webblog/config.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-com">// =====================================================</span>
+<span class="tk-com">// Configuration de la base de données</span>
+<span class="tk-com">// =====================================================</span>
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_HOST'</span>, <span class="tk-str">'localhost'</span>);
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_NAME'</span>, <span class="tk-str">'webblog'</span>);
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_USER'</span>, <span class="tk-str">'root'</span>);
+<span class="tk-com">// Mot de passe : vide '' sous Windows (XAMPP/Laragon/WAMP)</span>
+<span class="tk-com">// Mot de passe : 'root' sous Mac (MAMP)</span>
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_PASS'</span>, <span class="tk-str">''</span>);
+
+<span class="tk-com">// Connexion à la base via PDO</span>
+<span class="tk-kw">try</span> {
+    <span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(
+        <span class="tk-str">"mysql:host="</span> . <span class="tk-kw">DB_HOST</span> . <span class="tk-str">";dbname="</span> . <span class="tk-kw">DB_NAME</span> . <span class="tk-str">";charset=utf8mb4"</span>,
+        <span class="tk-kw">DB_USER</span>,
+        <span class="tk-kw">DB_PASS</span>,
+        [
+            <span class="tk-kw">PDO::ATTR_ERRMODE</span>            =&gt; <span class="tk-kw">PDO::ERRMODE_EXCEPTION</span>,
+            <span class="tk-kw">PDO::ATTR_DEFAULT_FETCH_MODE</span> =&gt; <span class="tk-kw">PDO::FETCH_ASSOC</span>
+        ]
+    );
+} <span class="tk-kw">catch</span> (<span class="tk-fn">PDOException</span> <span class="tk-kw">$e</span>) {
+    <span class="tk-fn">die</span>(<span class="tk-str">"Erreur de connexion : "</span> . <span class="tk-kw">$e</span>-&gt;<span class="tk-fn">getMessage</span>());
+}
+<span class="tk-php">?&gt;</span></pre>
+    <div class="callout warn">
+      <div class="title">🍎 Spécifique Mac (MAMP) — changer le mot de passe</div>
+      <p>Sous MAMP, le compte <code>root</code> a un mot de passe par défaut : <code>'root'</code>. Modifiez donc la ligne <code>DB_PASS</code> :</p>
+<pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-fn">define</span>(<span class="tk-str">'DB_PASS'</span>, <span class="tk-str">'root'</span>);  <span class="tk-com">// Mac (MAMP)</span></pre>
+      <p>Sous Windows (XAMPP, Laragon, WAMP), laissez bien <code>''</code> (chaîne vide).</p>
+    </div>
+    <div class="callout warn">
+      <div class="title">🍎 Spécifique Mac (MAMP) — port MySQL différent</div>
+      <p>MAMP utilise par défaut le port <strong>8889</strong> pour MySQL (et non 3306). Si vous gardez les ports par défaut, modifiez la ligne du DSN :</p>
+<pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-str">"mysql:host=localhost;port=8889;dbname=webblog;charset=utf8mb4"</span></pre>
+      <p>Sinon, allez dans MAMP → <em>Preferences</em> → <em>Ports</em> → <strong>« Set Web &amp; MySQL ports to 80 &amp; 3306 »</strong> pour utiliser les ports standards (et ne pas avoir à modifier le DSN).</p>
+    </div>
+    <p>Pour tester rapidement la connexion, créez temporairement un fichier <code>test-bdd.php</code> :</p>
+    <div class="file-path new">webblog/test-bdd.php (temporaire, à supprimer ensuite)</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"✅ Connexion réussie à la base "</span> . <span class="tk-kw">DB_NAME</span>;
+
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"SELECT nom FROM categories"</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"&lt;ul&gt;"</span>;
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$stmt</span> <span class="tk-kw">as</span> <span class="tk-kw">$ligne</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"&lt;li&gt;"</span> . <span class="tk-kw">$ligne</span>[<span class="tk-str">"nom"</span>] . <span class="tk-str">"&lt;/li&gt;"</span>;
+}
+<span class="tk-fn">echo</span> <span class="tk-str">"&lt;/ul&gt;"</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <div class="test-url">
+      <span class="lbl">URL à tester</span>
+      <code>http://localhost/webblog/test-bdd.php</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">✅ Connexion réussie à la base webblog
+• Technologie
+• Voyage
+• Cuisine
+• Lifestyle</div>
+    </div>
+    <div class="callout err">
+      <div class="title">⚠️ « SQLSTATE[HY000] [1045] Access denied for user »</div>
+      <p>Le mot de passe MySQL ne correspond pas.</p>
+      <ul>
+        <li><strong>🪟 Windows (XAMPP/Laragon/WAMP)</strong> : <code>DB_PASS</code> doit être vide → <code>''</code>.</li>
+        <li><strong>🍎 Mac (MAMP)</strong> : <code>DB_PASS</code> doit être <code>'root'</code>.</li>
+      </ul>
+      <p>Vérifiez aussi que MySQL est bien démarré (Setup 0.1).</p>
+    </div>
+    <div class="callout err">
+      <div class="title">⚠️ « SQLSTATE[HY000] [1049] Unknown database 'webblog' »</div>
+      <p>La base n'existe pas. Retournez à l'étape 3.3 et créez-la dans phpMyAdmin.</p>
+    </div>
+    <p>Une fois le test concluant, <strong>supprimez <code>test-bdd.php</code></strong>.</p>
+  </div>
+
+  <div class="step" id="step-3-5">
+    <div class="step-head">
+      <div class="step-id">JOUR 3 — ÉTAPE 5</div>
+      <div class="step-meta">
+        <span class="duration">30 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-3-5')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Insérer les articles en BDD au lieu de juste les afficher</h3>
+    <p class="what-todo"><strong>Objectif :</strong> modifier <code>ajouter-article.php</code> pour qu'au lieu d'afficher un message « ✅ Article validé », il insère réellement l'article dans la base et redirige vers la page d'accueil.</p>
+    <p><strong>1) Tout en haut de <code>ajouter-article.php</code></strong>, ajoutez <code>require "config.php";</code> :</p>
+    <div class="file-path edit">webblog/ajouter-article.php (haut du fichier)</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+<span class="tk-kw">require</span> <span class="tk-str">"functions.php"</span>;
+<span class="tk-com">// ... le reste du code de l'étape 3.2 ...</span></pre>
+    <p><strong>2) Remplacez le bloc <code>if ($succes = true;)</code></strong> par un vrai INSERT :</p>
+    <div class="file-path edit">webblog/ajouter-article.php (remplacer la fin du if POST)</div>
+<pre class="code"><span class="tk-com">// Si aucune erreur, on insère en BDD et on redirige</span>
+<span class="tk-kw">if</span> (<span class="tk-fn">count</span>(<span class="tk-kw">$erreurs</span>) === <span class="tk-num">0</span>) {
+
+    <span class="tk-com">// Récupérer l'id de la catégorie à partir de son nom</span>
+    <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"SELECT id FROM categories WHERE nom = ?"</span>);
+    <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$categorie</span>]);
+    <span class="tk-kw">$categorieId</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetchColumn</span>();
+
+    <span class="tk-com">// Générer un extrait automatiquement</span>
+    <span class="tk-kw">$extrait</span> = <span class="tk-fn">genererExtrait</span>(<span class="tk-kw">$contenu</span>, <span class="tk-num">200</span>);
+
+    <span class="tk-com">// INSERT préparé (sécurisé contre les injections SQL)</span>
+    <span class="tk-kw">$sql</span> = <span class="tk-str">"INSERT INTO articles (titre, contenu, extrait, auteur_id, categorie_id, tags)
+            VALUES (?, ?, ?, ?, ?, ?)"</span>;
+    <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+    <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([
+        <span class="tk-kw">$titre</span>,
+        <span class="tk-kw">$contenu</span>,
+        <span class="tk-kw">$extrait</span>,
+        <span class="tk-num">1</span>,             <span class="tk-com">// auteur_id (Lucas, créé en étape 3.3)</span>
+        <span class="tk-kw">$categorieId</span>,
+        <span class="tk-kw">$tags</span>
+    ]);
+
+    <span class="tk-com">// Redirection vers la page d'accueil</span>
+    <span class="tk-fn">header</span>(<span class="tk-str">"Location: index.php"</span>);
+    <span class="tk-kw">exit</span>;
+}</pre>
+    <div class="callout tip">
+      <div class="title">💡 Les <strong>requêtes préparées</strong> (le <code>?</code> et <code>execute([...])</code>)</div>
+      <p>Au lieu de concaténer <code>"INSERT ... VALUES ('$titre', ...)"</code> (catastrophique pour la sécurité), on met des <code>?</code> dans la requête et on passe les valeurs séparément à <code>execute([...])</code>. PDO se charge d'échapper les caractères dangereux : <strong>impossible d'injecter du SQL malveillant</strong>. C'est la seule façon propre de faire un INSERT.</p>
+    </div>
+    <div class="test-url">
+      <span class="lbl">À tester</span>
+      <code>1) Aller sur ajouter-article.php — 2) Remplir tous les champs correctement — 3) Cliquer Publier</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu</div>
+      <div class="expected-content">La page redirige vers index.php (qui ne montre encore rien des nouveaux articles - étape suivante).
+
+Pour vérifier : aller dans phpMyAdmin > base webblog > table articles > parcourir.
+La nouvelle ligne doit apparaître avec le titre saisi.</div>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ « Cannot modify header information — headers already sent »</div>
+      <p>Cette erreur arrive quand quelque chose a déjà été affiché (un espace, un <code>echo</code>, du HTML…) avant l'appel à <code>header()</code>. <strong>Solution :</strong> vérifiez qu'il n'y a pas d'espace avant le <code>&lt;?php</code> initial de <code>ajouter-article.php</code> ni de <code>config.php</code>.</p>
+    </div>
+  </div>
+
+  <div class="step" id="step-3-6">
+    <div class="step-head">
+      <div class="step-id">JOUR 3 — ÉTAPE 6</div>
+      <div class="step-meta">
+        <span class="duration">35 min</span>
+        <button class="done-toggle" onclick="toggleDone('step-3-6')">○ Fait</button>
+      </div>
+    </div>
+    <h3>Lire les articles depuis la BDD + créer <code>article.php?id=X</code></h3>
+    <p class="what-todo"><strong>Objectif final :</strong> refondre <code>index.php</code> pour qu'il liste les articles depuis la BDD, et créer <code>article.php?id=X</code> pour afficher un article complet.</p>
+    <p><strong>1) Refonte de <code>index.php</code></strong> — on remplace tout le contenu :</p>
+    <div class="file-path edit">webblog/index.php (remplacer tout le contenu)</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+<span class="tk-kw">require</span> <span class="tk-str">"functions.php"</span>;
+
+<span class="tk-fn">logAction</span>(<span class="tk-str">"Page d'accueil consultée"</span>);
+
+<span class="tk-com">// Récupérer tous les articles, du plus récent au plus ancien</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT a.*, c.nom AS categorie_nom, u.nom AS auteur_nom
+        FROM articles a
+        LEFT JOIN categories c ON a.categorie_id = c.id
+        LEFT JOIN utilisateurs u ON a.auteur_id = u.id
+        ORDER BY a.date_publication DESC"</span>;
+<span class="tk-kw">$articles</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-kw">$sql</span>)-&gt;<span class="tk-fn">fetchAll</span>();
+<span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"fr"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;head&gt;</span>
+    <span class="tk-tag">&lt;meta</span> <span class="tk-attr">charset</span>=<span class="tk-str">"UTF-8"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;title&gt;</span>WebBlog — Accueil<span class="tk-tag">&lt;/title&gt;</span>
+    <span class="tk-tag">&lt;link</span> <span class="tk-attr">rel</span>=<span class="tk-str">"stylesheet"</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;/head&gt;</span>
+<span class="tk-tag">&lt;body&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"container mt-5"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"d-flex justify-content-between align-items-center"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-tag">&lt;h1&gt;</span>WebBlog<span class="tk-tag">&lt;/h1&gt;</span>
+            <span class="tk-tag">&lt;a</span> <span class="tk-attr">href</span>=<span class="tk-str">"ajouter-article.php"</span> <span class="tk-attr">class</span>=<span class="tk-str">"btn btn-primary"</span><span class="tk-tag">&gt;</span>+ Nouvel article<span class="tk-tag">&lt;/a&gt;</span>
+        <span class="tk-tag">&lt;/div&gt;</span>
+        <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"text-muted"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">count</span>(<span class="tk-kw">$articles</span>) <span class="tk-php">?&gt;</span> articles publiés<span class="tk-tag">&lt;/p&gt;</span>
+
+        <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"row mt-4"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-php">&lt;?php</span> <span class="tk-kw">foreach</span> (<span class="tk-kw">$articles</span> <span class="tk-kw">as</span> <span class="tk-kw">$a</span>) : <span class="tk-php">?&gt;</span>
+                <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"col-md-6 mb-4"</span><span class="tk-tag">&gt;</span>
+                    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"card h-100"</span><span class="tk-tag">&gt;</span>
+                        <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-body"</span><span class="tk-tag">&gt;</span>
+                            <span class="tk-tag">&lt;span</span> <span class="tk-attr">class</span>=<span class="tk-str">"badge bg-secondary mb-2"</span><span class="tk-tag">&gt;</span>
+                                <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$a</span>[<span class="tk-str">"categorie_nom"</span>]) <span class="tk-php">?&gt;</span>
+                            <span class="tk-tag">&lt;/span&gt;</span>
+                            <span class="tk-tag">&lt;h5</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-title"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$a</span>[<span class="tk-str">"titre"</span>]) <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/h5&gt;</span>
+                            <span class="tk-tag">&lt;h6</span> <span class="tk-attr">class</span>=<span class="tk-str">"text-muted small"</span><span class="tk-tag">&gt;</span>
+                                Par <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$a</span>[<span class="tk-str">"auteur_nom"</span>]) <span class="tk-php">?&gt;</span> —
+                                <span class="tk-php">&lt;?=</span> <span class="tk-fn">formaterDate</span>(<span class="tk-fn">substr</span>(<span class="tk-kw">$a</span>[<span class="tk-str">"date_publication"</span>], <span class="tk-num">0</span>, <span class="tk-num">10</span>)) <span class="tk-php">?&gt;</span>
+                            <span class="tk-tag">&lt;/h6&gt;</span>
+                            <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"card-text mt-2"</span><span class="tk-tag">&gt;</span>
+                                <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$a</span>[<span class="tk-str">"extrait"</span>]) <span class="tk-php">?&gt;</span>
+                            <span class="tk-tag">&lt;/p&gt;</span>
+                            <span class="tk-tag">&lt;a</span> <span class="tk-attr">href</span>=<span class="tk-str">"article.php?id=&lt;?= $a['id'] ?&gt;"</span>
+                               <span class="tk-attr">class</span>=<span class="tk-str">"btn btn-outline-primary btn-sm"</span><span class="tk-tag">&gt;</span>Lire la suite<span class="tk-tag">&lt;/a&gt;</span>
+                        <span class="tk-tag">&lt;/div&gt;</span>
+                    <span class="tk-tag">&lt;/div&gt;</span>
+                <span class="tk-tag">&lt;/div&gt;</span>
+            <span class="tk-php">&lt;?php</span> <span class="tk-kw">endforeach</span>; <span class="tk-php">?&gt;</span>
+        <span class="tk-tag">&lt;/div&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-tag">&lt;/body&gt;</span>
+<span class="tk-tag">&lt;/html&gt;</span></pre>
+    <p><strong>2) Créer <code>article.php</code></strong> pour afficher un article complet :</p>
+    <div class="file-path new">webblog/article.php</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+<span class="tk-kw">require</span> <span class="tk-str">"functions.php"</span>;
+
+<span class="tk-com">// Vérifier que l'id est présent et valide</span>
+<span class="tk-kw">if</span> (!<span class="tk-fn">isset</span>(<span class="tk-kw">$_GET</span>[<span class="tk-str">"id"</span>]) || !<span class="tk-fn">is_numeric</span>(<span class="tk-kw">$_GET</span>[<span class="tk-str">"id"</span>])) {
+    <span class="tk-fn">header</span>(<span class="tk-str">"Location: index.php"</span>);
+    <span class="tk-kw">exit</span>;
+}
+<span class="tk-kw">$id</span> = (<span class="tk-kw">int</span>) <span class="tk-kw">$_GET</span>[<span class="tk-str">"id"</span>];
+
+<span class="tk-com">// Récupérer l'article</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT a.*, c.nom AS categorie_nom, u.nom AS auteur_nom
+        FROM articles a
+        LEFT JOIN categories c ON a.categorie_id = c.id
+        LEFT JOIN utilisateurs u ON a.auteur_id = u.id
+        WHERE a.id = ?"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);
+<span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>();
+
+<span class="tk-com">// Si l'article n'existe pas, retour à l'accueil</span>
+<span class="tk-kw">if</span> (!<span class="tk-kw">$article</span>) {
+    <span class="tk-fn">header</span>(<span class="tk-str">"Location: index.php"</span>);
+    <span class="tk-kw">exit</span>;
+}
+<span class="tk-php">?&gt;</span>
+<span class="tk-tag">&lt;!DOCTYPE</span> <span class="tk-attr">html</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"fr"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;head&gt;</span>
+    <span class="tk-tag">&lt;meta</span> <span class="tk-attr">charset</span>=<span class="tk-str">"UTF-8"</span><span class="tk-tag">&gt;</span>
+    <span class="tk-tag">&lt;title&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"titre"</span>]) <span class="tk-php">?&gt;</span> — WebBlog<span class="tk-tag">&lt;/title&gt;</span>
+    <span class="tk-tag">&lt;link</span> <span class="tk-attr">rel</span>=<span class="tk-str">"stylesheet"</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"</span><span class="tk-tag">&gt;</span>
+<span class="tk-tag">&lt;/head&gt;</span>
+<span class="tk-tag">&lt;body&gt;</span>
+    <span class="tk-tag">&lt;div</span> <span class="tk-attr">class</span>=<span class="tk-str">"container mt-5"</span><span class="tk-tag">&gt;</span>
+        <span class="tk-tag">&lt;a</span> <span class="tk-attr">href</span>=<span class="tk-str">"index.php"</span><span class="tk-tag">&gt;</span>← Retour à l'accueil<span class="tk-tag">&lt;/a&gt;</span>
+
+        <span class="tk-tag">&lt;span</span> <span class="tk-attr">class</span>=<span class="tk-str">"badge bg-secondary mt-3"</span><span class="tk-tag">&gt;</span>
+            <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"categorie_nom"</span>]) <span class="tk-php">?&gt;</span>
+        <span class="tk-tag">&lt;/span&gt;</span>
+        <span class="tk-tag">&lt;h1</span> <span class="tk-attr">class</span>=<span class="tk-str">"mt-2"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"titre"</span>]) <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/h1&gt;</span>
+        <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"text-muted"</span><span class="tk-tag">&gt;</span>
+            Par <span class="tk-php">&lt;?=</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"auteur_nom"</span>]) <span class="tk-php">?&gt;</span> —
+            <span class="tk-php">&lt;?=</span> <span class="tk-fn">formaterDate</span>(<span class="tk-fn">substr</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"date_publication"</span>], <span class="tk-num">0</span>, <span class="tk-num">10</span>)) <span class="tk-php">?&gt;</span> —
+            <span class="tk-php">&lt;?=</span> <span class="tk-fn">compterMots</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"contenu"</span>]) <span class="tk-php">?&gt;</span> mots
+        <span class="tk-tag">&lt;/p&gt;</span>
+        <span class="tk-tag">&lt;hr&gt;</span>
+        <span class="tk-tag">&lt;p</span> <span class="tk-attr">class</span>=<span class="tk-str">"lead"</span><span class="tk-tag">&gt;</span><span class="tk-php">&lt;?=</span> <span class="tk-fn">nl2br</span>(<span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">"contenu"</span>])) <span class="tk-php">?&gt;</span><span class="tk-tag">&lt;/p&gt;</span>
+    <span class="tk-tag">&lt;/div&gt;</span>
+<span class="tk-tag">&lt;/body&gt;</span>
+<span class="tk-tag">&lt;/html&gt;</span></pre>
+    <div class="test-url">
+      <span class="lbl">À tester</span>
+      <code>1) http://localhost/webblog/index.php — 2) Cliquer sur « Lire la suite » d'un article</code>
+    </div>
+    <div class="expected">
+      <div class="expected-title">▼ Résultat attendu — index.php</div>
+      <div class="expected-content">WebBlog                                  [+ Nouvel article]
+N articles publiés
+
+┌──────────────────────────────────┐  ┌──────────────────────────────────┐
+│ [Technologie]                    │  │ [Voyage]                         │
+│ Mon premier article              │  │ Visite de Lisbonne               │
+│ Par Lucas Bernard — 6 déc. 2025  │  │ Par Lucas Bernard — 5 déc. 2025  │
+│ Lorem ipsum dolor sit amet...    │  │ La ville aux 7 collines vaut...  │
+│ [Lire la suite]                  │  │ [Lire la suite]                  │
+└──────────────────────────────────┘  └──────────────────────────────────┘</div>
+    </div>
+    <div class="callout tip">
+      <div class="title">💡 <code>nl2br()</code> pour les retours à la ligne</div>
+      <p>Dans le textarea, les utilisateurs tapent des retours à la ligne (touche Entrée). En HTML, ces retours sont ignorés. <code>nl2br()</code> les transforme en <code>&lt;br&gt;</code> pour que l'article s'affiche comme l'utilisateur l'a écrit.</p>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ Si <code>article.php?id=2</code> renvoie à l'accueil sans rien afficher</div>
+      <p>L'id <code>2</code> n'existe pas dans la BDD. Le code redirige par sécurité (pour éviter d'afficher une page vide). <strong>Solutions :</strong> ajoutez d'abord quelques articles via <code>ajouter-article.php</code>, ou utilisez un id qui existe (visible dans phpMyAdmin).</p>
+    </div>
+    <div class="callout tip">
+      <div class="title">🎉 Checkpoint final — Fin du Jour 3</div>
+      <p>Vous avez maintenant un blog complet : créer un article via formulaire avec validation, le stocker en BDD, le lister sur l'accueil, le consulter en détail. <strong>Les données survivent à un redémarrage du serveur</strong> — c'était l'objectif. Bravo !</p>
+    </div>
+  </div>
+</section>
+
+<section class="finale reveal">
+  <div class="finale-card">
+    <div class="finale-eyebrow">🎉 WebBlog — Mission accomplie</div>
+    <h2>Vous avez construit un <em>vrai blog</em> en 3 jours.</h2>
+    <p>De la page d'accueil statique à une plateforme connectée à MySQL avec création, lecture et persistance des articles. Toutes les briques d'une application web réelle sont en place.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:2rem 0 1.5rem;text-align:left;max-width:900px;margin-left:auto;margin-right:auto">
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:1rem 1.2rem">
+        <div style="font-size:0.72rem;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;margin-bottom:0.4rem">☑ Jour 1</div>
+        <div style="color:#e8e8ed;font-size:0.95rem">Page d'accueil dynamique avec date/heure et 5 articles</div>
+      </div>
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:1rem 1.2rem">
+        <div style="font-size:0.72rem;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;margin-bottom:0.4rem">☑ Jour 2</div>
+        <div style="color:#e8e8ed;font-size:0.95rem">Fonctions utilitaires + tableau d'articles + logs fichier</div>
+      </div>
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:12px;padding:1rem 1.2rem">
+        <div style="font-size:0.72rem;color:#4ade80;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;margin-bottom:0.4rem">☑ Jour 3</div>
+        <div style="color:#e8e8ed;font-size:0.95rem">Formulaire avec validation + MySQL + INSERT/SELECT</div>
+      </div>
+      <div style="background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.2);border-radius:12px;padding:1rem 1.2rem">
+        <div style="font-size:0.72rem;color:#fb923c;font-weight:700;text-transform:uppercase;letter-spacing:0.13em;margin-bottom:0.4rem">→ Jour 4</div>
+        <div style="color:#a0a0b0;font-size:0.95rem">Authentification, sessions, finalisation</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:1.1rem;font-weight:700;color:#e8e8ed;margin:2rem 0 0.6rem;text-align:left;max-width:900px;margin-left:auto;margin-right:auto">📁 Arborescence finale de votre projet</h3>
+<pre class="code" style="text-align:left;max-width:900px;margin-left:auto;margin-right:auto">webblog/
+├── <span style="color:#86efac">config.php</span>            <span style="color:#6b6b78">← connexion PDO</span>
+├── <span style="color:#86efac">functions.php</span>         <span style="color:#6b6b78">← 3 fonctions utilitaires + logAction</span>
+├── <span style="color:#86efac">index.php</span>             <span style="color:#6b6b78">← page d'accueil (liste des articles depuis BDD)</span>
+├── <span style="color:#86efac">article.php</span>           <span style="color:#6b6b78">← affichage d'un article (?id=X)</span>
+├── <span style="color:#86efac">ajouter-article.php</span>   <span style="color:#6b6b78">← formulaire + INSERT</span>
+├── <span style="color:#86efac">articles.php</span>          <span style="color:#6b6b78">← (version J2 avec données hardcodées — remplacée par index.php au J3, supprimable)</span>
+├── <span style="color:#86efac">voir-logs.php</span>         <span style="color:#6b6b78">← console des logs</span>
+└── logs/
+    └── <span style="color:#86efac">actions.log</span>       <span style="color:#6b6b78">← traçage des consultations</span>
+
+Base MySQL : <span style="color:#c4b5fd">webblog</span>
+├── <span style="color:#c4b5fd">utilisateurs</span>
+├── <span style="color:#c4b5fd">categories</span>
+└── <span style="color:#c4b5fd">articles</span></pre>
+
+    <p style="margin-top:1.5rem">Si vous voyez le compteur en bas à droite à <strong style="color:#4ade80">16 / 16</strong>, vous avez tout fait. Sinon, repassez sur les étapes manquantes — chacune compte.</p>
+  </div>
+</section>
+
+<div class="progress-widget">
+  <div class="pw-ring">
+    <svg viewBox="0 0 36 36">
+      <circle class="bg-ring" cx="18" cy="18" r="15"></circle>
+      <circle class="fg-ring" cx="18" cy="18" r="15" stroke-dasharray="0 94.2"></circle>
+    </svg>
+  </div>
+  <div>
+    <div class="pw-count"><span class="pw-done" id="pwDone">0</span> <span style="color:var(--text-dim)">/ 16</span></div>
+    <div class="pw-label">étapes faites</div>
+  </div>
+</div>
+
+<script>
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = ((window.scrollY / max) * 100) + '%';
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(r => io.observe(r));
+
+  const totalSteps = document.querySelectorAll('.step').length;
+  const pwDone = document.getElementById('pwDone');
+  const fgRing = document.querySelector('.progress-widget .fg-ring');
+  const circumference = 94.2;
+
+  function updateProgress() {
+    const doneCount = document.querySelectorAll('.step.done').length;
+    pwDone.textContent = doneCount;
+    fgRing.setAttribute('stroke-dasharray', `${(doneCount / totalSteps) * circumference} ${circumference}`);
+  }
+  function toggleDone(stepId) {
+    const s = document.getElementById(stepId);
+    s.classList.toggle('done');
+    s.querySelector('.done-toggle').textContent = s.classList.contains('done') ? '● Fait' : '○ Fait';
+    updateProgress();
+  }
+  updateProgress();
+</script>
+
+</body>
+</html>
