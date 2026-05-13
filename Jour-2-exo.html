@@ -438,6 +438,16 @@
     font-size: 0.78rem;
     color: var(--text-dim);
   }
+  .difficulty {
+    display: inline-flex;
+    gap: 1px;
+    align-items: center;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+  }
+  .difficulty .star { font-size: 0.8rem; }
+  .difficulty .star.off { color: var(--text-dim); opacity: 0.4; }
   .duration {
     display: inline-flex;
     align-items: center;
@@ -843,11 +853,11 @@
     <span class="line"><span class="word-outline">Maintenant,</span></span>
     <span class="line">au <span class="word-accent">clavier.</span></span>
   </h1>
-  <p class="hero-lead">Vingt exercices ciblés, classés par bloc et par difficulté. Faites-les <strong>dans l'ordre</strong> — chaque bloc construit sur le précédent. L'après-midi sera consacré au <strong>WebBlog</strong>, donc une matinée bien rythmée vous évitera de courir l'après-midi.</p>
+  <p class="hero-lead">Dix-huit exercices ciblés, classés par bloc et par difficulté. <strong>Chaque exercice ne mobilise que les notions vues ce matin</strong> dans le cours du Jour 2 : fonctions, tableaux, manipulation de chaînes, fichiers. L'après-midi sera consacré au <strong>WebBlog</strong>.</p>
 
   <div class="hero-meta">
     <div class="hero-meta-item">
-      <div class="num">20</div>
+      <div class="num">18</div>
       <div class="label">exercices</div>
     </div>
     <div class="hero-meta-item">
@@ -857,6 +867,10 @@
     <div class="hero-meta-item">
       <div class="num">~4h</div>
       <div class="label">durée totale</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="num">★★★</div>
+      <div class="label">3 niveaux</div>
     </div>
   </div>
 </section>
@@ -868,7 +882,7 @@
   <div class="briefing-card">
     <div class="briefing-eyebrow">Briefing</div>
     <h2>Mode d'emploi de la matinée</h2>
-    <p>Chaque exercice indique sa <strong>durée estimée</strong>. Lisez d'abord l'énoncé en entier, codez dans votre éditeur, puis comparez avec la <strong>solution</strong> (protégée par un mot de passe que votre prof vous donnera). Les <strong>indices</strong> sont là si vous bloquez plus de 10 minutes — ne les ouvrez pas trop tôt.</p>
+    <p>Chaque exercice indique sa <strong>difficulté</strong> (★ à ★★★) et sa <strong>durée estimée</strong>. Lisez d'abord l'énoncé en entier, codez dans votre éditeur, puis comparez avec la <strong>solution</strong>. Les <strong>indices</strong> sont là si vous bloquez plus de 10 minutes — ne les ouvrez pas trop tôt.</p>
     <p><strong>Marquez chaque exercice comme « fait »</strong> avec la coche en haut à droite. Le compteur en bas de page suit votre progression.</p>
 
     <div class="briefing-list">
@@ -892,194 +906,6 @@
   </div>
 </div>
 
-<!-- ============================================================
-     BLOC 0 — Échauffement
-     ============================================================ -->
-<section class="block reveal">
-  <div class="block-header">
-    <div class="block-num">00</div>
-    <div>
-      <div class="block-eyebrow">Échauffement</div>
-      <h2>Réveiller les <em>réflexes</em>.</h2>
-    </div>
-    <div class="block-duration">~30 min · 5 exos</div>
-  </div>
-  <p class="block-intro">Cinq exercices très courts pour remettre les doigts dans le PHP. Aucun ne devrait prendre plus de 5 minutes. Si l'un vous bloque, retournez sur la page de cours avant de continuer.</p>
-
-  <!-- EXO 0.1 -->
-  <div class="exercise" id="ex-0-1">
-    <div class="exercise-head">
-      <div class="exercise-id">EX 0.1</div>
-      <div class="exercise-meta">
-        <span class="duration">5 min</span>
-        <button class="done-toggle" onclick="toggleDone('ex-0-1')"><span class="check">○</span> Fait</button>
-      </div>
-    </div>
-    <h3>Hello PHP</h3>
-    <p>Créez un fichier <code>exo01.php</code>. Déclarez une variable <code>$prenom</code> contenant votre prénom, puis affichez « Bonjour, [prénom] ! Bienvenue. » sur une ligne.</p>
-    <div class="expected">
-      <span class="expected-label">▼ Résultat attendu</span>
-      <pre>Bonjour, Lucas ! Bienvenue.</pre>
-    </div>
-    <div class="ex-actions">
-      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-1')">💡 Indice <span class="arrow">▾</span></button>
-      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-1')">🔒 Voir la solution <span class="arrow">▾</span></button>
-    </div>
-    <div class="hint-box" id="hint-0-1">
-      <div class="hint-box-title">Indice</div>
-      <p>Utilisez des <strong>guillemets doubles</strong> pour que <code>$prenom</code> soit interprété directement dans la chaîne. Pas besoin de concaténation.</p>
-    </div>
-    <div class="solution-box" id="sol-0-1">
-      <div class="solution-box-title">Solution</div>
-<pre class="code"><span class="tk-php">&lt;?php</span>
-<span class="tk-kw">$prenom</span> = <span class="tk-str">"Lucas"</span>;
-<span class="tk-fn">echo</span> <span class="tk-str">"Bonjour, $prenom ! Bienvenue."</span>;
-<span class="tk-php">?&gt;</span></pre>
-      <p>Les guillemets doubles permettent l'<strong>interpolation</strong> : <code>$prenom</code> est remplacé par sa valeur. Avec des guillemets simples, le résultat aurait été <em>« Bonjour, $prenom ! »</em>.</p>
-    </div>
-  </div>
-
-  <!-- EXO 0.2 -->
-  <div class="exercise" id="ex-0-2">
-    <div class="exercise-head">
-      <div class="exercise-id">EX 0.2</div>
-      <div class="exercise-meta">
-        <span class="duration">5 min</span>
-        <button class="done-toggle" onclick="toggleDone('ex-0-2')"><span class="check">○</span> Fait</button>
-      </div>
-    </div>
-    <h3>Première fonction</h3>
-    <p>Écrivez une fonction <code>direBonjour()</code> qui affiche « Salut ! » à chaque appel. Appelez-la <strong>trois fois</strong>.</p>
-    <div class="expected">
-      <span class="expected-label">▼ Résultat attendu</span>
-      <pre>Salut !
-Salut !
-Salut !</pre>
-    </div>
-    <div class="ex-actions">
-      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-2')">💡 Indice <span class="arrow">▾</span></button>
-      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-2')">🔒 Voir la solution <span class="arrow">▾</span></button>
-    </div>
-    <div class="hint-box" id="hint-0-2">
-      <div class="hint-box-title">Indice</div>
-      <p>Mot-clé <code>function</code>, puis nom, puis <code>()</code>, puis <code>{ ... }</code>. Pour afficher avec saut de ligne, utilisez <code>"&lt;br&gt;"</code> à la fin de la chaîne.</p>
-    </div>
-    <div class="solution-box" id="sol-0-2">
-      <div class="solution-box-title">Solution</div>
-<pre class="code"><span class="tk-php">&lt;?php</span>
-<span class="tk-kw">function</span> <span class="tk-fn">direBonjour</span>() {
-    <span class="tk-fn">echo</span> <span class="tk-str">"Salut !&lt;br&gt;"</span>;
-}
-
-<span class="tk-fn">direBonjour</span>();
-<span class="tk-fn">direBonjour</span>();
-<span class="tk-fn">direBonjour</span>();
-<span class="tk-php">?&gt;</span></pre>
-      <p>La fonction est <strong>déclarée une fois</strong> et <strong>appelée trois fois</strong>. C'est tout l'intérêt : si demain on veut changer « Salut » en « Hello », un seul endroit à modifier.</p>
-    </div>
-  </div>
-
-  <!-- EXO 0.3 -->
-  <div class="exercise" id="ex-0-3">
-    <div class="exercise-head">
-      <div class="exercise-id">EX 0.3</div>
-      <div class="exercise-meta">
-        <span class="duration">5 min</span>
-        <button class="done-toggle" onclick="toggleDone('ex-0-3')"><span class="check">○</span> Fait</button>
-      </div>
-    </div>
-    <h3>Le 2ᵉ wagon</h3>
-    <p>Créez un tableau indexé <code>$villes</code> contenant : Paris, Lyon, Marseille, Bordeaux. Affichez <strong>la deuxième ville</strong>.</p>
-    <div class="expected">
-      <span class="expected-label">▼ Résultat attendu</span>
-      <pre>Lyon</pre>
-    </div>
-    <div class="ex-actions">
-      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-3')">💡 Indice <span class="arrow">▾</span></button>
-      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-3')">🔒 Voir la solution <span class="arrow">▾</span></button>
-    </div>
-    <div class="hint-box" id="hint-0-3">
-      <div class="hint-box-title">Indice</div>
-      <p>Attention : les index commencent à <strong>0</strong>. Donc la <strong>deuxième</strong> ville n'est pas à l'index 2, mais à l'index <strong>1</strong>.</p>
-    </div>
-    <div class="solution-box" id="sol-0-3">
-      <div class="solution-box-title">Solution</div>
-<pre class="code"><span class="tk-php">&lt;?php</span>
-<span class="tk-kw">$villes</span> = [<span class="tk-str">"Paris"</span>, <span class="tk-str">"Lyon"</span>, <span class="tk-str">"Marseille"</span>, <span class="tk-str">"Bordeaux"</span>];
-<span class="tk-fn">echo</span> <span class="tk-kw">$villes</span>[<span class="tk-num">1</span>];  <span class="tk-com">// "Lyon" — 2ᵉ wagon = index 1</span>
-<span class="tk-php">?&gt;</span></pre>
-      <p>Piège classique du QCM : on lit « deuxième élément » et on tape <code>[2]</code>, ce qui donne « Marseille ». <strong>Comptez toujours à partir de 0.</strong></p>
-    </div>
-  </div>
-
-  <!-- EXO 0.4 -->
-  <div class="exercise" id="ex-0-4">
-    <div class="exercise-head">
-      <div class="exercise-id">EX 0.4</div>
-      <div class="exercise-meta">
-        <span class="duration">5 min</span>
-        <button class="done-toggle" onclick="toggleDone('ex-0-4')"><span class="check">○</span> Fait</button>
-      </div>
-    </div>
-    <h3>Compter les lettres</h3>
-    <p>Stockez la phrase « PHP est un langage côté serveur. » dans une variable et affichez son nombre de caractères.</p>
-    <div class="expected">
-      <span class="expected-label">▼ Résultat attendu</span>
-      <pre>La phrase fait 31 caractères.</pre>
-    </div>
-    <div class="ex-actions">
-      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-4')">💡 Indice <span class="arrow">▾</span></button>
-      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-4')">🔒 Voir la solution <span class="arrow">▾</span></button>
-    </div>
-    <div class="hint-box" id="hint-0-4">
-      <div class="hint-box-title">Indice</div>
-      <p>La fonction s'appelle <code>strlen()</code> — pas <code>length</code>, pas <code>count</code>. Les espaces et la ponctuation comptent comme des caractères.</p>
-    </div>
-    <div class="solution-box" id="sol-0-4">
-      <div class="solution-box-title">Solution</div>
-<pre class="code"><span class="tk-php">&lt;?php</span>
-<span class="tk-kw">$phrase</span> = <span class="tk-str">"PHP est un langage côté serveur."</span>;
-<span class="tk-kw">$n</span> = <span class="tk-fn">strlen</span>(<span class="tk-kw">$phrase</span>);
-<span class="tk-fn">echo</span> <span class="tk-str">"La phrase fait $n caractères."</span>;
-<span class="tk-php">?&gt;</span></pre>
-      <p><strong>Attention :</strong> avec des accents comme « ô », <code>strlen()</code> peut retourner plus que le nombre de lettres réelles (la fonction compte les octets, et un caractère accentué peut faire 2 octets en UTF-8). Pour un comptage exact, on utilise <code>mb_strlen()</code> — mais hors programme aujourd'hui.</p>
-    </div>
-  </div>
-
-  <!-- EXO 0.5 -->
-  <div class="exercise" id="ex-0-5">
-    <div class="exercise-head">
-      <div class="exercise-id">EX 0.5</div>
-      <div class="exercise-meta">
-        <span class="duration">5 min</span>
-        <button class="done-toggle" onclick="toggleDone('ex-0-5')"><span class="check">○</span> Fait</button>
-      </div>
-    </div>
-    <h3>Le bon opérateur</h3>
-    <p>Soient deux variables <code>$prenom = "Marie"</code> et <code>$nom = "Dupont"</code>. Affichez « Marie Dupont » en utilisant la <strong>concaténation</strong> (pas l'interpolation).</p>
-    <div class="expected">
-      <span class="expected-label">▼ Résultat attendu</span>
-      <pre>Marie Dupont</pre>
-    </div>
-    <div class="ex-actions">
-      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-0-5')">💡 Indice <span class="arrow">▾</span></button>
-      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-0-5')">🔒 Voir la solution <span class="arrow">▾</span></button>
-    </div>
-    <div class="hint-box" id="hint-0-5">
-      <div class="hint-box-title">Indice</div>
-      <p>En PHP, l'opérateur de concaténation est <strong>le point</strong>, pas le <code>+</code>. Et n'oubliez pas l'espace entre prénom et nom : c'est une chaîne <code>" "</code> à ajouter au milieu.</p>
-    </div>
-    <div class="solution-box" id="sol-0-5">
-      <div class="solution-box-title">Solution</div>
-<pre class="code"><span class="tk-php">&lt;?php</span>
-<span class="tk-kw">$prenom</span> = <span class="tk-str">"Marie"</span>;
-<span class="tk-kw">$nom</span> = <span class="tk-str">"Dupont"</span>;
-<span class="tk-fn">echo</span> <span class="tk-kw">$prenom</span> . <span class="tk-str">" "</span> . <span class="tk-kw">$nom</span>;
-<span class="tk-php">?&gt;</span></pre>
-      <p>Trois éléments collés par deux points : variable, espace, variable. Si vous aviez tapé <code>$prenom + " " + $nom</code>, PHP aurait tenté une addition numérique et obtenu <code>0</code> (puisque "Marie" + 0 = 0 en conversion implicite).</p>
-    </div>
-  </div>
-</section>
 
 <!-- ============================================================
      BLOC 1 — Fonctions
@@ -1100,6 +926,7 @@ Salut !</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 1.1</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star off">★</span><span class="star off">★</span></span>
         <span class="duration">10 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-1-1')"><span class="check">○</span> Fait</button>
       </div>
@@ -1118,7 +945,11 @@ Salut !</pre>
     </div>
     <div class="hint-box" id="hint-1-1">
       <div class="hint-box-title">Indice</div>
-      <p>La fonction doit utiliser <code>return</code>, pas <code>echo</code>. Pour l'affichage, utilisez un opérateur ternaire : <code>$resultat ? "oui" : "non"</code>.</p>
+      <ul>
+        <li><code>return</code> sert à <strong>renvoyer une valeur</strong> à l'appelant (au lieu de l'afficher comme <code>echo</code>). Ici, on retourne <code>true</code> ou <code>false</code>.</li>
+        <li>Une comparaison comme <code>$age &gt;= 18</code> donne déjà directement <code>true</code> ou <code>false</code> : pas besoin de <code>if</code> dans la fonction.</li>
+        <li>Côté appelant, faire un <code>if/else</code> sur le résultat de la fonction pour afficher « oui » ou « non ».</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-1-1">
       <div class="solution-box-title">Solution</div>
@@ -1142,6 +973,7 @@ Salut !</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 1.2</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-1-2')"><span class="check">○</span> Fait</button>
       </div>
@@ -1167,9 +999,9 @@ TVA sur 200€ (10%) : 20€</pre>
     <div class="hint-box" id="hint-1-2">
       <div class="hint-box-title">Indice</div>
       <ul>
-        <li>Formule de la TVA : <code>prixHT × taux ÷ 100</code></li>
-        <li>Pour le paramètre par défaut : <code>function calculerTVA($prixHT, $taux = 20)</code></li>
-        <li>Pour appeler avec le défaut : <code>calculerTVA(100)</code> — sans deuxième argument</li>
+        <li>La formule de la TVA est <code>prixHT × taux ÷ 100</code>. Le résultat de cette opération est ce qu'on doit <code>return</code>.</li>
+        <li>Un <strong>paramètre par défaut</strong> se déclare avec <code>=</code> dans la signature : <code>function calculerTVA($prixHT, $taux = 20)</code>. Cela permet d'appeler la fonction <strong>sans préciser le taux</strong> — PHP utilisera alors 20 automatiquement.</li>
+        <li>Pour appeler avec le défaut : <code>calculerTVA(100)</code>. Pour surcharger le taux : <code>calculerTVA(50, 5.5)</code>.</li>
       </ul>
     </div>
     <div class="solution-box" id="sol-1-2">
@@ -1192,6 +1024,7 @@ TVA sur 200€ (10%) : 20€</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 1.3</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-1-3')"><span class="check">○</span> Fait</button>
       </div>
@@ -1209,7 +1042,10 @@ Prix TTC d'un livre à 25€ HT : 26.375€</pre>
     </div>
     <div class="hint-box" id="hint-1-3">
       <div class="hint-box-title">Indice</div>
-      <p>À l'intérieur de <code>prixTTC()</code>, vous pouvez appeler <code>calculerTVA($prixHT, $taux)</code> et ajouter le résultat au prix HT. Une fonction peut en appeler une autre — c'est même <strong>recommandé</strong> (principe de réutilisation).</p>
+      <ul>
+        <li>Pour obtenir le prix TTC, la formule est simple : <strong>prix HT + montant de la TVA</strong>. Or, le montant de la TVA, vous avez déjà une fonction qui sait le calculer — c'est celle de l'exo précédent.</li>
+        <li>Vous pouvez donc <strong>appeler <code>calculerTVA()</code> à l'intérieur de <code>prixTTC()</code></strong>. Une fonction peut en appeler une autre, c'est même recommandé pour éviter la duplication de code.</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-1-3">
       <div class="solution-box-title">Solution</div>
@@ -1234,6 +1070,7 @@ Prix TTC d'un livre à 25€ HT : 26.375€</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 1.4</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span></span>
         <span class="duration">20 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-1-4')"><span class="check">○</span> Fait</button>
       </div>
@@ -1260,19 +1097,24 @@ Motdepasse1 : valide</pre>
     <div class="hint-box" id="hint-1-4">
       <div class="hint-box-title">Indice</div>
       <ul>
-        <li>Pour la longueur : <code>strlen($mdp) &gt;= 8</code></li>
-        <li>Pour détecter une majuscule : comparer <code>$mdp</code> à sa version tout en minuscules. S'ils diffèrent, il y a au moins une majuscule. Donc <code>$mdp !== strtolower($mdp)</code>.</li>
-        <li>Pour détecter un chiffre : <code>preg_match('/[0-9]/', $mdp)</code> retourne 1 si trouvé. Ou plus simple : boucle sur chaque caractère avec <code>is_numeric()</code>.</li>
-        <li>La fonction retourne <strong>true seulement si les trois</strong> conditions sont vraies — utilisez <code>&amp;&amp;</code>.</li>
+        <li><strong>Longueur</strong> : <code>strlen()</code> va vous donner le nombre de caractères de la chaîne. On compare ensuite à 8.</li>
+        <li><strong>Détecter une majuscule</strong> : <code>strtolower()</code> va vous permettre de transformer toute la chaîne en minuscules. Astuce : si le mot de passe d'origine est différent de sa version en minuscules, c'est qu'il contenait au moins une majuscule.</li>
+        <li><strong>Détecter un chiffre</strong> : <code>str_replace()</code> va vous permettre de remplacer dans la chaîne. Astuce : si vous remplacez tous les chiffres par du vide et que la longueur a diminué, c'est qu'il y en avait au moins un. Bon à savoir : le premier argument de <code>str_replace</code> peut être un tableau (par ex. <code>['0','1','2',...,'9']</code>) — il remplace alors toutes les valeurs listées d'un coup.</li>
+        <li><strong>Combiner les trois</strong> : la fonction retourne <code>true</code> seulement si toutes les conditions sont vraies, donc utilisez <code>&amp;&amp;</code>.</li>
       </ul>
     </div>
     <div class="solution-box" id="sol-1-4">
       <div class="solution-box-title">Solution</div>
 <pre class="code"><span class="tk-php">&lt;?php</span>
 <span class="tk-kw">function</span> <span class="tk-fn">motDePasseValide</span>(<span class="tk-kw">$mdp</span>) {
-    <span class="tk-kw">$assezLong</span>      = <span class="tk-fn">strlen</span>(<span class="tk-kw">$mdp</span>) &gt;= <span class="tk-num">8</span>;
-    <span class="tk-kw">$aMajuscule</span>     = <span class="tk-kw">$mdp</span> !== <span class="tk-fn">strtolower</span>(<span class="tk-kw">$mdp</span>);
-    <span class="tk-kw">$aChiffre</span>       = <span class="tk-fn">preg_match</span>(<span class="tk-str">'/[0-9]/'</span>, <span class="tk-kw">$mdp</span>) === <span class="tk-num">1</span>;
+    <span class="tk-kw">$assezLong</span>  = <span class="tk-fn">strlen</span>(<span class="tk-kw">$mdp</span>) &gt;= <span class="tk-num">8</span>;
+    <span class="tk-kw">$aMajuscule</span> = <span class="tk-kw">$mdp</span> !== <span class="tk-fn">strtolower</span>(<span class="tk-kw">$mdp</span>);
+
+    <span class="tk-com">// Astuce : on retire tous les chiffres avec str_replace.</span>
+    <span class="tk-com">// Si la longueur a diminué, c'est qu'il y avait au moins un chiffre.</span>
+    <span class="tk-kw">$chiffres</span>    = [<span class="tk-str">'0'</span>,<span class="tk-str">'1'</span>,<span class="tk-str">'2'</span>,<span class="tk-str">'3'</span>,<span class="tk-str">'4'</span>,<span class="tk-str">'5'</span>,<span class="tk-str">'6'</span>,<span class="tk-str">'7'</span>,<span class="tk-str">'8'</span>,<span class="tk-str">'9'</span>];
+    <span class="tk-kw">$sansChiffres</span> = <span class="tk-fn">str_replace</span>(<span class="tk-kw">$chiffres</span>, <span class="tk-str">''</span>, <span class="tk-kw">$mdp</span>);
+    <span class="tk-kw">$aChiffre</span>   = <span class="tk-fn">strlen</span>(<span class="tk-kw">$mdp</span>) &gt; <span class="tk-fn">strlen</span>(<span class="tk-kw">$sansChiffres</span>);
 
     <span class="tk-kw">return</span> <span class="tk-kw">$assezLong</span> &amp;&amp; <span class="tk-kw">$aMajuscule</span> &amp;&amp; <span class="tk-kw">$aChiffre</span>;
 }
@@ -1283,8 +1125,9 @@ Motdepasse1 : valide</pre>
     <span class="tk-fn">echo</span> <span class="tk-str">"$mdp : $verdict&lt;br&gt;"</span>;
 }
 <span class="tk-php">?&gt;</span></pre>
-      <p>On <strong>nomme</strong> chaque test dans une variable : le code se lit comme une phrase. <code>preg_match</code> est une fonction qui cherche un motif dans une chaîne — ici, n'importe quel chiffre de 0 à 9. Le <code>&amp;&amp;</code> combine les trois : si l'un est faux, le tout est faux.</p>
-      <p><strong>Pour aller plus loin :</strong> en production, on ajouterait : au moins un caractère spécial, pas de mot du dictionnaire, etc. Voir le travail du Jour 4 sur la sécurité.</p>
+      <p>L'astuce <code>str_replace</code> est élégante : <strong>on n'utilise que des fonctions vues au Jour 2</strong> (<code>strlen</code>, <code>strtolower</code>, <code>str_replace</code>). Le 1<sup>er</sup> argument de <code>str_replace</code> peut être un tableau — il remplace alors toutes les valeurs listées.</p>
+      <p>On <strong>nomme</strong> chaque test dans une variable : le code se lit comme une phrase. Le <code>&amp;&amp;</code> combine les trois : si l'un est faux, le tout est faux.</p>
+      <p><strong>Pour aller plus loin :</strong> en production, on ajouterait un caractère spécial, pas de mot du dictionnaire, etc. C'est aussi à ce moment qu'on apprendrait <code>preg_match</code> (expressions régulières) — sujet à part qu'on ne couvre pas aujourd'hui.</p>
     </div>
   </div>
 </section>
@@ -1299,15 +1142,16 @@ Motdepasse1 : valide</pre>
       <div class="block-eyebrow">Bloc tableaux</div>
       <h2>Manier les <em>wagons et répertoires</em>.</h2>
     </div>
-    <div class="block-duration">~60 min · 4 exos</div>
+    <div class="block-duration">~75 min · 5 exos</div>
   </div>
-  <p class="block-intro">Quatre exercices pour pratiquer les trois types de tableaux. Indexé, associatif, multidimensionnel, puis une fonction qui combine tout.</p>
+  <p class="block-intro">Cinq exercices pour pratiquer les trois types de tableaux et <strong>toutes</strong> les fonctions natives du cours : <code>count</code>, <code>sort</code>, <code>rsort</code>, <code>in_array</code>, <code>array_merge</code>, <code>array_slice</code>, plus l'ajout en fin de tableau avec <code>$t[]</code>.</p>
 
   <!-- EXO 2.1 -->
   <div class="exercise" id="ex-2-1">
     <div class="exercise-head">
       <div class="exercise-id">EX 2.1</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star off">★</span><span class="star off">★</span></span>
         <span class="duration">10 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-2-1')"><span class="check">○</span> Fait</button>
       </div>
@@ -1317,7 +1161,7 @@ Motdepasse1 : valide</pre>
     <ol>
       <li>Affichez le <strong>nombre total</strong> d'articles.</li>
       <li>Parcourez le tableau avec <code>foreach</code> et affichez chaque article sous forme de liste HTML <code>&lt;li&gt;</code>.</li>
-      <li>Ajoutez « Café » à la fin avec <code>array_push</code>.</li>
+      <li>Ajoutez « Café » à la fin du tableau avec la syntaxe <code>$t[] = "Café"</code>.</li>
       <li>Réaffichez le nombre total après ajout.</li>
     </ol>
     <div class="expected">
@@ -1336,7 +1180,11 @@ Nombre après ajout : 6</pre>
     </div>
     <div class="hint-box" id="hint-2-1">
       <div class="hint-box-title">Indice</div>
-      <p><code>count()</code> pour compter. <code>foreach ($t as $item)</code> pour parcourir. <code>array_push($t, "Café")</code> pour ajouter — ou plus court : <code>$t[] = "Café"</code>.</p>
+      <ul>
+        <li><code>count()</code> va vous donner le nombre d'éléments du tableau.</li>
+        <li><code>foreach ($t as $item)</code> va vous permettre de parcourir chaque élément du tableau, l'un après l'autre. À chaque tour, <code>$item</code> contient un élément.</li>
+        <li><code>$t[] = "Café"</code> est la syntaxe du cours pour <strong>ajouter un élément à la fin du tableau</strong>. PHP attribue automatiquement le bon index.</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-2-1">
       <div class="solution-box-title">Solution</div>
@@ -1349,10 +1197,10 @@ Nombre après ajout : 6</pre>
     <span class="tk-fn">echo</span> <span class="tk-str">"&lt;li&gt;$article&lt;/li&gt;"</span>;
 }
 
-<span class="tk-fn">array_push</span>(<span class="tk-kw">$courses</span>, <span class="tk-str">"Café"</span>);
+<span class="tk-kw">$courses</span>[] = <span class="tk-str">"Café"</span>;
 <span class="tk-fn">echo</span> <span class="tk-str">"&lt;br&gt;Nombre après ajout : "</span> . <span class="tk-fn">count</span>(<span class="tk-kw">$courses</span>);
 <span class="tk-php">?&gt;</span></pre>
-      <p>La forme courte <code>$courses[] = "Café"</code> est aussi acceptable et fait exactement la même chose qu'<code>array_push</code> avec un seul élément. <code>array_push</code> est plus utile si on veut ajouter plusieurs éléments d'un coup : <code>array_push($t, "a", "b", "c")</code>.</p>
+      <p>La syntaxe <code>$courses[] = "Café"</code> est exactement celle du cours (section 3.1 : « Ajouter un élément à la fin »). Elle ajoute la valeur au bout du tableau, l'index étant calculé automatiquement.</p>
     </div>
   </div>
 
@@ -1361,6 +1209,7 @@ Nombre après ajout : 6</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 2.2</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-2-2')"><span class="check">○</span> Fait</button>
       </div>
@@ -1389,8 +1238,12 @@ promo : 1</pre>
     </div>
     <div class="hint-box" id="hint-2-2">
       <div class="hint-box-title">Indice</div>
-      <p>Pour parcourir un associatif avec ses clés : <code>foreach ($produit as $cle =&gt; $valeur)</code>. Pour ajouter une nouvelle clé : <code>$produit["promo"] = true;</code> — PHP la crée automatiquement.</p>
-      <p>Le booléen <code>true</code> s'affiche comme <code>1</code> avec <code>echo</code> (et <code>false</code> comme rien). C'est normal.</p>
+      <ul>
+        <li>Un tableau associatif se déclare avec des paires <code>clé =&gt; valeur</code>.</li>
+        <li><code>foreach ($produit as $cle =&gt; $valeur)</code> va vous permettre de parcourir le tableau en récupérant <strong>à la fois</strong> la clé et la valeur à chaque tour. C'est la variante du <code>foreach</code> pour les associatifs.</li>
+        <li>Pour <strong>ajouter une nouvelle clé</strong> : <code>$produit["promo"] = true;</code>. Si la clé n'existe pas encore, PHP la crée automatiquement.</li>
+        <li>Le booléen <code>true</code> s'affiche comme <code>1</code> avec <code>echo</code> (et <code>false</code> comme rien). C'est normal, pas un bug.</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-2-2">
       <div class="solution-box-title">Solution</div>
@@ -1424,6 +1277,7 @@ promo : 1</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 2.3</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-2-3')"><span class="check">○</span> Fait</button>
       </div>
@@ -1442,7 +1296,11 @@ Parasite (2019) — Bong Joon-ho · Note : 9/10</pre>
     </div>
     <div class="hint-box" id="hint-2-3">
       <div class="hint-box-title">Indice</div>
-      <p>L'extérieur est un tableau indexé qui contient 3 tableaux associatifs. <code>foreach ($films as $film)</code> donne à chaque tour un sous-tableau, dont on accède aux clés avec <code>$film["titre"]</code>.</p>
+      <ul>
+        <li>Un <strong>tableau multidimensionnel</strong>, c'est un tableau qui contient d'autres tableaux. Ici, l'extérieur est un tableau <strong>indexé</strong> (les films) qui contient 3 tableaux <strong>associatifs</strong> (les caractéristiques de chaque film).</li>
+        <li><code>foreach ($films as $film)</code> va vous permettre de parcourir la liste. À chaque tour, <code>$film</code> contient un sous-tableau (un film entier avec toutes ses clés).</li>
+        <li>À l'intérieur, vous accédez ensuite à chaque clé du film avec <code>$film["titre"]</code>, <code>$film["realisateur"]</code>, etc.</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-2-3">
       <div class="solution-box-title">Solution</div>
@@ -1482,17 +1340,18 @@ Parasite (2019) — Bong Joon-ho · Note : 9/10</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 2.4</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span></span>
         <span class="duration">20 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-2-4')"><span class="check">○</span> Fait</button>
       </div>
     </div>
     <h3>Moyenne de classe</h3>
-    <p>Écrivez une fonction <code>moyenne($notes)</code> qui prend un tableau de notes (entiers ou décimaux) et retourne leur moyenne arrondie à <strong>une décimale</strong>.</p>
-    <p>Testez avec : <code>[12, 15, 8, 17, 14, 11, 9]</code>. Puis affichez aussi la note la plus haute et la plus basse.</p>
+    <p>Écrivez une fonction <code>moyenne($notes)</code> qui prend un tableau de notes (entiers ou décimaux) et retourne leur moyenne.</p>
+    <p>Testez avec : <code>[12, 15, 8, 17, 14, 11, 9]</code>. Puis affichez aussi la note la plus haute et la plus basse, en parcourant le tableau à la main.</p>
     <div class="expected">
       <span class="expected-label">▼ Résultat attendu</span>
       <pre>Notes : 12, 15, 8, 17, 14, 11, 9
-Moyenne : 12.3
+Moyenne : 12.285714285714
 Note la plus haute : 17
 Note la plus basse : 8</pre>
     </div>
@@ -1503,11 +1362,10 @@ Note la plus basse : 8</pre>
     <div class="hint-box" id="hint-2-4">
       <div class="hint-box-title">Indice</div>
       <ul>
-        <li>Pour la somme : boucle <code>foreach</code> avec une variable <code>$total</code> qui s'incrémente.</li>
-        <li>Diviser le total par <code>count($notes)</code>.</li>
-        <li><code>round($valeur, 1)</code> arrondit à une décimale.</li>
-        <li>Pour la plus haute / plus basse : <code>max()</code> et <code>min()</code> — fonctions natives qui acceptent directement un tableau.</li>
-        <li><code>implode(", ", $notes)</code> pour afficher les notes séparées par des virgules.</li>
+        <li><strong>Pour la somme :</strong> il n'y a pas de fonction native dans le cours qui fait ça d'un coup. Vous devez utiliser une boucle <code>foreach</code> qui parcourt le tableau, avec une variable <code>$total</code> qui accumule les valeurs (<code>$total += $n</code>).</li>
+        <li><strong>Pour le nombre de notes :</strong> <code>count()</code> va vous donner la taille du tableau. La moyenne, c'est ensuite simplement <code>$total / count($notes)</code>.</li>
+        <li><strong>Pour la plus haute et la plus basse :</strong> faire une deuxième boucle <code>foreach</code>. Astuce : initialiser <code>$maxi</code> avec la <strong>première</strong> note du tableau, puis comparer chaque note suivante — si on trouve plus grand, on met à jour <code>$maxi</code>. Idem pour <code>$mini</code> avec la plus petite.</li>
+        <li><strong>Pour l'affichage groupé :</strong> <code>implode(", ", $notes)</code> va vous permettre de fusionner toutes les notes en une seule chaîne, séparées par des virgules.</li>
       </ul>
     </div>
     <div class="solution-box" id="sol-2-4">
@@ -1518,18 +1376,116 @@ Note la plus basse : 8</pre>
     <span class="tk-kw">foreach</span> (<span class="tk-kw">$notes</span> <span class="tk-kw">as</span> <span class="tk-kw">$n</span>) {
         <span class="tk-kw">$total</span> += <span class="tk-kw">$n</span>;
     }
-    <span class="tk-kw">return</span> <span class="tk-fn">round</span>(<span class="tk-kw">$total</span> / <span class="tk-fn">count</span>(<span class="tk-kw">$notes</span>), <span class="tk-num">1</span>);
+    <span class="tk-kw">return</span> <span class="tk-kw">$total</span> / <span class="tk-fn">count</span>(<span class="tk-kw">$notes</span>);
 }
 
 <span class="tk-kw">$notes</span> = [<span class="tk-num">12</span>, <span class="tk-num">15</span>, <span class="tk-num">8</span>, <span class="tk-num">17</span>, <span class="tk-num">14</span>, <span class="tk-num">11</span>, <span class="tk-num">9</span>];
 
+<span class="tk-com">// Plus haute et plus basse, à la main avec foreach</span>
+<span class="tk-kw">$maxi</span> = <span class="tk-kw">$notes</span>[<span class="tk-num">0</span>];
+<span class="tk-kw">$mini</span> = <span class="tk-kw">$notes</span>[<span class="tk-num">0</span>];
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$notes</span> <span class="tk-kw">as</span> <span class="tk-kw">$n</span>) {
+    <span class="tk-kw">if</span> (<span class="tk-kw">$n</span> &gt; <span class="tk-kw">$maxi</span>) <span class="tk-kw">$maxi</span> = <span class="tk-kw">$n</span>;
+    <span class="tk-kw">if</span> (<span class="tk-kw">$n</span> &lt; <span class="tk-kw">$mini</span>) <span class="tk-kw">$mini</span> = <span class="tk-kw">$n</span>;
+}
+
 <span class="tk-fn">echo</span> <span class="tk-str">"Notes : "</span> . <span class="tk-fn">implode</span>(<span class="tk-str">", "</span>, <span class="tk-kw">$notes</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
 <span class="tk-fn">echo</span> <span class="tk-str">"Moyenne : "</span> . <span class="tk-fn">moyenne</span>(<span class="tk-kw">$notes</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
-<span class="tk-fn">echo</span> <span class="tk-str">"Note la plus haute : "</span> . <span class="tk-fn">max</span>(<span class="tk-kw">$notes</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
-<span class="tk-fn">echo</span> <span class="tk-str">"Note la plus basse : "</span> . <span class="tk-fn">min</span>(<span class="tk-kw">$notes</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Note la plus haute : $maxi&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Note la plus basse : $mini"</span>;
 <span class="tk-php">?&gt;</span></pre>
-      <p>Cet exercice combine : <strong>fonction</strong> (Bloc 1), <strong>foreach</strong> (rappel Jour 1), <strong>count</strong> (Bloc 2), <strong>implode</strong> (Bloc 3), et les fonctions natives <code>max</code>/<code>min</code>/<code>round</code>.</p>
-      <p>Note : PHP fournit aussi <code>array_sum($notes)</code> qui fait la somme directement — vous pourriez l'utiliser à la place de la boucle. Mais l'écrire à la main fait travailler le <code>foreach</code>.</p>
+      <p>Cet exercice combine : <strong>fonction</strong> (Bloc 1), <strong>foreach</strong> (rappel Jour 1), <strong>count</strong> (Bloc 2), <strong>implode</strong> (Bloc 3).</p>
+      <p>Pour la note la plus haute/basse, on <strong>initialise</strong> avec la première valeur du tableau, puis on parcourt en comparant. C'est l'algorithme classique du « max/min à la main ». Écrire cet algo soi-même fait travailler la <strong>logique de boucle</strong>, qui sera utile partout.</p>
+      <p>L'affichage avec beaucoup de décimales (<code>12.285714285714</code>) est normal : la division en PHP donne un nombre à virgule flottante complet. Pour arrondir proprement, il existe <code>round()</code> — hors programme Jour 2.</p>
+    </div>
+  </div>
+
+  <!-- EXO 2.5 -->
+  <div class="exercise" id="ex-2-5">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 2.5</div>
+      <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
+        <span class="duration">15 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-2-5')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Boîte à outils tableaux</h3>
+    <p>Deux magasins envoient leur liste de prix :</p>
+    <ul>
+      <li><code>$magasinA = [999, 850, 599]</code></li>
+      <li><code>$magasinB = [720, 199, 350]</code></li>
+    </ul>
+    <p>Réalisez les opérations <strong>dans l'ordre</strong>, en utilisant uniquement les fonctions natives vues dans le cours :</p>
+    <ol>
+      <li><strong>Fusionner</strong> les deux tableaux en un seul <code>$tous</code>.</li>
+      <li><strong>Trier croissant</strong>, afficher.</li>
+      <li><strong>Trier décroissant</strong>, afficher.</li>
+      <li>Extraire le <strong>top 3</strong> (les 3 premiers du décroissant).</li>
+      <li>Tester si <strong>599</strong> et <strong>850</strong> sont dans le top 3.</li>
+    </ol>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Croissant : 199, 350, 599, 720, 850, 999
+Décroissant : 999, 850, 720, 599, 350, 199
+Top 3 : 999, 850, 720
+599 dans le top 3 ? Non
+850 dans le top 3 ? Oui</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-2-5')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-2-5')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-2-5">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li><code>array_merge()</code> va vous permettre de <strong>fusionner deux tableaux</strong> en un seul. Il retourne un nouveau tableau (les originaux ne sont pas modifiés).</li>
+        <li><code>sort()</code> va trier le tableau par ordre <strong>croissant</strong>. <code>rsort()</code> fait le tri <strong>décroissant</strong>. Attention : les deux <strong>modifient le tableau directement</strong>, pas besoin de récupérer un résultat — il suffit de réafficher la variable d'origine.</li>
+        <li><code>array_slice($t, 0, 3)</code> va vous permettre d'<strong>extraire une portion</strong> du tableau : ici, 3 éléments à partir de l'index 0. Il retourne un nouveau tableau.</li>
+        <li><code>in_array()</code> va vous permettre de <strong>vérifier si une valeur est présente</strong> dans le tableau. Il retourne <code>true</code> ou <code>false</code>, à utiliser dans un <code>if/else</code>.</li>
+        <li><code>implode(", ", $t)</code> va recoller toutes les valeurs du tableau en une seule chaîne séparée par des virgules — pratique pour l'affichage.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-2-5">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$magasinA</span> = [<span class="tk-num">999</span>, <span class="tk-num">850</span>, <span class="tk-num">599</span>];
+<span class="tk-kw">$magasinB</span> = [<span class="tk-num">720</span>, <span class="tk-num">199</span>, <span class="tk-num">350</span>];
+
+<span class="tk-com">// 1. Fusion</span>
+<span class="tk-kw">$tous</span> = <span class="tk-fn">array_merge</span>(<span class="tk-kw">$magasinA</span>, <span class="tk-kw">$magasinB</span>);
+
+<span class="tk-com">// 2. Tri croissant</span>
+<span class="tk-fn">sort</span>(<span class="tk-kw">$tous</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Croissant : "</span> . <span class="tk-fn">implode</span>(<span class="tk-str">", "</span>, <span class="tk-kw">$tous</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+
+<span class="tk-com">// 3. Tri décroissant</span>
+<span class="tk-fn">rsort</span>(<span class="tk-kw">$tous</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Décroissant : "</span> . <span class="tk-fn">implode</span>(<span class="tk-str">", "</span>, <span class="tk-kw">$tous</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+
+<span class="tk-com">// 4. Top 3</span>
+<span class="tk-kw">$top</span> = <span class="tk-fn">array_slice</span>(<span class="tk-kw">$tous</span>, <span class="tk-num">0</span>, <span class="tk-num">3</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Top 3 : "</span> . <span class="tk-fn">implode</span>(<span class="tk-str">", "</span>, <span class="tk-kw">$top</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+
+<span class="tk-com">// 5. Recherche dans le top</span>
+<span class="tk-kw">if</span> (<span class="tk-fn">in_array</span>(<span class="tk-num">599</span>, <span class="tk-kw">$top</span>)) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"599 dans le top 3 ? Oui&lt;br&gt;"</span>;
+} <span class="tk-kw">else</span> {
+    <span class="tk-fn">echo</span> <span class="tk-str">"599 dans le top 3 ? Non&lt;br&gt;"</span>;
+}
+<span class="tk-kw">if</span> (<span class="tk-fn">in_array</span>(<span class="tk-num">850</span>, <span class="tk-kw">$top</span>)) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"850 dans le top 3 ? Oui&lt;br&gt;"</span>;
+} <span class="tk-kw">else</span> {
+    <span class="tk-fn">echo</span> <span class="tk-str">"850 dans le top 3 ? Non&lt;br&gt;"</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+      <p>Cet exercice couvre <strong>cinq fonctions natives du cours</strong> en un seul scénario : <code>array_merge</code>, <code>sort</code>, <code>rsort</code>, <code>array_slice</code>, <code>in_array</code>. Plus <code>implode</code> pour l'affichage.</p>
+      <p><strong>Distinction importante :</strong></p>
+      <ul>
+        <li><code>sort</code> et <code>rsort</code> <strong>modifient en place</strong> le tableau d'entrée.</li>
+        <li><code>array_merge</code>, <code>array_slice</code> <strong>retournent un nouveau tableau</strong>, l'original n'est pas touché.</li>
+      </ul>
+      <p>C'est exactement le genre de pipeline qu'on utilise pour générer des classements (top ventes, meilleurs scores, articles les plus lus).</p>
     </div>
   </div>
 </section>
@@ -1544,15 +1500,16 @@ Note la plus basse : 8</pre>
       <div class="block-eyebrow">Bloc chaînes</div>
       <h2>Couper, recoller, <em>nettoyer</em>.</h2>
     </div>
-    <div class="block-duration">~45 min · 3 exos</div>
+    <div class="block-duration">~55 min · 5 exos</div>
   </div>
-  <p class="block-intro">Trois exercices pour pratiquer les manipulations de chaînes. Le dernier extrait des données réelles d'une saisie utilisateur — le genre de problème qu'on voit tous les jours en production.</p>
+  <p class="block-intro">Cinq exercices pour pratiquer toutes les fonctions de chaînes vues dans le cours : <code>strlen</code>, casse, <code>str_replace</code>, <code>trim</code>, <code>explode</code>, <code>implode</code>, <code>substr</code>, sans oublier le piège des guillemets.</p>
 
   <!-- EXO 3.1 -->
   <div class="exercise" id="ex-3-1">
     <div class="exercise-head">
       <div class="exercise-id">EX 3.1</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star off">★</span><span class="star off">★</span></span>
         <span class="duration">10 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-3-1')"><span class="check">○</span> Fait</button>
       </div>
@@ -1578,7 +1535,12 @@ Longueur : 21</pre>
     </div>
     <div class="hint-box" id="hint-3-1">
       <div class="hint-box-title">Indice</div>
-      <p>Quatre fonctions natives : <code>strtoupper()</code>, <code>strtolower()</code>, <code>ucwords()</code>, <code>strlen()</code>.</p>
+      <ul>
+        <li><code>strtoupper()</code> va vous permettre de transformer toute la chaîne en MAJUSCULES.</li>
+        <li><code>strtolower()</code> fait l'inverse : tout en minuscules.</li>
+        <li><code>ucwords()</code> met une majuscule au début de chaque mot.</li>
+        <li><code>strlen()</code> retourne le nombre de caractères de la chaîne (espaces et ponctuation compris).</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-3-1">
       <div class="solution-box-title">Solution</div>
@@ -1599,6 +1561,7 @@ Longueur : 21</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 3.2</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-3-2')"><span class="check">○</span> Fait</button>
       </div>
@@ -1619,18 +1582,22 @@ pas-un-email → invalide</pre>
     <div class="hint-box" id="hint-3-2">
       <div class="hint-box-title">Indice</div>
       <ul>
-        <li>Pour vérifier la présence du <code>@</code> : <code>str_contains($email, "@")</code> retourne <code>true</code> ou <code>false</code>.</li>
-        <li>Pour découper autour du <code>@</code> : <code>explode("@", $email)</code> renvoie un tableau de 2 éléments. La partie domaine est à l'index <code>[1]</code>.</li>
+        <li><code>explode()</code> va vous permettre de <strong>découper la chaîne</strong> autour d'un séparateur (ici l'arobase <code>@</code>). Il retourne un tableau de morceaux.</li>
+        <li>Sur un email valide comme <code>"marie@gmail.com"</code>, le découpage donne exactement 2 morceaux : <code>"marie"</code> et <code>"gmail.com"</code>. Sur une chaîne sans arobase, il n'y a qu'un seul morceau.</li>
+        <li><code>count()</code> va vous permettre de vérifier combien de morceaux il y a. Si ce n'est pas 2, l'email est invalide.</li>
+        <li>La partie domaine se trouve à l'index <code>[1]</code> du tableau (le 2ᵉ morceau, puisqu'on commence à 0).</li>
       </ul>
     </div>
     <div class="solution-box" id="sol-3-2">
       <div class="solution-box-title">Solution</div>
 <pre class="code"><span class="tk-php">&lt;?php</span>
 <span class="tk-kw">function</span> <span class="tk-fn">extraireDomaine</span>(<span class="tk-kw">$email</span>) {
-    <span class="tk-kw">if</span> (!<span class="tk-fn">str_contains</span>(<span class="tk-kw">$email</span>, <span class="tk-str">"@"</span>)) {
+    <span class="tk-kw">$parties</span> = <span class="tk-fn">explode</span>(<span class="tk-str">"@"</span>, <span class="tk-kw">$email</span>);
+
+    <span class="tk-com">// Un email valide produit exactement 2 morceaux : "utilisateur" et "domaine".</span>
+    <span class="tk-kw">if</span> (<span class="tk-fn">count</span>(<span class="tk-kw">$parties</span>) !== <span class="tk-num">2</span>) {
         <span class="tk-kw">return</span> <span class="tk-str">"invalide"</span>;
     }
-    <span class="tk-kw">$parties</span> = <span class="tk-fn">explode</span>(<span class="tk-str">"@"</span>, <span class="tk-kw">$email</span>);
     <span class="tk-kw">return</span> <span class="tk-kw">$parties</span>[<span class="tk-num">1</span>];
 }
 
@@ -1639,8 +1606,9 @@ pas-un-email → invalide</pre>
     <span class="tk-fn">echo</span> <span class="tk-str">"$e → "</span> . <span class="tk-fn">extraireDomaine</span>(<span class="tk-kw">$e</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
 }
 <span class="tk-php">?&gt;</span></pre>
-      <p>Le <code>!</code> devant <code>str_contains</code> signifie « pas ». On lit : « si l'email ne contient PAS de @, alors retourner invalide ». Le <code>return</code> à l'intérieur du <code>if</code> arrête immédiatement la fonction.</p>
-      <p><strong>Limite de cette implémentation :</strong> elle ne gère pas les emails à plusieurs @ (comme <code>a@b@c</code>, qui n'est pas valide mais ne déclenche rien). Pour une vraie validation, on utiliserait <code>filter_var($email, FILTER_VALIDATE_EMAIL)</code>.</p>
+      <p>Cette approche combine deux fonctions du cours : <code>explode</code> pour découper, <code>count</code> pour mesurer le résultat. <strong>Plus rigoureuse que de simplement chercher un <code>@</code></strong> : elle refuse aussi les chaînes pathologiques comme <code>"a@b@c"</code> (qui aurait 3 parties au lieu de 2).</p>
+      <p>Le <code>return</code> à l'intérieur du <code>if</code> arrête immédiatement la fonction si l'email est invalide. C'est une « sortie anticipée », pratique pour gérer les cas d'erreur.</p>
+      <p><strong>Pour une validation industrielle</strong> (Gmail, MailChimp...), on utiliserait <code>filter_var($email, FILTER_VALIDATE_EMAIL)</code>, qui couvre toutes les règles RFC.</p>
     </div>
   </div>
 
@@ -1649,6 +1617,7 @@ pas-un-email → invalide</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 3.3</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-3-3')"><span class="check">○</span> Fait</button>
       </div>
@@ -1673,11 +1642,17 @@ pas-un-email → invalide</pre>
     </div>
     <div class="hint-box" id="hint-3-3">
       <div class="hint-box-title">Indice</div>
-      <ol>
-        <li>D'abord, découper avec <code>explode(",", $saisie)</code> → vous obtenez un tableau.</li>
-        <li>Ensuite, parcourir avec <code>foreach</code> et appliquer <code>trim()</code> puis <code>strtolower()</code> à chaque tag.</li>
-        <li>Stocker les versions propres dans un nouveau tableau, ou modifier le tableau en place avec <code>foreach (... as &amp;$tag)</code> (référence).</li>
-      </ol>
+      <ul>
+        <li><strong>D'abord, découper.</strong> <code>explode()</code> va vous permettre de transformer la chaîne en tableau, autour d'un séparateur (ici la virgule).</li>
+        <li><strong>Ensuite, nettoyer chaque tag.</strong> Parcourez le tableau avec <code>foreach</code>. Pour chaque tag :
+          <ul>
+            <li><code>trim()</code> va vous permettre d'<strong>enlever les espaces</strong> au début et à la fin.</li>
+            <li><code>strtolower()</code> va ensuite tout mettre en minuscules.</li>
+          </ul>
+        </li>
+        <li>Stockez les versions propres dans un nouveau tableau avec <code>$propre[] = ...</code>.</li>
+        <li><strong>Affichage final :</strong> une boucle <code>foreach</code> sur le tableau propre pour afficher chaque tag précédé d'un <code>#</code>.</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-3-3">
       <div class="solution-box-title">Solution</div>
@@ -1698,8 +1673,111 @@ pas-un-email → invalide</pre>
     <span class="tk-fn">echo</span> <span class="tk-str">"#$tag&lt;br&gt;"</span>;
 }
 <span class="tk-php">?&gt;</span></pre>
-      <p>L'ordre des appels compte : <code>trim()</code> d'abord pour virer les espaces, <code>strtolower()</code> ensuite. L'opérateur <code>[]</code> sur <code>$propre</code> ajoute à la fin du tableau, équivalent à <code>array_push</code>.</p>
+      <p>L'ordre des appels compte : <code>trim()</code> d'abord pour virer les espaces, <code>strtolower()</code> ensuite. L'opérateur <code>[]</code> sur <code>$propre</code> ajoute à la fin du tableau — c'est la syntaxe vue dans le cours pour empiler des valeurs.</p>
       <p><strong>Bonus :</strong> on peut tout faire en une seule ligne avec <code>array_map(fn($t) =&gt; strtolower(trim($t)), $brut)</code>. C'est plus court mais demande de connaître les fonctions anonymes — sujet du Jour 4.</p>
+    </div>
+  </div>
+
+  <!-- EXO 3.4 -->
+  <div class="exercise" id="ex-3-4">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 3.4</div>
+      <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
+        <span class="duration">10 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-3-4')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Mini-censure</h3>
+    <p>On reçoit un commentaire utilisateur :</p>
+    <p><code>"Ce produit est nul, vraiment nul ! Le service est nul aussi."</code></p>
+    <p>Écrivez une fonction <code>censurer($texte, $motInterdit)</code> qui remplace <strong>toutes</strong> les occurrences du mot interdit par <code>"***"</code>, et retourne le texte censuré. Testez en censurant le mot <code>"nul"</code>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Avant : Ce produit est nul, vraiment nul ! Le service est nul aussi.
+Après : Ce produit est ***, vraiment *** ! Le service est *** aussi.</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-3-4')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-3-4')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-3-4">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li><code>str_replace($cherche, $remplace, $dans)</code> va vous permettre de <strong>remplacer toutes les occurrences</strong> d'un texte par un autre, en une seule passe. Pas besoin de boucle.</li>
+        <li>Attention : la fonction <strong>retourne</strong> la nouvelle chaîne, elle ne modifie pas l'originale. Il faut donc soit stocker le résultat dans une variable, soit le <code>return</code>er directement depuis votre fonction.</li>
+        <li>Trois arguments dans l'ordre : ce qu'on cherche, ce qu'on met à la place, dans quelle chaîne on travaille.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-3-4">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">censurer</span>(<span class="tk-kw">$texte</span>, <span class="tk-kw">$motInterdit</span>) {
+    <span class="tk-kw">return</span> <span class="tk-fn">str_replace</span>(<span class="tk-kw">$motInterdit</span>, <span class="tk-str">"***"</span>, <span class="tk-kw">$texte</span>);
+}
+
+<span class="tk-kw">$commentaire</span> = <span class="tk-str">"Ce produit est nul, vraiment nul ! Le service est nul aussi."</span>;
+
+<span class="tk-fn">echo</span> <span class="tk-str">"Avant : $commentaire&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Après : "</span> . <span class="tk-fn">censurer</span>(<span class="tk-kw">$commentaire</span>, <span class="tk-str">"nul"</span>);
+<span class="tk-php">?&gt;</span></pre>
+      <p>Une fonction, un appel, trois occurrences remplacées d'un coup. C'est la beauté de <code>str_replace</code> : pas besoin de boucle, la fonction parcourt tout le texte elle-même.</p>
+      <p><strong>Bon à savoir :</strong> <code>str_replace</code> est <strong>sensible à la casse</strong>. <code>"Nul"</code> avec une majuscule ne serait pas censuré ici. Pour ignorer la casse, il existe <code>str_ireplace</code> — pas dans le programme Jour 2 mais utile à connaître.</p>
+    </div>
+  </div>
+
+  <!-- EXO 3.5 -->
+  <div class="exercise" id="ex-3-5">
+    <div class="exercise-head">
+      <div class="exercise-id">EX 3.5</div>
+      <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
+        <span class="duration">10 min</span>
+        <button class="done-toggle" onclick="toggleDone('ex-3-5')"><span class="check">○</span> Fait</button>
+      </div>
+    </div>
+    <h3>Code produit</h3>
+    <p>Un code produit dans le catalogue suit toujours le format <code>PROD-2025-A47</code> :</p>
+    <ul>
+      <li>les <strong>4 premiers caractères</strong> = le préfixe (<code>PROD</code>)</li>
+      <li>les <strong>4 caractères suivants</strong> (positions 5 à 8) = l'année</li>
+      <li>le reste (à partir du caractère 10) = le numéro</li>
+    </ul>
+    <p>À partir du code <code>"PROD-2025-A47"</code>, extrayez et affichez les trois parties en utilisant <code>substr</code>.</p>
+    <div class="expected">
+      <span class="expected-label">▼ Résultat attendu</span>
+      <pre>Préfixe : PROD
+Année : 2025
+Numéro : A47</pre>
+    </div>
+    <div class="ex-actions">
+      <button class="ex-btn hint" onclick="toggleBox(this, 'hint-3-5')">💡 Indice <span class="arrow">▾</span></button>
+      <button class="ex-btn solution" onclick="toggleBox(this, 'sol-3-5')">🔒 Voir la solution <span class="arrow">▾</span></button>
+    </div>
+    <div class="hint-box" id="hint-3-5">
+      <div class="hint-box-title">Indice</div>
+      <ul>
+        <li><code>substr()</code> va vous permettre d'<strong>extraire un morceau d'une chaîne</strong>. Elle prend trois arguments : la chaîne, la position de départ (les caractères sont numérotés à partir de 0), et le nombre de caractères à prendre.</li>
+        <li><code>substr($code, 0, 4)</code> = à partir du début, prendre 4 caractères → <code>"PROD"</code>.</li>
+        <li><code>substr($code, 5, 4)</code> = à partir de la position 5 (après le premier tiret), prendre 4 caractères → <code>"2025"</code>.</li>
+        <li>Si vous <strong>omettez le 3ᵉ argument</strong>, <code>substr</code> prend tout jusqu'à la fin de la chaîne. Pratique quand on ne sait pas combien il reste.</li>
+      </ul>
+    </div>
+    <div class="solution-box" id="sol-3-5">
+      <div class="solution-box-title">Solution</div>
+<pre class="code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$code</span> = <span class="tk-str">"PROD-2025-A47"</span>;
+
+<span class="tk-fn">echo</span> <span class="tk-str">"Préfixe : "</span> . <span class="tk-fn">substr</span>(<span class="tk-kw">$code</span>, <span class="tk-num">0</span>, <span class="tk-num">4</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Année : "</span> . <span class="tk-fn">substr</span>(<span class="tk-kw">$code</span>, <span class="tk-num">5</span>, <span class="tk-num">4</span>) . <span class="tk-str">"&lt;br&gt;"</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">"Numéro : "</span> . <span class="tk-fn">substr</span>(<span class="tk-kw">$code</span>, <span class="tk-num">10</span>);
+<span class="tk-php">?&gt;</span></pre>
+      <p>Deux façons de manipuler les chaînes du cours, à comparer :</p>
+      <ul>
+        <li><code>substr</code> demande de <strong>connaître les positions exactes</strong>. Pratique pour un format fixe (numéro de série, code postal, date au format ISO).</li>
+        <li><code>explode</code> (EX 3.2) demande de <strong>connaître le séparateur</strong>. Pratique quand les morceaux ont une longueur variable.</li>
+      </ul>
+      <p>Sur ce code <code>PROD-2025-A47</code>, <code>explode("-", $code)</code> aurait aussi marché — chaque approche a son terrain de prédilection.</p>
     </div>
   </div>
 </section>
@@ -1716,13 +1794,14 @@ pas-un-email → invalide</pre>
     </div>
     <div class="block-duration">~45 min · 3 exos</div>
   </div>
-  <p class="block-intro">Trois exercices pour pratiquer la persistance fichier. Vous allez écrire, lire, ajouter sans écraser — exactement ce qu'on utilisera dans le projet WebBlog cet après-midi pour stocker les articles avant de passer à MySQL demain.</p>
+  <p class="block-intro">Trois exercices pour pratiquer la persistance fichier : écrire, lire, ajouter sans écraser avec <code>FILE_APPEND</code>. Les outils du système de logs WebBlog qu'on construira cet après-midi.</p>
 
   <!-- EXO 4.1 -->
   <div class="exercise" id="ex-4-1">
     <div class="exercise-head">
       <div class="exercise-id">EX 4.1</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star off">★</span><span class="star off">★</span></span>
         <span class="duration">10 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-4-1')"><span class="check">○</span> Fait</button>
       </div>
@@ -1740,7 +1819,10 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
     </div>
     <div class="hint-box" id="hint-4-1">
       <div class="hint-box-title">Indice</div>
-      <p>Deux fonctions à enchaîner : <code>file_put_contents("citation.txt", $texte)</code> pour écrire, puis <code>file_get_contents("citation.txt")</code> pour relire.</p>
+      <ul>
+        <li><code>file_put_contents($chemin, $texte)</code> va vous permettre d'<strong>écrire</strong> du texte dans un fichier. Si le fichier n'existe pas, PHP le crée. S'il existe déjà, son contenu est remplacé.</li>
+        <li><code>file_get_contents($chemin)</code> fait l'inverse : elle <strong>lit tout le contenu</strong> du fichier d'un coup et le retourne sous forme de chaîne, qu'on peut stocker dans une variable puis afficher avec <code>echo</code>.</li>
+      </ul>
     </div>
     <div class="solution-box" id="sol-4-1">
       <div class="solution-box-title">Solution</div>
@@ -1762,18 +1844,19 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 4.2</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star off">★</span></span>
         <span class="duration">15 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-4-2')"><span class="check">○</span> Fait</button>
       </div>
     </div>
     <h3>Journal de bord</h3>
     <p>Écrivez une fonction <code>noterDansJournal($message)</code> qui ajoute une ligne au fichier <code>journal.txt</code> au format <code>[YYYY-MM-DD HH:MM:SS] message</code>. Les anciennes lignes doivent être <strong>conservées</strong>.</p>
-    <p>Appelez la fonction 3 fois avec des messages différents (mettez un <code>sleep(1);</code> entre chaque appel pour voir l'heure changer). Affichez ensuite le contenu du fichier.</p>
+    <p>Appelez la fonction <strong>3 fois</strong> avec des messages différents. Affichez ensuite le contenu du fichier.</p>
     <div class="expected">
       <span class="expected-label">▼ Résultat attendu (contenu de journal.txt)</span>
       <pre>[2025-12-06 09:15:00] Démarrage de la session
-[2025-12-06 09:15:01] Utilisateur connecté
-[2025-12-06 09:15:02] Article publié</pre>
+[2025-12-06 09:15:00] Utilisateur connecté
+[2025-12-06 09:15:00] Article publié</pre>
     </div>
     <div class="ex-actions">
       <button class="ex-btn hint" onclick="toggleBox(this, 'hint-4-2')">💡 Indice <span class="arrow">▾</span></button>
@@ -1782,9 +1865,9 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
     <div class="hint-box" id="hint-4-2">
       <div class="hint-box-title">Indice</div>
       <ul>
-        <li>Pour la date au bon format : <code>date("Y-m-d H:i:s")</code>.</li>
-        <li>Pour ajouter sans écraser : <code>FILE_APPEND</code> en 3ᵉ argument de <code>file_put_contents</code>.</li>
-        <li>N'oubliez pas le <code>\n</code> à la fin de chaque ligne pour passer à la suivante.</li>
+        <li><code>date("Y-m-d H:i:s")</code> va vous donner la date et l'heure actuelles, au format demandé (<code>2025-12-06 09:15:00</code>).</li>
+        <li>Pour <strong>ajouter à la fin du fichier sans écraser</strong>, il faut passer le drapeau <code>FILE_APPEND</code> en 3ᵉ argument de <code>file_put_contents</code>. Sans lui, chaque appel remplacerait tout le contenu — il ne resterait que la dernière ligne.</li>
+        <li><code>\n</code> est le caractère de saut de ligne. À mettre à la fin de chaque ligne pour que la suivante commence dessous.</li>
       </ul>
     </div>
     <div class="solution-box" id="sol-4-2">
@@ -1797,15 +1880,13 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
 }
 
 <span class="tk-fn">noterDansJournal</span>(<span class="tk-str">"Démarrage de la session"</span>);
-<span class="tk-fn">sleep</span>(<span class="tk-num">1</span>);
 <span class="tk-fn">noterDansJournal</span>(<span class="tk-str">"Utilisateur connecté"</span>);
-<span class="tk-fn">sleep</span>(<span class="tk-num">1</span>);
 <span class="tk-fn">noterDansJournal</span>(<span class="tk-str">"Article publié"</span>);
 
 <span class="tk-fn">echo</span> <span class="tk-str">"&lt;pre&gt;"</span> . <span class="tk-fn">file_get_contents</span>(<span class="tk-str">"journal.txt"</span>) . <span class="tk-str">"&lt;/pre&gt;"</span>;
 <span class="tk-php">?&gt;</span></pre>
       <p>Sans <code>FILE_APPEND</code>, chaque appel écraserait l'intégralité du journal et il ne resterait que la dernière ligne. <strong>C'est le piège du QCM Q21</strong>. La balise <code>&lt;pre&gt;</code> affiche le texte tel quel, en respectant les sauts de ligne.</p>
-      <p><strong>En production :</strong> ce code est utilisé dans tous les sites pour tracer les actions importantes. C'est exactement ce que vous adapterez pour le WebBlog cet après-midi.</p>
+      <p>Comme les 3 appels se font dans la même seconde, la date est identique pour les 3 lignes. C'est normal — en vrai projet, les appels sont espacés dans le temps.</p>
     </div>
   </div>
 
@@ -1814,6 +1895,7 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 4.3</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span></span>
         <span class="duration">20 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-4-3')"><span class="check">○</span> Fait</button>
       </div>
@@ -1840,9 +1922,10 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
     <div class="hint-box" id="hint-4-3">
       <div class="hint-box-title">Indice</div>
       <ul>
-        <li>Toujours commencer par <code>file_exists("visites.txt")</code> — sinon erreur au premier appel.</li>
-        <li>Si le fichier n'existe pas : initialiser <code>$nombre = 0</code>. Sinon : <code>$nombre = (int) file_get_contents("visites.txt")</code> (le <code>(int)</code> convertit la chaîne lue en entier).</li>
-        <li>Incrémenter, puis écrire avec <code>file_put_contents</code> <strong>sans</strong> <code>FILE_APPEND</code> (on veut écraser la valeur précédente, pas l'ajouter à la suite).</li>
+        <li><code>file_exists()</code> va vous permettre de <strong>vérifier si le fichier existe</strong> avant de tenter de le lire. Sans ce contrôle, le premier appel (quand le fichier n'a pas encore été créé) provoquerait une erreur.</li>
+        <li>Si le fichier existe, <code>file_get_contents()</code> lit son contenu. PHP convertira automatiquement la chaîne lue (par ex. <code>"5"</code>) en nombre lors de l'addition, sans qu'on ait à faire quoi que ce soit.</li>
+        <li>Pour incrémenter, faire <code>$nombre = $nombre + 1</code>.</li>
+        <li>Pour écrire la nouvelle valeur : <code>file_put_contents</code> <strong>sans</strong> <code>FILE_APPEND</code>. Ici on veut écraser l'ancienne valeur, pas l'ajouter à la suite — le compteur ne stocke qu'<strong>un seul nombre</strong> dans le fichier.</li>
       </ul>
     </div>
     <div class="solution-box" id="sol-4-3">
@@ -1852,13 +1935,13 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
 
 <span class="tk-com">// 1. Lire (ou initialiser)</span>
 <span class="tk-kw">if</span> (<span class="tk-fn">file_exists</span>(<span class="tk-kw">$fichier</span>)) {
-    <span class="tk-kw">$nombre</span> = (<span class="tk-kw">int</span>) <span class="tk-fn">file_get_contents</span>(<span class="tk-kw">$fichier</span>);
+    <span class="tk-kw">$nombre</span> = <span class="tk-fn">file_get_contents</span>(<span class="tk-kw">$fichier</span>);
 } <span class="tk-kw">else</span> {
     <span class="tk-kw">$nombre</span> = <span class="tk-num">0</span>;
 }
 
-<span class="tk-com">// 2. Incrémenter</span>
-<span class="tk-kw">$nombre</span>++;
+<span class="tk-com">// 2. Incrémenter (PHP convertit la chaîne "5" en nombre 5 lors de l'addition)</span>
+<span class="tk-kw">$nombre</span> = <span class="tk-kw">$nombre</span> + <span class="tk-num">1</span>;
 
 <span class="tk-com">// 3. Écrire (sans FILE_APPEND — on remplace)</span>
 <span class="tk-fn">file_put_contents</span>(<span class="tk-kw">$fichier</span>, <span class="tk-kw">$nombre</span>);
@@ -1866,16 +1949,16 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
 <span class="tk-com">// 4. Afficher</span>
 <span class="tk-fn">echo</span> <span class="tk-str">"Vous êtes le visiteur n° $nombre."</span>;
 <span class="tk-php">?&gt;</span></pre>
-      <p>Trois choses à noter :</p>
+      <p>Deux points à noter :</p>
       <ul>
-        <li><code>(int)</code> est un <strong>cast</strong> qui convertit la chaîne lue (par exemple <code>"42"</code>) en entier (<code>42</code>). Sans ça, on additionnerait une chaîne à un nombre — PHP le fait mais c'est sale.</li>
+        <li><strong>Conversion implicite :</strong> <code>file_get_contents</code> retourne toujours une chaîne. Quand on fait <code>$nombre + 1</code>, PHP convertit automatiquement <code>"5"</code> en <code>5</code> pour additionner. Ça marche, sans effort.</li>
         <li><strong>Pas de <code>FILE_APPEND</code></strong> cette fois : on veut <em>écraser</em> l'ancienne valeur par la nouvelle. Le compteur a une seule valeur, pas un historique.</li>
-        <li>Le <code>++</code> est l'incrément : équivalent à <code>$nombre = $nombre + 1</code>.</li>
       </ul>
       <p><strong>Limite :</strong> en cas d'accès concurrents (plusieurs visiteurs au même instant), deux scripts peuvent lire la même valeur et écrire la même nouvelle valeur — un visiteur est perdu. La parade s'appelle un <em>verrou fichier</em> (<code>flock</code>), hors programme aujourd'hui mais à connaître pour la prod.</p>
     </div>
   </div>
 </section>
+
 
 <!-- ============================================================
      DEFI FINAL
@@ -1896,6 +1979,7 @@ Contenu : PHP a été créé en 1994 par Rasmus Lerdorf.</pre>
     <div class="exercise-head">
       <div class="exercise-id">EX 5.1</div>
       <div class="exercise-meta">
+        <span class="difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span></span>
         <span class="duration">30 min</span>
         <button class="done-toggle" onclick="toggleDone('ex-5-1')"><span class="check">○</span> Fait</button>
       </div>
@@ -1931,11 +2015,19 @@ Contact "alice martin" ajouté.
     </div>
     <div class="hint-box" id="hint-5-1">
       <div class="hint-box-title">Indice — Plan d'attaque</div>
-      <ol>
-        <li><strong>ajouterContact</strong> : trim chaque paramètre, ucfirst sur le nom, vérifier <code>str_contains($email, "@")</code>, construire la ligne <code>"$nom|$email|$tel\n"</code>, écrire avec <code>FILE_APPEND</code>.</li>
-        <li><strong>listerContacts</strong> : <code>file("contacts.txt")</code> donne un tableau de lignes. Pour chaque ligne, <code>explode("|", $ligne)</code> donne un tableau de 3 morceaux. Construire un sous-tableau associatif.</li>
-        <li>Pour effacer le fichier avant chaque test : <code>file_put_contents("contacts.txt", "")</code>.</li>
-      </ol>
+      <p><strong>Fonction <code>ajouterContact</code> :</strong></p>
+      <ul>
+        <li><code>trim()</code> va vous permettre d'enlever les espaces inutiles au début et à la fin de chaque paramètre.</li>
+        <li><code>ucfirst()</code> va mettre la première lettre du nom en majuscule.</li>
+        <li>Pour valider l'email : <code>explode("@", $email)</code> découpe la chaîne. Si le résultat a moins de 2 morceaux, c'est qu'il n'y avait pas d'<code>@</code> → email invalide, retourner <code>false</code>.</li>
+        <li>Sinon, construire la ligne <code>"$nom|$email|$tel\n"</code> et l'écrire avec <code>file_put_contents</code> en mode <code>FILE_APPEND</code> pour conserver les contacts précédents.</li>
+      </ul>
+      <p><strong>Fonction <code>listerContacts</code> :</strong></p>
+      <ul>
+        <li><code>file()</code> va vous permettre de <strong>lire un fichier ligne par ligne</strong>. Elle retourne un tableau dans lequel chaque case contient une ligne du fichier.</li>
+        <li>Pour chaque ligne, <code>explode("|", $ligne)</code> va vous redonner les 3 morceaux (nom, email, téléphone), qu'on remet dans un tableau associatif.</li>
+      </ul>
+      <p><strong>Astuce :</strong> avant les tests, effacer le fichier avec <code>file_put_contents("contacts.txt", "")</code> pour repartir propre à chaque exécution.</p>
     </div>
     <div class="solution-box" id="sol-5-1">
       <div class="solution-box-title">Solution</div>
@@ -1950,7 +2042,7 @@ Contact "alice martin" ajouté.
     <span class="tk-kw">$email</span> = <span class="tk-fn">trim</span>(<span class="tk-kw">$email</span>);
     <span class="tk-kw">$tel</span>   = <span class="tk-fn">trim</span>(<span class="tk-kw">$tel</span>);
 
-    <span class="tk-kw">if</span> (!<span class="tk-fn">str_contains</span>(<span class="tk-kw">$email</span>, <span class="tk-str">"@"</span>)) {
+    <span class="tk-kw">if</span> (<span class="tk-fn">count</span>(<span class="tk-fn">explode</span>(<span class="tk-str">"@"</span>, <span class="tk-kw">$email</span>)) !== <span class="tk-num">2</span>) {
         <span class="tk-kw">return</span> <span class="tk-kw">false</span>;
     }
 
@@ -1995,7 +2087,7 @@ Contact "alice martin" ajouté.
       <ul>
         <li><strong>Fonctions</strong> avec paramètres + valeur de retour (Bloc 1).</li>
         <li><strong>Tableau associatif</strong> et tableau multidimensionnel (Bloc 2).</li>
-        <li><strong>trim, ucfirst, str_contains, explode</strong> (Bloc 3).</li>
+        <li><strong>trim, ucfirst, explode + count</strong> pour valider l'email (Bloc 3).</li>
         <li><strong>file_put_contents avec FILE_APPEND, file_exists, file</strong> (Bloc 4).</li>
       </ul>
       <p>Le drapeau <code>FILE_IGNORE_NEW_LINES</code> dans <code>file()</code> évite que chaque ligne lue contienne un <code>\n</code> en fin — sans lui, le téléphone aurait un retour à la ligne collé.</p>
@@ -2032,7 +2124,7 @@ Contact "alice martin" ajouté.
     </svg>
   </div>
   <div>
-    <div class="pw-count"><span class="pw-done" id="pwDone">0</span> <span style="color:var(--text-dim)">/ 20</span></div>
+    <div class="pw-count"><span class="pw-done" id="pwDone">0</span> <span style="color:var(--text-dim)">/ 18</span></div>
     <div class="pw-label">exos validés</div>
   </div>
 </div>
@@ -2058,29 +2150,27 @@ Contact "alice martin" ajouté.
   }, { threshold: 0.08 });
   reveals.forEach(r => io.observe(r));
 
-  // Mots de passe par solution (un par exercice).
-  // Le prof peut les diffuser au compte-gouttes après le délai d'auto-correction.
+  // Mots de passe par solution (un par exercice, aléatoires).
+  // À diffuser au compte-gouttes après le délai d'auto-correction.
   const SOLUTION_PASSWORDS = {
-    'sol-0-1': 'hello',
-    'sol-0-2': 'echo',
-    'sol-0-3': 'concat',
-    'sol-0-4': 'typage',
-    'sol-0-5': 'casting',
-    'sol-1-1': 'function',
-    'sol-1-2': 'return',
-    'sol-1-3': 'scope',
-    'sol-1-4': 'default',
-    'sol-2-1': 'array',
-    'sol-2-2': 'index',
-    'sol-2-3': 'assoc',
-    'sol-2-4': 'multi',
-    'sol-3-1': 'strlen',
-    'sol-3-2': 'substr',
-    'sol-3-3': 'trim',
-    'sol-4-1': 'foreach',
-    'sol-4-2': 'while',
-    'sol-4-3': 'break',
-    'sol-5-1': 'webblog'
+    'sol-1-1': 'w7cczj',
+    'sol-1-2': 'wjc92r',
+    'sol-1-3': 'x2buvk',
+    'sol-1-4': 'x76h6a',
+    'sol-2-1': 'kchanr',
+    'sol-2-2': '6wwy8g',
+    'sol-2-3': 'ysca8x',
+    'sol-2-4': 'zefeec',
+    'sol-2-5': 'zmgkvv',
+    'sol-3-1': '6vpcu2',
+    'sol-3-2': 'nvnm6v',
+    'sol-3-3': '85xejq',
+    'sol-3-4': 'b8a7y5',
+    'sol-3-5': 'qsgdyn',
+    'sol-4-1': 'fwcdky',
+    'sol-4-2': 'vfxtey',
+    'sol-4-3': 'ebapbe',
+    'sol-5-1': '5327hy'
   };
   const unlockedSolutions = new Set();
 
@@ -2092,7 +2182,6 @@ Contact "alice martin" ajouté.
     if (targetId.startsWith('sol-') && !unlockedSolutions.has(targetId)) {
       const expected = SOLUTION_PASSWORDS[targetId];
       if (!expected) {
-        // Pas de MDP configuré pour cette solution : on ouvre normalement.
         unlockedSolutions.add(targetId);
       } else {
         const entered = prompt('🔐 Mot de passe pour déverrouiller la solution :');
