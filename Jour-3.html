@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM PHP — Banque de questions par jour</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.65; color: var(--text);
+    background: var(--bg); -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; min-height: 100vh;
+  }
+  ::selection { background: var(--primary); color: var(--bg); }
+  :root {
+    --bg: #0a0a0f; --bg-soft: #11111a; --bg-elev: #16161f;
+    --card: rgba(255,255,255,0.025); --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #e8e8ed; --text-soft: #a0a0b0; --text-dim: #6b6b78;
+    --primary: #a78bfa; --primary-bright: #c4b5fd;
+    --accent: #fb923c; --accent-soft: rgba(251,146,60,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --amber: #fbbf24; --blue: #60a5fa;
+    --code-bg: #0d0d18;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+    background-size: 28px 28px; pointer-events: none; z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167,139,250,0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(251,146,60,0.05), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  main, section, .hero, .filters-bar { position: relative; z-index: 1; }
+
+  /* HERO */
+  .hero {
+    display: flex; flex-direction: column;
+    padding: 4rem 2rem 2rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    padding: 0.5rem 1rem; border: 1px solid var(--border);
+    border-radius: 999px; font-size: 0.78rem; font-weight: 500;
+    color: var(--text-soft); width: fit-content; margin-bottom: 1.5rem;
+    background: var(--card); backdrop-filter: blur(10px);
+  }
+  .hero-eyebrow .dot {
+    width: 7px; height: 7px; background: var(--green);
+    border-radius: 50%; box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .hero-eyebrow .sep { color: var(--text-dim); }
+  .hero-eyebrow .accent { color: var(--accent); font-weight: 600; }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 800;
+    line-height: 1; letter-spacing: -0.04em;
+    margin-bottom: 1.5rem; color: var(--text);
+  }
+  .hero h1 .word-accent {
+    background: linear-gradient(135deg, var(--primary) 20%, var(--accent) 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    font-style: italic;
+  }
+  .hero-lead {
+    font-size: clamp(1rem, 1.5vw, 1.15rem); color: var(--text-soft);
+    max-width: 700px; line-height: 1.6;
+  }
+  .hero-meta {
+    margin-top: 2rem; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.4rem; max-width: 700px;
+    padding-top: 1.5rem; border-top: 1px solid var(--border);
+  }
+  .hero-meta-item .num {
+    font-size: 1.9rem; font-weight: 700;
+    background: linear-gradient(180deg, var(--text), var(--text-soft));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .hero-meta-item .label {
+    font-size: 0.74rem; color: var(--text-dim);
+    margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.4); } }
+
+  /* STICKY FILTERS BAR */
+  .filters-bar {
+    position: sticky; top: 0;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 2rem;
+    z-index: 50;
+  }
+  .filters-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    color: var(--text-soft); font-family: inherit;
+    font-size: 0.86rem; font-weight: 500;
+    padding: 0.45rem 1rem; border-radius: 8px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: all 0.2s var(--easing);
+  }
+  .filter-btn:hover { color: var(--text); border-color: var(--border-strong); }
+  .filter-btn.active {
+    background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(251,146,60,0.08));
+    border-color: var(--primary); color: var(--primary-bright);
+  }
+  .filter-btn .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem; color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    padding: 0.1rem 0.45rem; border-radius: 5px;
+  }
+  .filter-btn.active .count { color: var(--primary); background: rgba(167,139,250,0.1); }
+  .filters-summary {
+    margin-left: auto; font-size: 0.82rem; color: var(--text-dim);
+    font-family: "JetBrains Mono", monospace;
+  }
+  .filters-summary strong { color: var(--accent); }
+
+  /* DAY SECTION */
+  section.day-block {
+    max-width: 1100px; margin: 0 auto;
+    padding: 3rem 2rem 1rem; position: relative;
+  }
+  section.day-block::before {
+    content: ''; position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%); width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .day-header {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 1.5rem; align-items: baseline; margin-bottom: 1.6rem;
+  }
+  .day-num {
+    font-size: clamp(2.6rem, 5vw, 4.2rem); font-weight: 800;
+    font-style: italic; letter-spacing: -0.04em;
+    line-height: 0.9; color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    user-select: none;
+  }
+  .day-eyebrow {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 0.5rem;
+  }
+  .day-header h2 {
+    font-size: clamp(1.3rem, 2.4vw, 2rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.025em;
+  }
+  .day-header h2 em {
+    font-style: italic; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .day-count {
+    font-size: 0.82rem; color: var(--text-dim);
+    font-family: "JetBrains Mono", monospace;
+    padding: 0.35rem 0.85rem; border: 1px solid var(--border);
+    border-radius: 999px; background: var(--card); white-space: nowrap;
+  }
+
+  /* QCM QUESTION CARD */
+  .qcm-q {
+    background: var(--card); backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem; margin: 1rem 0;
+    position: relative; overflow: hidden;
+    transition: all 0.25s var(--easing);
+  }
+  .qcm-q::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .q-head {
+    display: flex; align-items: center; gap: 0.6rem;
+    flex-wrap: wrap; margin-bottom: 0.9rem;
+  }
+  .q-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--accent); background: var(--accent-soft);
+    border: 1px solid rgba(251,146,60,0.2);
+    padding: 0.25rem 0.6rem; border-radius: 6px;
+  }
+  .q-level {
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 0.22rem 0.55rem; border-radius: 5px;
+  }
+  .q-level.facile { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+  .q-level.moyen  { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.2); }
+  .q-theme {
+    font-size: 0.74rem; color: var(--text-dim);
+    background: var(--bg-elev);
+    padding: 0.22rem 0.55rem; border-radius: 5px;
+    border: 1px solid var(--border);
+  }
+  .q-text {
+    color: var(--text); font-size: 1rem; font-weight: 500;
+    margin-bottom: 0.8rem; line-height: 1.55;
+  }
+  .q-text code { font-family: "JetBrains Mono", monospace; font-size: 0.85em; background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 4px; color: var(--primary-bright); border: 1px solid var(--border); }
+  .q-code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem 1rem; margin: 0.5rem 0 0.9rem;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem; line-height: 1.6;
+    color: var(--text); white-space: pre;
+  }
+  .q-code .tk-php { color: #f97316; }
+  .q-code .tk-kw { color: #c4b5fd; }
+  .q-code .tk-str { color: #86efac; }
+  .q-code .tk-com { color: var(--text-dim); font-style: italic; }
+  .q-code .tk-fn { color: #60a5fa; }
+  .q-code .tk-num { color: #f9a8d4; }
+
+  .q-choices {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .choice {
+    display: flex; align-items: flex-start; gap: 0.7rem;
+    padding: 0.65rem 0.9rem;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    transition: all 0.2s var(--easing);
+    cursor: pointer;
+    line-height: 1.5;
+    user-select: none;
+  }
+  .choice:hover {
+    border-color: var(--primary);
+    background: rgba(167,139,250,0.06);
+    color: var(--text);
+    transform: translateX(2px);
+  }
+  .choice .letter {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--text-dim);
+    min-width: 1.4em;
+    flex-shrink: 0;
+  }
+  .choice code { font-family: "JetBrains Mono", monospace; font-size: 0.85em; background: rgba(0,0,0,0.3); padding: 0.05rem 0.35rem; border-radius: 4px; color: var(--primary-bright); border: 1px solid var(--border); }
+
+  /* Après réponse : on désactive les clics */
+  .qcm-q.answered .choice {
+    cursor: default; pointer-events: none;
+    transform: none !important;
+  }
+
+  /* La BONNE réponse : toujours visible en vert après avoir répondu */
+  .qcm-q.answered .choice.right {
+    background: rgba(74,222,128,0.1);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .qcm-q.answered .choice.right .letter { color: var(--green); }
+  .qcm-q.answered .choice.right::after {
+    content: '✓';
+    margin-left: auto;
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 1.1em;
+  }
+
+  /* La MAUVAISE réponse cliquée : rouge */
+  .qcm-q.answered .choice.wrong.selected {
+    background: rgba(248,113,113,0.1);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .qcm-q.answered .choice.wrong.selected .letter { color: var(--red); }
+  .qcm-q.answered .choice.wrong.selected::after {
+    content: '✗';
+    margin-left: auto;
+    color: var(--red);
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 1.1em;
+  }
+
+  /* Mauvaises non-cliquées : estompées */
+  .qcm-q.answered .choice.wrong:not(.selected) { opacity: 0.4; }
+
+  /* Card colorée selon résultat */
+  .qcm-q.correct { border-color: rgba(74,222,128,0.35); }
+  .qcm-q.correct::before { background: linear-gradient(90deg, transparent, var(--green), transparent); }
+  .qcm-q.incorrect { border-color: rgba(248,113,113,0.35); }
+  .qcm-q.incorrect::before { background: linear-gradient(90deg, transparent, var(--red), transparent); }
+
+  /* Feedback banner en haut de la card après réponse */
+  .feedback {
+    display: none;
+    font-size: 0.82rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 0.35rem 0.7rem;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+    width: fit-content;
+  }
+  .qcm-q.correct .feedback,
+  .qcm-q.incorrect .feedback {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .qcm-q.correct .feedback {
+    background: rgba(74,222,128,0.1);
+    color: var(--green);
+    border: 1px solid rgba(74,222,128,0.3);
+  }
+  .qcm-q.correct .feedback::before { content: '✓ Bonne réponse !'; }
+  .qcm-q.incorrect .feedback {
+    background: rgba(248,113,113,0.1);
+    color: var(--red);
+    border: 1px solid rgba(248,113,113,0.3);
+  }
+  .qcm-q.incorrect .feedback::before { content: '✗ Mauvaise réponse'; }
+
+  /* On masque les anciens boutons "Voir la réponse" */
+  .q-actions { display: none; }
+
+  /* L'explication s'affiche uniquement après une réponse */
+  .explanation {
+    display: none;
+    background: linear-gradient(135deg, rgba(74,222,128,0.05), rgba(74,222,128,0.01));
+    border-left: 3px solid var(--green);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-top: 0.9rem;
+    font-size: 0.92rem; line-height: 1.6;
+    color: var(--text-soft);
+  }
+  .qcm-q.answered .explanation { display: block; }
+  .qcm-q.incorrect .explanation {
+    background: linear-gradient(135deg, rgba(248,113,113,0.04), rgba(248,113,113,0.01));
+    border-left-color: var(--red);
+  }
+  .qcm-q.incorrect .explanation strong { color: var(--red); }
+  .explanation strong { color: var(--green); }
+  .explanation .trap {
+    margin-top: 0.6rem; padding-top: 0.6rem;
+    border-top: 1px dashed rgba(255,255,255,0.08);
+    color: var(--amber);
+  }
+  .explanation .trap strong { color: var(--amber) !important; }
+
+  /* SCORE WIDGET */
+  .score-widget {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: rgba(13,13,24,0.92); backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 0.9rem 1.1rem; z-index: 100;
+    display: flex; align-items: center; gap: 0.9rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    transition: all 0.3s var(--easing);
+  }
+  .score-widget:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .sw-main {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1rem; font-weight: 700; color: var(--text);
+    display: flex; align-items: baseline; gap: 0.2rem;
+  }
+  .sw-main .sw-correct { color: var(--green); }
+  .sw-main .sw-slash { color: var(--text-dim); margin: 0 0.15rem; }
+  .sw-main .sw-answered { color: var(--text); }
+  .sw-label {
+    font-size: 0.7rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.3;
+    margin-top: 0.15rem;
+  }
+  .reset-btn {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    color: var(--text-soft); width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; font-family: inherit;
+    font-size: 1rem; display: inline-flex; align-items: center;
+    justify-content: center;
+    transition: all 0.2s var(--easing);
+  }
+  .reset-btn:hover {
+    border-color: var(--accent); color: var(--accent);
+    transform: rotate(-90deg);
+  }
+
+  /* HIDE ON FILTER */
+  .qcm-q.hidden, .day-block.hidden { display: none; }
+
+  @media (max-width: 800px) {
+    .hero { padding: 3rem 1.2rem 1.5rem; }
+    .day-header { grid-template-columns: 1fr; gap: 0.5rem; }
+    .day-num { font-size: 3rem; }
+    .day-count { justify-self: start; }
+    section.day-block { padding: 2.5rem 1.2rem 1rem; }
+    .qcm-q { padding: 1.1rem 1.2rem; }
+    .filters-bar { padding: 0.7rem 1rem; }
+    .filters-summary { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    <span>1PHP3</span>
+    <span class="sep">·</span>
+    <span>Banque de questions QCM</span>
+    <span class="sep">·</span>
+    <span class="accent">Jours 1 · 2 · 3</span>
+  </div>
+  <h1>Toutes les questions <span class="word-accent">du QCM</span>.</h1>
+  <p class="hero-lead">51 questions extraites du QCM officiel, regroupées par jour et par thème. Cliquez sur <strong>« Voir la réponse »</strong> sous chaque question pour révéler la bonne réponse et son explication. Utilisez les filtres pour vous concentrer sur un jour.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="num">51</div><div class="label">questions</div></div>
+    <div class="hero-meta-item"><div class="num">31</div><div class="label">faciles</div></div>
+    <div class="hero-meta-item"><div class="num">20</div><div class="label">moyennes</div></div>
+    <div class="hero-meta-item"><div class="num">3</div><div class="label">jours</div></div>
+  </div>
+</section>
+
+<div class="filters-bar">
+  <div class="filters-inner">
+    <button class="filter-btn active" data-filter="all">Tout <span class="count">51</span></button>
+    <button class="filter-btn" data-filter="1">Jour 1 <span class="count">19</span></button>
+    <button class="filter-btn" data-filter="2">Jour 2 <span class="count">16</span></button>
+    <button class="filter-btn" data-filter="3">Jour 3 <span class="count">16</span></button>
+    <div class="filters-summary"><strong id="visibleCount">51</strong> visibles</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JOUR 1
+     ============================================================ -->
+<section class="day-block" data-day="1">
+  <div class="day-header">
+    <div class="day-num">01</div>
+    <div>
+      <div class="day-eyebrow">Jour 1 · Bases PHP, variables, opérateurs, contrôle de flux</div>
+      <h2>Les <em>fondamentaux</em>.</h2>
+    </div>
+    <div class="day-count">19 questions</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q1</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Bases PHP</span>
+    </div>
+    <div class="q-text">Quelle est la balise d'ouverture correcte pour commencer un bloc de code PHP dans un document HTML ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>&lt;php&gt;</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>&lt;script php&gt;</code></li>
+      <li class="choice right"><span class="letter">C.</span><code>&lt;?php</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>&lt;%php%&gt;</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> <code>&lt;?php</code> est la balise d'ouverture standard pour les blocs de code PHP. Elle se ferme avec <code>?&gt;</code> (facultatif en fin de fichier).</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q2</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Bases PHP</span>
+    </div>
+    <div class="q-text">Quel caractère doit obligatoirement se trouver à la fin de chaque instruction PHP pour indiquer qu'elle est terminée ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Le caractère deux-points <code>:</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Le caractère point <code>.</code></li>
+      <li class="choice right"><span class="letter">C.</span>Le point-virgule <code>;</code></li>
+      <li class="choice wrong"><span class="letter">D.</span>Le caractère virgule <code>,</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> Chaque instruction PHP doit se terminer par un point-virgule <code>;</code>. L'oublier provoque une <em>Parse error</em>.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q3</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Variables</span>
+    </div>
+    <div class="q-text">En PHP, quel caractère spécial doit précéder chaque nom de variable lors de sa déclaration ou de son utilisation ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Le signe dièse <code>#</code></li>
+      <li class="choice right"><span class="letter">B.</span>Le signe dollar <code>$</code></li>
+      <li class="choice wrong"><span class="letter">C.</span>Le signe arobase <code>@</code></li>
+      <li class="choice wrong"><span class="letter">D.</span>Le signe esperluette <code>&amp;</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> Toutes les variables PHP doivent commencer par <code>$</code>. Ex : <code>$nom</code>, <code>$age</code>, <code>$total</code>.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q4</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Variables</span>
+    </div>
+    <div class="q-text">Quelle construction PHP est couramment utilisée pour afficher du texte directement dans le navigateur ou le terminal ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>print_r()</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>write()</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>display()</code></li>
+      <li class="choice right"><span class="letter">D.</span><code>echo</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> <code>echo</code> est la construction de langage la plus couramment utilisée. Note : <code>print_r()</code> existe mais sert à inspecter des structures (tableaux, objets), pas pour l'affichage standard.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q5</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Types de données</span>
+    </div>
+    <div class="q-text">Quel type de données PHP attribue-t-il à une variable lorsque vous y stockez la valeur <code>3.14</code> sans guillemets ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>string</code></li>
+      <li class="choice right"><span class="letter">B.</span><code>float</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>integer</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>boolean</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> PHP attribue le type <code>float</code> (ou <code>double</code>) aux nombres décimaux. Avec des guillemets <code>"3.14"</code>, ce serait une chaîne (<code>string</code>).</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q6</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Types de données</span>
+    </div>
+    <div class="q-text">Quel sera le résultat de ce code qui concatène une chaîne avec un entier ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$age</span> = <span class="tk-num">25</span>;
+<span class="tk-fn">echo</span> <span class="tk-str">'Age: '</span> . <span class="tk-kw">$age</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Une erreur de type</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>null</code></li>
+      <li class="choice wrong"><span class="letter">C.</span>L'entier <code>25</code> uniquement</li>
+      <li class="choice right"><span class="letter">D.</span>La chaîne <code>Age: 25</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> PHP convertit automatiquement l'entier en chaîne lors de la concaténation avec l'opérateur <code>.</code> (point). C'est la <em>conversion de type automatique</em> (type juggling).</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q7</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Opérateurs</span>
+    </div>
+    <div class="q-text">Quelle est la différence entre <code>==</code> et <code>===</code> en PHP ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-fn">var_dump</span>(<span class="tk-num">0</span> == <span class="tk-str">'hello'</span>);
+<span class="tk-fn">var_dump</span>(<span class="tk-num">1</span> == <span class="tk-str">'1'</span>);
+<span class="tk-fn">var_dump</span>(<span class="tk-num">1</span> === <span class="tk-str">'1'</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Aucune différence, ils comparent valeur et type identiquement</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>===</code> est plus rapide car il ignore la conversion</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>==</code> pour les chaînes, <code>===</code> pour les entiers uniquement</li>
+      <li class="choice right"><span class="letter">D.</span><code>==</code> compare avec conversion de type, <code>===</code> compare valeur ET type</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> <code>==</code> = comparaison souple avec conversion. <code>===</code> = comparaison stricte (valeur ET type identiques). Préférez <code>===</code> par défaut.<div class="trap"><strong>⚠️ Piège :</strong> <code>0 == 'hello'</code> renvoyait <code>true</code> avant PHP 8 — en PHP 8+, c'est <code>false</code>. Mais <code>1 == '1'</code> reste <code>true</code> alors que <code>1 === '1'</code> est <code>false</code>.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q8</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Opérateurs</span>
+    </div>
+    <div class="q-text">Quelle valeur renvoie cette expression ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$result</span> = <span class="tk-num">17</span> % <span class="tk-num">5</span>;
+<span class="tk-fn">echo</span> <span class="tk-kw">$result</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>3</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>5</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>3.4</code></li>
+      <li class="choice right"><span class="letter">D.</span><code>2</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> <code>%</code> est l'opérateur <em>modulo</em> qui renvoie le <strong>reste</strong> de la division entière. <code>17 = 5 × 3 + 2</code> → le reste est <code>2</code>.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q9</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Structures de contrôle</span>
+    </div>
+    <div class="q-text">Quel mot-clé PHP permet de définir une condition alternative quand le <code>if</code> initial est faux ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>elif</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>otherwise</code></li>
+      <li class="choice right"><span class="letter">C.</span><code>else if</code> ou <code>elseif</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>elsif</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> PHP accepte les deux : <code>else if</code> (deux mots) et <code>elseif</code> (un seul mot).<div class="trap"><strong>⚠️ Piège :</strong> <code>elif</code> existe en Python, pas en PHP. Et <code>elsif</code> en Ruby/Perl — ne pas confondre.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q10</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Structures de contrôle</span>
+    </div>
+    <div class="q-text">Quel sera le résultat affiché ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$sum</span> = <span class="tk-num">0</span>;
+<span class="tk-kw">for</span> (<span class="tk-kw">$i</span> = <span class="tk-num">1</span>; <span class="tk-kw">$i</span> &lt;= <span class="tk-num">5</span>; <span class="tk-kw">$i</span>++) {
+    <span class="tk-kw">$sum</span> += <span class="tk-kw">$i</span>;
+}
+<span class="tk-fn">echo</span> <span class="tk-kw">$sum</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>15</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>10</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>20</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>5</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> La boucle itère <code>$i</code> de 1 à 5 (inclus). Somme = 1+2+3+4+5 = <strong>15</strong>.<div class="trap"><strong>⚠️ Piège :</strong> <code>$i &lt;= 5</code> inclut 5. Avec <code>$i &lt; 5</code>, on s'arrêterait à 4 et la somme vaudrait 10.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q11</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Structures de contrôle</span>
+    </div>
+    <div class="q-text">Quelle est la différence entre <code>while</code> et <code>do-while</code> en PHP ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>while</code> vérifie la condition avant le bloc, <code>do-while</code> s'exécute toujours au moins une fois</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>while</code> peut être infinie mais <code>do-while</code> a un max d'itérations</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>do-while</code> est plus rapide car saute la vérification initiale</li>
+      <li class="choice wrong"><span class="letter">D.</span><code>while</code> supporte <code>break</code>/<code>continue</code> mais pas <code>do-while</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>do-while</code> place la condition <em>après</em> le bloc, donc le bloc est garanti de s'exécuter au moins une fois, même si la condition est fausse dès le départ.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q42</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Structures de contrôle</span>
+    </div>
+    <div class="q-text">Quel sera le résultat de ce <code>for</code> qui parcourt un tableau ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$names</span> = [<span class="tk-str">'Alice'</span>, <span class="tk-str">'Bob'</span>, <span class="tk-str">'Charlie'</span>];
+<span class="tk-kw">for</span> (<span class="tk-kw">$i</span> = <span class="tk-num">0</span>; <span class="tk-kw">$i</span> &lt; <span class="tk-fn">count</span>(<span class="tk-kw">$names</span>); <span class="tk-kw">$i</span>++) {
+    <span class="tk-fn">echo</span> <span class="tk-kw">$names</span>[<span class="tk-kw">$i</span>] . <span class="tk-str">' '</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>Alice</code> uniquement</li>
+      <li class="choice wrong"><span class="letter">B.</span>Une erreur fatale</li>
+      <li class="choice right"><span class="letter">C.</span><code>Alice Bob Charlie</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>0 1 2</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> La boucle utilise <code>count()</code> comme borne et accède aux éléments via <code>$names[$i]</code>. Indices 0, 1, 2 → valeurs Alice, Bob, Charlie.<div class="trap"><strong>💡 Plus idiomatique :</strong> utiliser <code>foreach ($names as $name)</code> qui évite la gestion manuelle de l'index.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q35</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Structure de projet</span>
+    </div>
+    <div class="q-text">Quel est le principal avantage de séparer le code HTML d'en-tête et pied de page dans des fichiers <code>include</code> ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Évite la duplication et garantit une mise en page cohérente sur toutes les pages</li>
+      <li class="choice wrong"><span class="letter">B.</span>Rend le site plus rapide car le navigateur met en cache les fichiers inclus</li>
+      <li class="choice wrong"><span class="letter">C.</span>Exigé par PHP 8.0, sinon le site ne s'affiche pas</li>
+      <li class="choice wrong"><span class="letter">D.</span>Empêche les attaques XSS automatiquement</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> DRY : <em>Don't Repeat Yourself</em>. Modifier le header dans <code>header.php</code> met à jour toutes les pages qui l'incluent.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q36</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Structure de projet</span>
+    </div>
+    <div class="q-text">Quelle est la différence entre <code>require</code> et <code>include</code> ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>require</code> produit une erreur fatale si le fichier est manquant, <code>include</code> juste un avertissement</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>require</code> charge à la compilation, <code>include</code> à l'exécution</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>include</code> peut charger des URL distantes, pas <code>require</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>require</code> est pour les fichiers PHP, <code>include</code> pour HTML/CSS/JS</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>require</code> = <em>E_COMPILE_ERROR</em> et arrêt du script si fichier manquant. <code>include</code> = <em>E_WARNING</em> et le script continue. Pour un fichier vital (config, fonctions), préférer <code>require</code>.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q37</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Structure de projet</span>
+    </div>
+    <div class="q-text">Quelle est la structure de répertoires recommandée pour un projet PHP ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Tous les fichiers PHP dans un seul répertoire racine</li>
+      <li class="choice wrong"><span class="letter">B.</span>Chaque page dans son propre sous-répertoire avec ses CSS/JS</li>
+      <li class="choice right"><span class="letter">C.</span>Répertoires séparés pour les <em>includes</em>, ressources publiques, config, avec un <code>index.php</code> en point d'entrée</li>
+      <li class="choice wrong"><span class="letter">D.</span>Fichiers PHP hors de la racine web, accessibles uniquement via API</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> Structure type : <code>includes/</code> (fonctions partagées), <code>public/css/</code> + <code>public/js/</code>, <code>config/</code>, et <code>index.php</code> comme point d'entrée. Améliore la maintenabilité.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q38</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Environnement XAMPP</span>
+    </div>
+    <div class="q-text">Que signifie l'acronyme <strong>XAMPP</strong> et que regroupe-t-il ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><em>eXtended Application Management and PHP Processing</em></li>
+      <li class="choice right"><span class="letter">B.</span><em>Cross-platform Apache, MariaDB, PHP et Perl</em></li>
+      <li class="choice wrong"><span class="letter">C.</span><em>XML Advanced Modular PHP Platform</em></li>
+      <li class="choice wrong"><span class="letter">D.</span><em>eXecutable Apache MySQL PHP Python</em></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> <strong>X</strong>=Cross-platform, <strong>A</strong>=Apache (serveur web), <strong>M</strong>=MariaDB (base de données — fork open-source de MySQL), <strong>P</strong>=PHP, <strong>P</strong>=Perl.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q39</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Environnement XAMPP</span>
+    </div>
+    <div class="q-text">Dans quel répertoire les fichiers PHP doivent-ils être placés sous XAMPP pour être accessibles via le navigateur ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>xampp/php/</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>N'importe quel répertoire — XAMPP scanne tout</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>xampp/apache/</code></li>
+      <li class="choice right"><span class="letter">D.</span><code>xampp/htdocs/</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> <code>htdocs/</code> est la racine documentaire d'Apache. Tout ce qui s'y trouve est accessible via <code>http://localhost/</code>.<div class="trap"><strong>⚠️ Équivalents :</strong> WAMP utilise <code>www/</code>, Laragon aussi <code>www/</code>, MAMP utilise également <code>htdocs/</code>.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q40</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Modèle serveur PHP</span>
+    </div>
+    <div class="q-text">Comment PHP traite-t-il une requête avant d'envoyer la réponse au navigateur ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Le serveur interprète le code PHP, génère le HTML, et envoie uniquement le HTML au navigateur</li>
+      <li class="choice wrong"><span class="letter">B.</span>Le code PHP est téléchargé et exécuté localement par un moteur JS intégré</li>
+      <li class="choice wrong"><span class="letter">C.</span>PHP se compile en binaire que le navigateur exécute</li>
+      <li class="choice wrong"><span class="letter">D.</span>Le serveur envoie code PHP + HTML pour traitement en parallèle</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> PHP est traité <strong>côté serveur</strong>. Le navigateur ne voit jamais le code PHP — c'est pour ça qu'il est sûr d'y mettre des mots de passe (contrairement à JavaScript). Faites <em>Clic droit → Code source</em> sur une page PHP : vous ne verrez que du HTML.</div>
+  </div>
+
+  <div class="qcm-q" data-day="1" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q41</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Écosystème PHP</span>
+    </div>
+    <div class="q-text">Quels sites web majeurs sont construits avec PHP ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Uniquement de petits blogs personnels</li>
+      <li class="choice wrong"><span class="letter">B.</span>Google, Amazon, Netflix (qui ont migré vers PHP)</li>
+      <li class="choice right"><span class="letter">C.</span>Facebook, WordPress, Wikipédia</li>
+      <li class="choice wrong"><span class="letter">D.</span>Twitter et LinkedIn</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> <strong>Facebook</strong> (devenu Meta — a même créé son propre interpréteur HHVM), <strong>WordPress</strong> (43% des sites web mondiaux), <strong>Wikipédia</strong> (sur MediaWiki en PHP).</div>
+  </div>
+</section>
+
+<section class="day-block" data-day="2">
+  <div class="day-header">
+    <div class="day-num">02</div>
+    <div>
+      <div class="day-eyebrow">Jour 2 · Fonctions, tableaux, chaînes, fichiers</div>
+      <h2>Le <em>code réutilisable</em>.</h2>
+    </div>
+    <div class="day-count">16 questions</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q12</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Fonctions</span>
+    </div>
+    <div class="q-text">Quel mot-clé PHP permet de définir une fonction ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>def</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>func</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>method</code></li>
+      <li class="choice right"><span class="letter">D.</span><code>function</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> Le mot-clé <code>function</code> sert à déclarer une fonction. <code>def</code> existe en Python, <code>func</code> en Go/Swift.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q13</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Fonctions</span>
+    </div>
+    <div class="q-text">Quelle sera la valeur de retour de <code>maximum(10, 3)</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">maximum</span>(<span class="tk-kw">$a</span>, <span class="tk-kw">$b</span>) {
+    <span class="tk-kw">if</span> (<span class="tk-kw">$a</span> &gt; <span class="tk-kw">$b</span>) {
+        <span class="tk-kw">return</span> <span class="tk-kw">$a</span>;
+    }
+    <span class="tk-kw">return</span> <span class="tk-kw">$b</span>;
+}
+<span class="tk-fn">echo</span> <span class="tk-fn">maximum</span>(<span class="tk-num">10</span>, <span class="tk-num">3</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>13</code> (addition)</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>3</code> (la plus petite)</li>
+      <li class="choice right"><span class="letter">C.</span><code>10</code> (la plus grande)</li>
+      <li class="choice wrong"><span class="letter">D.</span>Une erreur de type de retour</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> Puisque <code>10 &gt; 3</code> est vrai, la fonction entre dans le <code>if</code> et retourne <code>$a = 10</code>. Le <code>return</code> arrête immédiatement la fonction.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q14</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Tableaux</span>
+    </div>
+    <div class="q-text">Quelle fonction PHP renvoie le nombre d'éléments d'un tableau ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>count()</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>size()</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>length()</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>total()</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>count()</code> renvoie le nombre d'éléments. <code>sizeof()</code> existe aussi en PHP, mais c'est juste un alias de <code>count()</code>. <code>length</code> n'existe pas (c'est en JS).</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q15</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Tableaux</span>
+    </div>
+    <div class="q-text">Différence entre tableau indexé et tableau associatif ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Les indexés ne peuvent stocker que des chaînes</li>
+      <li class="choice right"><span class="letter">B.</span>Les indexés utilisent des clés numériques, les associatifs des clés nommées</li>
+      <li class="choice wrong"><span class="letter">C.</span>Les associatifs sont plus rapides grâce aux tables de hachage</li>
+      <li class="choice wrong"><span class="letter">D.</span>Les indexés sont immuables après création</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> Indexé : <code>[10, 20, 30]</code> → clés 0, 1, 2 auto. Associatif : <code>["nom" =&gt; "Alice", "age" =&gt; 30]</code> → clés personnalisées.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q16</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Tableaux</span>
+    </div>
+    <div class="q-text">Que contient <code>$fruits</code> après ce code ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$fruits</span> = [<span class="tk-str">'apple'</span>, <span class="tk-str">'banana'</span>, <span class="tk-str">'cherry'</span>];
+<span class="tk-fn">array_push</span>(<span class="tk-kw">$fruits</span>, <span class="tk-str">'date'</span>);
+<span class="tk-fn">print_r</span>(<span class="tk-kw">$fruits</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>[apple, banana, cherry, date]</code> — ajouté à la fin</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>[banana, cherry, date]</code> — remplace le premier</li>
+      <li class="choice wrong"><span class="letter">C.</span>Erreur — syntaxe courte incompatible avec <code>array_push</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>[date, apple, banana, cherry]</code> — ajouté au début</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>array_push()</code> ajoute à la <strong>fin</strong>. Alternative équivalente : <code>$fruits[] = 'date';</code> (plus idiomatique en PHP).<div class="trap"><strong>⚠️ À ne pas confondre :</strong> <code>array_unshift()</code> ajoute au début, <code>array_pop()</code> retire la fin, <code>array_shift()</code> retire le début.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q17</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Chaînes de caractères</span>
+    </div>
+    <div class="q-text">Quel opérateur PHP permet de concaténer deux chaînes ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Le point <code>.</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Le plus <code>+</code> (comme en JavaScript)</li>
+      <li class="choice wrong"><span class="letter">C.</span>L'esperluette <code>&amp;</code></li>
+      <li class="choice wrong"><span class="letter">D.</span>La double barre <code>||</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> En PHP, on concatène avec le <strong>point</strong> (<code>.</code>), pas avec <code>+</code>.<div class="trap"><strong>⚠️ Piège classique :</strong> Si on vient de JS, on écrit <code>$nom + " " + $prenom</code> qui en PHP fait une addition numérique → résultat = 0. La bonne syntaxe : <code>$nom . " " . $prenom</code>.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q18</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Chaînes de caractères</span>
+    </div>
+    <div class="q-text">Différence essentielle entre guillemets simples et doubles ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Les simples sont plus rapides mais limités à 256 caractères</li>
+      <li class="choice right"><span class="letter">B.</span>Les doubles interprètent les variables et séquences d'échappement, les simples traitent littéralement</li>
+      <li class="choice wrong"><span class="letter">C.</span>Les simples sont immuables, les doubles modifiables</li>
+      <li class="choice wrong"><span class="letter">D.</span>Les doubles sont pour multiligne, les simples pour une ligne</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> <code>"Bonjour $nom\n"</code> → interprète <code>$nom</code> et <code>\n</code> (retour à la ligne). <code>'Bonjour $nom\n'</code> → affiche littéralement <code>Bonjour $nom\n</code>.<div class="trap"><strong>💡 Astuce :</strong> les guillemets simples sont (très légèrement) plus rapides car pas de parsing. Mais en pratique, utilisez ce qui est le plus lisible.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q19</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Chaînes de caractères</span>
+    </div>
+    <div class="q-text">Qu'affichera ce code utilisant <code>explode()</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$str</span> = <span class="tk-str">'PHP is great'</span>;
+<span class="tk-kw">$words</span> = <span class="tk-fn">explode</span>(<span class="tk-str">' '</span>, <span class="tk-kw">$str</span>);
+<span class="tk-fn">print_r</span>(<span class="tk-kw">$words</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>La chaîne <code>PHP-is-great</code></li>
+      <li class="choice right"><span class="letter">B.</span>Un tableau de 3 éléments : <code>['PHP', 'is', 'great']</code></li>
+      <li class="choice wrong"><span class="letter">C.</span>Le nombre <code>3</code></li>
+      <li class="choice wrong"><span class="letter">D.</span>Erreur — <code>explode</code> nécessite une regex</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> <code>explode(séparateur, chaîne)</code> découpe une chaîne en tableau. L'inverse est <code>implode(séparateur, tableau)</code> qui recolle en chaîne.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q20</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Gestion de fichiers</span>
+    </div>
+    <div class="q-text">Quelle fonction lit l'intégralité d'un fichier dans une variable chaîne ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>fread()</code> — nécessite descripteur + longueur</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>readfile()</code> — affiche directement, ne retourne pas</li>
+      <li class="choice right"><span class="letter">C.</span><code>file_get_contents()</code> — lit tout en une opération</li>
+      <li class="choice wrong"><span class="letter">D.</span><code>fgets()</code> — lit une ligne, à boucler</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> <code>file_get_contents()</code> = le moyen le plus simple pour lire un fichier entier. Son symétrique pour écrire : <code>file_put_contents()</code>.<div class="trap"><strong>💡 Bonus :</strong> <code>file()</code> renvoie un <em>tableau</em> où chaque case est une ligne du fichier (utile pour traiter ligne par ligne).</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q21</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Gestion de fichiers</span>
+    </div>
+    <div class="q-text">Rôle du drapeau <code>FILE_APPEND</code> dans <code>file_put_contents()</code> ?</div>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Ajoute à la fin du fichier sans écraser le contenu existant</li>
+      <li class="choice wrong"><span class="letter">B.</span>Crée une copie de sauvegarde avant l'écriture</li>
+      <li class="choice wrong"><span class="letter">C.</span>Verrouille le fichier en exclusif</li>
+      <li class="choice wrong"><span class="letter">D.</span>Valide les permissions avant écriture</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> Sans <code>FILE_APPEND</code>, <code>file_put_contents()</code> écrase tout. Avec, il ajoute à la suite — indispensable pour un fichier de logs.<div class="trap"><strong>⚠️ Cas typique :</strong> oublier <code>FILE_APPEND</code> dans une fonction <code>logAction()</code> → seul le dernier appel reste dans le fichier.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q43</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Fonctions</span>
+    </div>
+    <div class="q-text">Quelle valeur sera affichée ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">double</span>(<span class="tk-kw">$n</span>) {
+    <span class="tk-kw">return</span> <span class="tk-kw">$n</span> * <span class="tk-num">2</span>;
+}
+<span class="tk-kw">$result</span> = <span class="tk-fn">double</span>(<span class="tk-num">5</span>);
+<span class="tk-fn">echo</span> <span class="tk-kw">$result</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>10</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Erreur — <code>$result</code> non définie dans la portée globale</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>5</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>null</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>double(5)</code> calcule <code>5 * 2 = 10</code> et retourne cette valeur, stockée dans <code>$result</code>, puis affichée.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q44</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Fonctions</span>
+    </div>
+    <div class="q-text">Que va afficher ce code utilisant un paramètre par défaut ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">saluer</span>(<span class="tk-kw">$nom</span> = <span class="tk-str">'Monde'</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">'Bonjour '</span> . <span class="tk-kw">$nom</span> . <span class="tk-str">' '</span>;
+}
+<span class="tk-fn">saluer</span>();
+<span class="tk-fn">saluer</span>(<span class="tk-str">'Alice'</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>Bonjour Monde</code> deux fois</li>
+      <li class="choice right"><span class="letter">B.</span><code>Bonjour Monde Bonjour Alice</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>Bonjour Bonjour Alice</code></li>
+      <li class="choice wrong"><span class="letter">D.</span>Erreur — appel sans argument interdit</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> Premier appel sans argument → utilise la valeur par défaut <code>'Monde'</code>. Deuxième appel avec <code>'Alice'</code> → remplace la valeur par défaut.<div class="trap"><strong>⚠️ Règle :</strong> les paramètres avec valeur par défaut doivent être <em>après</em> les paramètres obligatoires. <code>function f($a, $b = 5)</code> ✓ — <code>function f($a = 5, $b)</code> ✗</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q45</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Tableaux</span>
+    </div>
+    <div class="q-text">Que contiendra <code>$nums</code> après l'exécution ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$nums</span> = [<span class="tk-num">10</span>, <span class="tk-num">20</span>, <span class="tk-num">30</span>];
+<span class="tk-fn">array_push</span>(<span class="tk-kw">$nums</span>, <span class="tk-num">40</span>);
+<span class="tk-fn">array_pop</span>(<span class="tk-kw">$nums</span>);
+<span class="tk-fn">print_r</span>(<span class="tk-kw">$nums</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>[10, 20, 30]</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>[10, 20]</code></li>
+      <li class="choice wrong"><span class="letter">C.</span><code>[10, 20, 30, 40]</code></li>
+      <li class="choice wrong"><span class="letter">D.</span><code>[20, 30, 40]</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> Étape 1 : <code>array_push</code> → <code>[10, 20, 30, 40]</code>. Étape 2 : <code>array_pop</code> retire le <em>dernier</em> élément → <code>[10, 20, 30]</code>. Retour à l'état initial.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q46</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Tableaux</span>
+    </div>
+    <div class="q-text">Quelle valeur sera affichée ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$pays</span> = [
+    <span class="tk-str">'nom'</span> =&gt; <span class="tk-str">'France'</span>,
+    <span class="tk-str">'capitale'</span> =&gt; <span class="tk-str">'Paris'</span>,
+    <span class="tk-str">'population'</span> =&gt; <span class="tk-num">67000000</span>
+];
+<span class="tk-fn">echo</span> <span class="tk-kw">$pays</span>[<span class="tk-str">'capitale'</span>];
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span><code>Paris</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Erreur — clés associatives doivent être entières</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>France</code> — affiche la première valeur</li>
+      <li class="choice wrong"><span class="letter">D.</span><code>null</code></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>$pays['capitale']</code> accède à la valeur associée à la clé <code>'capitale'</code>. La flèche <code>=&gt;</code> associe une clé à sa valeur dans un tableau associatif.</div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q47</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Chaînes de caractères</span>
+    </div>
+    <div class="q-text">Que va afficher ce code ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$mot</span> = <span class="tk-str">'Bonjour'</span>;
+<span class="tk-kw">$longueur</span> = <span class="tk-fn">strlen</span>(<span class="tk-kw">$mot</span>);
+<span class="tk-fn">echo</span> <span class="tk-str">"Le mot '$mot' contient $longueur lettres"</span>;
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>Le mot 'Bonjour' contient 5 lettres</code></li>
+      <li class="choice wrong"><span class="letter">B.</span><code>Le mot 'Bonjour' contient 8 lettres</code></li>
+      <li class="choice right"><span class="letter">C.</span><code>Le mot 'Bonjour' contient 7 lettres</code></li>
+      <li class="choice wrong"><span class="letter">D.</span>Erreur — <code>strlen</code> non utilisable en concaténation</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> <code>strlen('Bonjour')</code> compte 7 caractères (B-o-n-j-o-u-r). Les variables <code>$mot</code> et <code>$longueur</code> sont interprétées dans la chaîne entre <strong>guillemets doubles</strong>.<div class="trap"><strong>⚠️ Piège UTF-8 :</strong> <code>strlen('café')</code> renvoie <strong>5</strong> et non 4, car <code>é</code> prend 2 octets en UTF-8. Pour compter les <em>caractères</em>, utiliser <code>mb_strlen()</code>.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="2" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q48</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Gestion de fichiers</span>
+    </div>
+    <div class="q-text">Rôle du second paramètre de <code>fopen()</code> et signification du mode <code>'w'</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$fichier</span> = <span class="tk-fn">fopen</span>(<span class="tk-str">'donnees.txt'</span>, <span class="tk-str">'w'</span>);
+<span class="tk-fn">fwrite</span>(<span class="tk-kw">$fichier</span>, <span class="tk-str">'Nouvelle ligne'</span>);
+<span class="tk-fn">fclose</span>(<span class="tk-kw">$fichier</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>w</code> = "watch", surveille les modifications en temps réel</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>w</code> ouvre et ajoute à la fin sans effacer</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>w</code> ouvre en lecture seule</li>
+      <li class="choice right"><span class="letter">D.</span><code>w</code> ouvre en écriture, EFFACE le contenu existant ou crée le fichier s'il n'existe pas</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> Les modes de <code>fopen()</code> : <code>r</code>=lecture, <code>w</code>=écriture (écrase), <code>a</code>=ajout (append, ne touche pas l'existant), <code>r+</code>=lecture+écriture.<div class="trap"><strong>⚠️ Catastrophe classique :</strong> ouvrir un fichier important en mode <code>'w'</code> par erreur → tout son contenu est perdu instantanément. Pour ajouter à un log, utiliser le mode <code>'a'</code>.</div></div>
+  </div>
+</section>
+
+<section class="day-block" data-day="3">
+  <div class="day-header">
+    <div class="day-num">03</div>
+    <div>
+      <div class="day-eyebrow">Jour 3 · Formulaires, validation, PDO, CRUD, sécurité</div>
+      <h2>Les <em>données persistantes</em>.</h2>
+    </div>
+    <div class="day-count">16 questions</div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q22</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Formulaires GET POST</span>
+    </div>
+    <div class="q-text">Quel tableau superglobal contient les données soumises via un formulaire HTML en méthode POST ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>$_GET</code> — stocke toutes les données quelle que soit la méthode</li>
+      <li class="choice right"><span class="letter">B.</span><code>$_POST</code> — données envoyées via la méthode HTTP POST</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>$_REQUEST</code> — seul moyen d'accéder aux soumissions</li>
+      <li class="choice wrong"><span class="letter">D.</span><code>$_FORM</code> — dédié aux entrées de formulaires</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> <code>$_POST</code> reçoit les données envoyées en POST.<div class="trap"><strong>⚠️ Pièges :</strong> <code>$_REQUEST</code> existe et regroupe GET+POST+COOKIE, mais c'est mal d'y recourir (sécurité, ambiguïté). <code>$_FORM</code> n'existe pas du tout.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q23</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Formulaires GET POST</span>
+    </div>
+    <div class="q-text">Différences principales entre GET et POST ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>GET est chiffré, POST est en texte brut visible</li>
+      <li class="choice right"><span class="letter">B.</span>GET ajoute les données à l'URL (~2048 caractères max), POST les envoie dans le corps de la requête</li>
+      <li class="choice wrong"><span class="letter">C.</span>POST est plus rapide car il saute la résolution DNS</li>
+      <li class="choice wrong"><span class="letter">D.</span>GET supporte les téléversements de fichiers volumineux, POST se limite au texte</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> GET → données visibles dans l'URL (<code>?nom=Alice&amp;age=30</code>), limité à ~2 ko, utile pour les recherches et liens partageables. POST → données dans le corps de la requête, invisibles, pour les actions sensibles (login, paiement).<div class="trap"><strong>⚠️ Aucune des deux n'est chiffrée</strong> en soi — c'est HTTPS qui chiffre le tout.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q24</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Formulaires GET POST</span>
+    </div>
+    <div class="q-text">Que se passera-t-il lors d'une soumission sans <code>username</code> rempli ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">if</span> (<span class="tk-kw">$_SERVER</span>[<span class="tk-str">'REQUEST_METHOD'</span>] === <span class="tk-str">'POST'</span>) {
+    <span class="tk-kw">if</span> (<span class="tk-fn">empty</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">'username'</span>])) {
+        <span class="tk-fn">echo</span> <span class="tk-str">'Username is required'</span>;
+    } <span class="tk-kw">else</span> {
+        <span class="tk-fn">echo</span> <span class="tk-str">'Hello, '</span> . <span class="tk-kw">$_POST</span>[<span class="tk-str">'username'</span>];
+    }
+}
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Affichage <code>Hello, !</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Erreur fatale (variable POST non définie)</li>
+      <li class="choice right"><span class="letter">C.</span><code>Username is required</code> — <code>empty()</code> détecte la valeur manquante</li>
+      <li class="choice wrong"><span class="letter">D.</span>Rien — PHP ignore les soumissions vides</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> <code>empty()</code> renvoie <code>true</code> pour : <code>""</code>, <code>"0"</code>, <code>0</code>, <code>null</code>, <code>false</code>, <code>[]</code>, et les variables non définies (sans warning). C'est ce qui en fait la fonction idéale pour valider un champ obligatoire.</div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q25</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Validation des données</span>
+    </div>
+    <div class="q-text">Quelle fonction protège contre les attaques XSS en encodant les caractères spéciaux pour l'affichage HTML ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><code>strip_tags()</code> — supprime les balises mais n'encode pas</li>
+      <li class="choice wrong"><span class="letter">B.</span><code>urlencode()</code> — pour les URL uniquement</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>addslashes()</code> — échappe quotes/antislashes</li>
+      <li class="choice right"><span class="letter">D.</span><code>htmlspecialchars()</code> — convertit les caractères spéciaux en entités HTML</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> <code>htmlspecialchars()</code> transforme <code>&lt;</code> en <code>&amp;lt;</code>, <code>&gt;</code> en <code>&amp;gt;</code>, <code>&amp;</code>, <code>"</code> et <code>'</code> en entités. Les balises sont rendues <strong>visibles comme texte</strong> mais pas exécutées.<div class="trap"><strong>⚠️ Confusion classique :</strong> <code>htmlspecialchars()</code> ENCODE / <code>strip_tags()</code> SUPPRIME. Pour de l'affichage, on encode (on garde le contenu visible).</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q26</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">PDO MySQL</span>
+    </div>
+    <div class="q-text">Que signifie l'acronyme <strong>PDO</strong> et quel est son objectif principal ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><em>PHP Data Output</em> — formate les résultats pour l'affichage HTML</li>
+      <li class="choice right"><span class="letter">B.</span><em>PHP Data Objects</em> — interface cohérente pour plusieurs SGBD</li>
+      <li class="choice wrong"><span class="letter">C.</span><em>PHP Database Optimizer</em> — optimise automatiquement les requêtes</li>
+      <li class="choice wrong"><span class="letter">D.</span><em>PHP Direct Operation</em> — manipule directement les fichiers de BDD</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> PDO = <em>PHP Data Objects</em>. Couche d'abstraction qui parle MySQL, PostgreSQL, SQLite, Oracle, etc. avec la même syntaxe.<div class="trap"><strong>💡 Avantage clé :</strong> changer de SGBD = changer le DSN, le reste du code reste identique.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q27</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">PDO MySQL</span>
+    </div>
+    <div class="q-text">Que fait ce code de connexion PDO avec gestion d'erreurs ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">try</span> {
+    <span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-str">'mysql:host=localhost;dbname=webblog'</span>, <span class="tk-str">'root'</span>, <span class="tk-str">''</span>);
+    <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">setAttribute</span>(<span class="tk-kw">PDO::ATTR_ERRMODE</span>, <span class="tk-kw">PDO::ERRMODE_EXCEPTION</span>);
+    <span class="tk-fn">echo</span> <span class="tk-str">'Connected successfully'</span>;
+} <span class="tk-kw">catch</span> (<span class="tk-fn">PDOException</span> <span class="tk-kw">$e</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">'Connection failed: '</span> . <span class="tk-kw">$e</span>-&gt;<span class="tk-fn">getMessage</span>();
+}
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Si la connexion échoue, le bloc <code>catch</code> affiche le message d'erreur</li>
+      <li class="choice wrong"><span class="letter">B.</span>La connexion réussit toujours — PDO crée la BDD si elle n'existe pas</li>
+      <li class="choice wrong"><span class="letter">C.</span><code>setAttribute</code> est facultatif sans effet</li>
+      <li class="choice wrong"><span class="letter">D.</span>Le DSN doit inclure un port sinon la connexion expire</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> Le <code>try/catch</code> capture la <code>PDOException</code> levée si la connexion échoue.<div class="trap"><strong>⚠️ Crucial :</strong> sans <code>PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION</code>, les erreurs sont muettes ou en warnings, et <code>catch</code> ne déclenche jamais.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q28</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">PDO MySQL</span>
+    </div>
+    <div class="q-text">Pourquoi utiliser des requêtes préparées plutôt que d'insérer directement des variables dans le SQL ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Elles s'exécutent plus vite (sautent l'analyse SQL)</li>
+      <li class="choice right"><span class="letter">B.</span>Elles empêchent l'injection SQL en séparant la logique SQL des données utilisateur</li>
+      <li class="choice wrong"><span class="letter">C.</span>Elles sont obligatoires en MySQL 8.0</li>
+      <li class="choice wrong"><span class="letter">D.</span>Elles chiffrent automatiquement les données envoyées</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> Avec <code>prepare()</code>, la <em>structure SQL</em> est envoyée séparément des <em>valeurs</em>. Un attaquant ne peut plus injecter du code malveillant comme <code>' OR 1=1 --</code> qui modifierait la logique de la requête.</div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="facile">
+    <div class="q-head">
+      <span class="q-num">Q29</span>
+      <span class="q-level facile">Facile</span>
+      <span class="q-theme">Opérations CRUD</span>
+    </div>
+    <div class="q-text">Que signifie l'acronyme <strong>CRUD</strong> ?</div>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span><em>Connect, Read, Update, Disconnect</em></li>
+      <li class="choice right"><span class="letter">B.</span><em>Create, Read, Update, Delete</em></li>
+      <li class="choice wrong"><span class="letter">C.</span><em>Cache, Retrieve, Upload, Download</em></li>
+      <li class="choice wrong"><span class="letter">D.</span><em>Compile, Run, Undo, Debug</em></li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> Les 4 opérations fondamentales sur des données : <strong>C</strong>reate (INSERT), <strong>R</strong>ead (SELECT), <strong>U</strong>pdate (UPDATE), <strong>D</strong>elete (DELETE). Toute application web qui manipule des données passe par ces 4 verbes.</div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q49</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Validation des données</span>
+    </div>
+    <div class="q-text">Comportement de ce code de validation combinant <code>isset</code> et <code>empty</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">if</span> (<span class="tk-kw">$_SERVER</span>[<span class="tk-str">'REQUEST_METHOD'</span>] === <span class="tk-str">'POST'</span>) {
+    <span class="tk-kw">if</span> (!<span class="tk-fn">isset</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>]) || <span class="tk-fn">empty</span>(<span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>])) {
+        <span class="tk-fn">echo</span> <span class="tk-str">'Champ requis'</span>;
+    } <span class="tk-kw">else</span> {
+        <span class="tk-fn">echo</span> <span class="tk-str">'Champ valide'</span>;
+    }
+}
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Toujours <code>Champ valide</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Erreur — <code>isset</code> et <code>empty</code> incompatibles</li>
+      <li class="choice wrong"><span class="letter">C.</span>Ne s'exécute jamais — REQUEST_METHOD bloque tout</li>
+      <li class="choice right"><span class="letter">D.</span><code>Champ requis</code> si l'email est absent OU vide</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> Combo robuste : <code>!isset</code> détecte le champ manquant, <code>empty</code> détecte la chaîne vide. <strong>L'un ou l'autre = invalide.</strong><div class="trap"><strong>💡 En pratique :</strong> <code>empty()</code> seul suffit en général car il gère déjà les variables non définies (sans warning).</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q50</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Validation des données</span>
+    </div>
+    <div class="q-text">Que produit ce code utilisant <code>htmlspecialchars</code> sur une entrée avec balises HTML ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$input</span> = <span class="tk-str">'&lt;script&gt;alert("XSS")&lt;/script&gt;'</span>;
+<span class="tk-fn">echo</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$input</span>, <span class="tk-kw">ENT_QUOTES</span>, <span class="tk-str">'UTF-8'</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Le navigateur exécute le script — <code>htmlspecialchars</code> n'affecte pas les <code>&lt;script&gt;</code></li>
+      <li class="choice right"><span class="letter">B.</span>Le texte est affiché littéralement avec les balises visibles — caractères encodés</li>
+      <li class="choice wrong"><span class="letter">C.</span>Les balises sont supprimées, seul "alerte" s'affiche</li>
+      <li class="choice wrong"><span class="letter">D.</span>Erreur — <code>htmlspecialchars</code> ne gère pas les balises script</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse B.</strong> <code>&lt;</code> devient <code>&amp;lt;</code> et <code>&gt;</code> devient <code>&amp;gt;</code>. Le navigateur affiche <code>&lt;script&gt;alert("XSS")&lt;/script&gt;</code> comme du <em>texte</em>, pas comme du code à exécuter.<div class="trap"><strong>⚠️ <code>ENT_QUOTES</code> :</strong> ce flag fait que <code>htmlspecialchars</code> encode AUSSI les guillemets simples <code>'</code> (par défaut, seuls les doubles le sont). À toujours mettre.</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q51</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">PDO MySQL</span>
+    </div>
+    <div class="q-text">Quels sont les 3 paramètres obligatoires de <code>new PDO()</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$dsn</span> = <span class="tk-str">'mysql:host=localhost;dbname=mabase;charset=utf8'</span>;
+<span class="tk-kw">$user</span> = <span class="tk-str">'root'</span>;
+<span class="tk-kw">$password</span> = <span class="tk-str">''</span>;
+<span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$user</span>, <span class="tk-kw">$password</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Nom de BDD, numéro de port, chemin du fichier de config</li>
+      <li class="choice wrong"><span class="letter">B.</span>Type de BDD, chemin absolu vers MySQL, jeu de caractères</li>
+      <li class="choice right"><span class="letter">C.</span>Chaîne DSN (hôte + nom de base), nom d'utilisateur, mot de passe</li>
+      <li class="choice wrong"><span class="letter">D.</span>Adresse IP, nom de table, clé de chiffrement</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse C.</strong> La signature : <code>new PDO($dsn, $user, $password, $options)</code>. Le DSN décrit COMMENT se connecter (driver + host + dbname + charset), <code>$user</code> et <code>$password</code> = identifiants.</div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q52</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">PDO MySQL</span>
+    </div>
+    <div class="q-text">Que fait ce code SELECT avec <code>fetchAll</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">'SELECT nom FROM users'</span>);
+<span class="tk-kw">$users</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetchAll</span>(<span class="tk-kw">PDO::FETCH_ASSOC</span>);
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$users</span> <span class="tk-kw">as</span> <span class="tk-kw">$user</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-kw">$user</span>[<span class="tk-str">'nom'</span>] . <span class="tk-str">' '</span>;
+}
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Récupère tous les enregistrements de la table users et affiche chaque nom</li>
+      <li class="choice wrong"><span class="letter">B.</span>Affiche uniquement le premier — <code>fetchAll</code> est limité à un résultat</li>
+      <li class="choice wrong"><span class="letter">C.</span>Modifie les enregistrements car <code>query</code> exécute toujours des écritures</li>
+      <li class="choice wrong"><span class="letter">D.</span>Erreur — <code>fetchAll</code> nécessite le nom de la table en paramètre</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>fetchAll(PDO::FETCH_ASSOC)</code> renvoie un tableau de tableaux associatifs (clés = noms de colonnes).<div class="trap"><strong>⚠️ <code>fetch()</code> vs <code>fetchAll()</code> :</strong> <code>fetch()</code> = UN seul enregistrement (utile pour SELECT avec WHERE id), <code>fetchAll()</code> = TOUS (pour les listes).</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q53</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Opérations CRUD</span>
+    </div>
+    <div class="q-text">Rôle des marqueurs <code>:nom</code> et <code>:email</code> dans cette requête préparée INSERT ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">'INSERT INTO users (nom, email) VALUES (:nom, :email)'</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([
+    <span class="tk-str">':nom'</span> =&gt; <span class="tk-str">'Alice'</span>,
+    <span class="tk-str">':email'</span> =&gt; <span class="tk-str">'alice@example.com'</span>
+]);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Ce sont des commentaires SQL ignorés à l'exécution</li>
+      <li class="choice wrong"><span class="letter">B.</span>Ils définissent les types de colonnes</li>
+      <li class="choice wrong"><span class="letter">C.</span>Ils créent automatiquement les colonnes si manquantes</li>
+      <li class="choice right"><span class="letter">D.</span>Ils remplacent les valeurs réelles via <code>execute</code> pour prévenir les injections SQL</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> Les marqueurs nommés sont des <em>placeholders</em>. PDO les remplace par les valeurs du tableau passé à <code>execute()</code>, en s'assurant qu'aucun caractère ne puisse modifier la structure SQL.<div class="trap"><strong>💡 Alternative :</strong> les marqueurs positionnels <code>?</code> fonctionnent aussi : <code>execute(['Alice', 'alice@example.com'])</code> (sans clés, ordre = celui des <code>?</code>).</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q54</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Opérations CRUD</span>
+    </div>
+    <div class="q-text">Que fait cette requête UPDATE ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">'UPDATE users SET nom = :nom WHERE id = :id'</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-str">':nom'</span> =&gt; <span class="tk-str">'Bob'</span>, <span class="tk-str">':id'</span> =&gt; <span class="tk-num">1</span>]);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice right"><span class="letter">A.</span>Change le nom de l'utilisateur d'<code>id = 1</code> en <code>Bob</code></li>
+      <li class="choice wrong"><span class="letter">B.</span>Crée un nouvel utilisateur — UPDATE insère si id absent</li>
+      <li class="choice wrong"><span class="letter">C.</span>Supprime l'utilisateur d'id 1 — UPDATE = DELETE en SQL</li>
+      <li class="choice wrong"><span class="letter">D.</span>Modifie tous les utilisateurs en les renommant Bob</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse A.</strong> <code>WHERE id = :id</code> cible précisément la ligne d'id 1.<div class="trap"><strong>🚨 ATTENTION CATASTROPHE :</strong> sans <code>WHERE</code>, <code>UPDATE users SET nom = 'Bob'</code> modifierait TOUTES les lignes. Idem pour <code>DELETE FROM users</code> sans WHERE = toute la table effacée. Toujours vérifier la présence du WHERE !</div></div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q58</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Gestion des erreurs</span>
+    </div>
+    <div class="q-text">Comportement de ce code avec <code>try-catch</code> ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">function</span> <span class="tk-fn">diviser</span>(<span class="tk-kw">$a</span>, <span class="tk-kw">$b</span>) {
+    <span class="tk-kw">if</span> (<span class="tk-kw">$b</span> === <span class="tk-num">0</span>) {
+        <span class="tk-kw">throw new</span> <span class="tk-fn">Exception</span>(<span class="tk-str">'Division par zéro impossible'</span>);
+    }
+    <span class="tk-kw">return</span> <span class="tk-kw">$a</span> / <span class="tk-kw">$b</span>;
+}
+<span class="tk-kw">try</span> {
+    <span class="tk-fn">echo</span> <span class="tk-fn">diviser</span>(<span class="tk-num">10</span>, <span class="tk-num">0</span>);
+} <span class="tk-kw">catch</span> (<span class="tk-fn">Exception</span> <span class="tk-kw">$e</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-kw">$e</span>-&gt;<span class="tk-fn">getMessage</span>();
+}
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Le script s'arrête avec une erreur fatale</li>
+      <li class="choice wrong"><span class="letter">B.</span>Affiche <code>0</code> (PHP renvoie automatiquement 0)</li>
+      <li class="choice wrong"><span class="letter">C.</span>Affiche <code>Résultat affiché</code> — <code>finally</code> s'exécute avant <code>catch</code></li>
+      <li class="choice right"><span class="letter">D.</span>Le <code>catch</code> intercepte l'exception et affiche le message sans arrêt</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> <code>throw</code> lance une exception. Si elle est dans un <code>try</code>, le <code>catch</code> la capture et le script CONTINUE après le <code>catch</code> (au lieu de planter). <code>$e-&gt;getMessage()</code> récupère le texte de l'exception.</div>
+  </div>
+
+  <div class="qcm-q" data-day="3" data-level="moyen">
+    <div class="q-head">
+      <span class="q-num">Q59</span>
+      <span class="q-level moyen">Moyen</span>
+      <span class="q-theme">Bonnes pratiques de sécurité</span>
+    </div>
+    <div class="q-text">Pourquoi ce code est-il vulnérable aux injections SQL ?</div>
+<pre class="q-code"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$email</span> = <span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>];
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM users WHERE email = '$email'"</span>;
+<span class="tk-kw">$result</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-php">?&gt;</span></pre>
+    <ul class="q-choices">
+      <li class="choice wrong"><span class="letter">A.</span>Sécurisé — les guillemets simples empêchent toute injection</li>
+      <li class="choice wrong"><span class="letter">B.</span>Sûr — PDO chiffre automatiquement les requêtes</li>
+      <li class="choice wrong"><span class="letter">C.</span>Vulnérable seulement si <code>ERRMODE_EXCEPTION</code> n'est pas activé</li>
+      <li class="choice right"><span class="letter">D.</span>L'insertion directe d'une variable dans le SQL permet à un attaquant de modifier la structure de la requête</li>
+    </ul>
+    <div class="q-actions"><button class="reveal-btn" onclick="toggleReveal(this)">Voir la réponse</button></div>
+    <div class="explanation"><strong>✓ Réponse D.</strong> Si un attaquant tape <code>' OR 1=1 --</code> dans le champ email, la requête devient <code>SELECT * FROM users WHERE email = '' OR 1=1 --'</code> → la condition est toujours vraie, toutes les lignes sortent.<div class="trap"><strong>🛡️ Solution :</strong> requête préparée — <code>$pdo-&gt;prepare("SELECT * FROM users WHERE email = ?")</code> puis <code>$stmt-&gt;execute([$email])</code>. La valeur ne peut JAMAIS modifier la structure SQL.</div></div>
+  </div>
+</section>
+
+<div style="height:4rem"></div>
+
+<div class="score-widget">
+  <div>
+    <div class="sw-main">
+      <span class="sw-correct" id="scoreCorrect">0</span>
+      <span class="sw-slash">/</span>
+      <span class="sw-answered" id="scoreAnswered">0</span>
+    </div>
+    <div class="sw-label">sur 51 questions</div>
+  </div>
+  <button class="reset-btn" onclick="resetQuiz()" title="Réinitialiser le quiz">↺</button>
+</div>
+
+<script>
+  // ===== FILTRES PAR JOUR =====
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const allQuestions = document.querySelectorAll('.qcm-q');
+  const allDays = document.querySelectorAll('.day-block');
+  const visibleCount = document.getElementById('visibleCount');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      let visible = 0;
+      allQuestions.forEach(q => {
+        if (filter === 'all' || q.dataset.day === filter) {
+          q.classList.remove('hidden'); visible++;
+        } else {
+          q.classList.add('hidden');
+        }
+      });
+      allDays.forEach(d => {
+        if (filter === 'all' || d.dataset.day === filter) d.classList.remove('hidden');
+        else d.classList.add('hidden');
+      });
+      visibleCount.textContent = visible;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // ===== QUIZ INTERACTIF =====
+  const score = { correct: 0, answered: 0 };
+  const scoreCorrectEl = document.getElementById('scoreCorrect');
+  const scoreAnsweredEl = document.getElementById('scoreAnswered');
+
+  function updateScore() {
+    scoreCorrectEl.textContent = score.correct;
+    scoreAnsweredEl.textContent = score.answered;
+  }
+
+  function selectChoice(choice) {
+    const card = choice.closest('.qcm-q');
+    if (card.classList.contains('answered')) return; // déjà répondu, on bloque
+
+    card.classList.add('answered');
+    choice.classList.add('selected');
+
+    // Insérer le banner de feedback en haut de la card si pas déjà présent
+    if (!card.querySelector('.feedback')) {
+      const feedback = document.createElement('div');
+      feedback.className = 'feedback';
+      const head = card.querySelector('.q-head');
+      head.insertAdjacentElement('afterend', feedback);
+    }
+
+    if (choice.classList.contains('right')) {
+      card.classList.add('correct');
+      score.correct++;
+    } else {
+      card.classList.add('incorrect');
+    }
+    score.answered++;
+    updateScore();
+  }
+
+  // Attacher le clic à TOUS les choix au chargement
+  document.querySelectorAll('.choice').forEach(choice => {
+    choice.addEventListener('click', () => selectChoice(choice));
+  });
+
+  function resetQuiz() {
+    if (score.answered > 0 && !confirm('Réinitialiser le quiz et perdre vos réponses ?')) return;
+    document.querySelectorAll('.qcm-q').forEach(card => {
+      card.classList.remove('answered', 'correct', 'incorrect');
+      const fb = card.querySelector('.feedback');
+      if (fb) fb.remove();
+      card.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+    });
+    score.correct = 0;
+    score.answered = 0;
+    updateScore();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
