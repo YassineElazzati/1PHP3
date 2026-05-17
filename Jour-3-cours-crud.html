@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le CRUD en PHP — Cours approfondi</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.7; color: var(--text);
+    background: var(--bg); -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; min-height: 100vh;
+  }
+  ::selection { background: var(--primary); color: var(--bg); }
+  :root {
+    --bg: #0a0a0f; --bg-soft: #11111a; --bg-elev: #16161f;
+    --card: rgba(255,255,255,0.025); --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #e8e8ed; --text-soft: #a0a0b0; --text-dim: #6b6b78;
+    --primary: #a78bfa; --primary-bright: #c4b5fd;
+    --primary-glow: rgba(167,139,250,0.15);
+    --accent: #fb923c; --accent-soft: rgba(251,146,60,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --amber: #fbbf24; --amber-soft: rgba(251,191,36,0.1);
+    --blue: #60a5fa; --blue-soft: rgba(96,165,250,0.1);
+    --pink: #f9a8d4;
+    --code-bg: #0d0d18;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+    background-size: 28px 28px; pointer-events: none; z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0.3) 100%);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167,139,250,0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(251,146,60,0.05), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  main, section, .hero, nav.toc { position: relative; z-index: 1; }
+
+  .progress-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    z-index: 1000; width: 0%; transition: width 0.1s ease;
+    box-shadow: 0 0 12px var(--primary-glow);
+  }
+
+  /* HERO */
+  .hero {
+    display: flex; flex-direction: column;
+    padding: 4rem 2rem 3rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    padding: 0.5rem 1rem; border: 1px solid var(--border);
+    border-radius: 999px; font-size: 0.78rem; font-weight: 500;
+    color: var(--text-soft); width: fit-content; margin-bottom: 1.8rem;
+    background: var(--card); backdrop-filter: blur(10px);
+  }
+  .hero-eyebrow .dot {
+    width: 7px; height: 7px; background: var(--green);
+    border-radius: 50%; box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .hero-eyebrow .sep { color: var(--text-dim); }
+  .hero-eyebrow .accent { color: var(--accent); font-weight: 600; }
+  .hero h1 {
+    font-size: clamp(2.6rem, 6.5vw, 5rem); font-weight: 800;
+    line-height: 0.98; letter-spacing: -0.04em;
+    margin-bottom: 1.8rem; color: var(--text);
+  }
+  .hero h1 .line { display: block; }
+  .hero h1 .word-accent {
+    background: linear-gradient(135deg, var(--primary) 20%, var(--accent) 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    font-style: italic; font-weight: 700;
+  }
+  .hero h1 .word-outline {
+    color: transparent; -webkit-text-stroke: 1.5px var(--text-soft);
+    font-style: italic; font-weight: 700;
+  }
+  .hero-lead {
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--text-soft);
+    max-width: 720px; line-height: 1.65;
+  }
+  .hero-meta {
+    margin-top: 2.5rem; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1.5rem; max-width: 750px;
+    padding-top: 2rem; border-top: 1px solid var(--border);
+  }
+  .hero-meta-item .num {
+    font-size: 2rem; font-weight: 700;
+    background: linear-gradient(180deg, var(--text), var(--text-soft));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .hero-meta-item .label {
+    font-size: 0.74rem; color: var(--text-dim);
+    margin-top: 0.35rem; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.4); } }
+
+  /* PRÉREQUIS BANNER */
+  .prereqs {
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 2rem 1rem;
+  }
+  .prereqs-box {
+    background: linear-gradient(135deg, rgba(167,139,250,0.05), rgba(96,165,250,0.025));
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 12px;
+    padding: 1rem 1.3rem;
+    font-size: 0.95rem; color: var(--text-soft);
+  }
+  .prereqs-box strong { color: var(--blue); }
+  .prereqs-box ul {
+    margin: 0.5rem 0 0 1.4rem; list-style: none; padding: 0;
+  }
+  .prereqs-box li {
+    margin-bottom: 0.25rem; position: relative; padding-left: 1.3rem;
+  }
+  .prereqs-box li::before {
+    content: '📝'; position: absolute; left: 0; top: 0;
+  }
+
+  /* SECTIONS */
+  section.block {
+    max-width: 1100px; margin: 0 auto;
+    padding: 4rem 2rem 1.5rem; position: relative;
+  }
+  section.block::before {
+    content: ''; position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%); width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .block-header {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 1.8rem; align-items: baseline; margin-bottom: 1.5rem;
+  }
+  .block-num {
+    font-size: clamp(3rem, 6vw, 5rem); font-weight: 800;
+    font-style: italic; letter-spacing: -0.04em;
+    line-height: 0.9; color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    user-select: none; font-feature-settings: "tnum";
+  }
+  .block-eyebrow {
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--accent); text-transform: uppercase; letter-spacing: 0.18em;
+    margin-bottom: 0.5rem;
+  }
+  .block-header h2 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700; line-height: 1.1; letter-spacing: -0.025em;
+    color: var(--text);
+  }
+  .block-header h2 em {
+    font-style: italic; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* SUB-SECTION */
+  .sub {
+    margin: 2rem 0 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px dashed rgba(255,255,255,0.06);
+  }
+  .sub:first-of-type { border-top: none; padding-top: 0; }
+  .sub-num {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(251,146,60,0.2);
+    padding: 0.22rem 0.6rem; border-radius: 6px;
+    margin-bottom: 0.7rem;
+  }
+  .sub h3 {
+    font-size: 1.35rem; font-weight: 700;
+    margin: 0.3rem 0 1rem; color: var(--text);
+    letter-spacing: -0.005em; line-height: 1.3;
+  }
+  .sub h3 code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.45rem; border-radius: 5px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .sub p {
+    color: var(--text-soft); margin-bottom: 0.9rem;
+    line-height: 1.7; max-width: 850px;
+  }
+  .sub p code, .sub li code, .sub td code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .sub strong { color: var(--text); }
+  .sub ul, .sub ol {
+    margin: 0.6rem 0 1rem 1.4rem; color: var(--text-soft);
+  }
+  .sub li { margin-bottom: 0.3rem; }
+  .sub li::marker { color: var(--accent); }
+
+  /* MÉTAPHORE OPENER */
+  .metaphor {
+    background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(251,146,60,0.04));
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 12px;
+    padding: 1.1rem 1.4rem;
+    margin: 0.5rem 0 1.2rem;
+    font-size: 1rem; line-height: 1.6;
+    color: var(--text);
+  }
+  .metaphor-title {
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--primary); text-transform: uppercase;
+    letter-spacing: 0.13em; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .metaphor p { color: var(--text); margin-bottom: 0.6rem; max-width: 850px; }
+  .metaphor p:last-child { margin-bottom: 0; }
+  .metaphor em { color: var(--primary-bright); font-style: italic; }
+
+  /* DEFINITION BOX */
+  .definition {
+    background: var(--bg-elev);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 0.9rem 1.2rem;
+    margin: 0.9rem 0 1.1rem;
+    font-size: 0.96rem;
+    color: var(--text);
+    line-height: 1.65;
+  }
+  .definition::before {
+    content: '📖 Définition';
+    display: block;
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--accent); text-transform: uppercase; letter-spacing: 0.13em;
+    margin-bottom: 0.4rem;
+  }
+  .definition em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+  /* CODE BLOCK */
+  pre.code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 0.7rem 0 1rem;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.84rem; line-height: 1.7;
+    color: var(--text);
+    white-space: pre;
+  }
+  pre.code.with-label { padding-top: 2.2rem; position: relative; }
+  pre.code.with-label::before {
+    content: attr(data-label);
+    position: absolute; top: 0; left: 0;
+    background: var(--bg-elev);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-radius: 10px 0 8px 0;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  pre.code .tk-php { color: #f97316; }
+  pre.code .tk-kw { color: #c4b5fd; }
+  pre.code .tk-str { color: #86efac; }
+  pre.code .tk-var { color: #fbbf24; }
+  pre.code .tk-com { color: var(--text-dim); font-style: italic; }
+  pre.code .tk-fn { color: #60a5fa; }
+  pre.code .tk-num { color: #f9a8d4; }
+  pre.code .tk-sql { color: #c4b5fd; font-weight: 600; }
+  pre.code .tk-sql-fn { color: #60a5fa; font-weight: 600; }
+
+  /* LINE-BY-LINE ANALYSIS */
+  .line-by-line {
+    background: rgba(96,165,250,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 0.9rem 0;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--text-soft);
+  }
+  .line-by-line::before {
+    content: '🔍 Analysons ce code ligne par ligne';
+    display: block;
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--blue); text-transform: uppercase; letter-spacing: 0.13em;
+    margin-bottom: 0.6rem;
+  }
+  .line-by-line ol { margin: 0 0 0 1.4rem; }
+  .line-by-line li { margin-bottom: 0.4rem; }
+  .line-by-line li::marker { color: var(--blue); font-weight: 700; }
+  .line-by-line code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.9rem 0 1.1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.92rem;
+  }
+  .compare-table th, .compare-table td {
+    padding: 0.65rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table th {
+    background: var(--bg-elev);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td { color: var(--text-soft); vertical-align: top; }
+
+  /* CALLOUTS */
+  .callout {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.15rem;
+    margin: 0.8rem 0 1rem;
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: var(--text-soft);
+  }
+  .callout strong { color: var(--text); }
+  .callout code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .callout.warn {
+    background: linear-gradient(135deg, rgba(251,191,36,0.05), rgba(251,191,36,0.01));
+    border-left: 3px solid var(--amber);
+  }
+  .callout.warn .title { color: var(--amber); }
+  .callout.tip {
+    background: linear-gradient(135deg, rgba(96,165,250,0.05), rgba(96,165,250,0.01));
+    border-left: 3px solid var(--blue);
+  }
+  .callout.tip .title { color: var(--blue); }
+  .callout.danger {
+    background: linear-gradient(135deg, rgba(248,113,113,0.07), rgba(248,113,113,0.02));
+    border-left: 3px solid var(--red);
+  }
+  .callout.danger .title { color: var(--red); }
+  .callout.key {
+    background: linear-gradient(135deg, rgba(74,222,128,0.05), rgba(74,222,128,0.01));
+    border-left: 3px solid var(--green);
+  }
+  .callout.key .title { color: var(--green); }
+  .callout .title {
+    font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.13em;
+    margin-bottom: 0.4rem;
+  }
+  .callout ul, .callout ol { margin: 0.4rem 0 0 1.3rem; }
+  .callout li { margin-bottom: 0.25rem; }
+
+  /* ASCII ART METAPHOR BOX */
+  .ascii-art {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin: 0.9rem 0;
+    font-family: "JetBrains Mono", "SF Mono", monospace;
+    font-size: 0.84rem; line-height: 1.55;
+    color: var(--text-soft);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .ascii-art .label { color: var(--accent); font-weight: 600; }
+  .ascii-art .value { color: var(--green); }
+  .ascii-art .accent { color: var(--primary-bright); }
+
+  /* FINAL RECAP TABLE */
+  .recap-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.2rem 0;
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    font-size: 0.9rem;
+  }
+  .recap-table th, .recap-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .recap-table th {
+    background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(251,146,60,0.05));
+    color: var(--primary-bright);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .recap-table tr:last-child td { border-bottom: none; }
+  .recap-table td { color: var(--text-soft); vertical-align: top; }
+  .recap-table td strong { color: var(--text); }
+  .recap-table td code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+
+  /* QCM PREP CARDS */
+  .qcm-prep {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.9rem;
+    margin: 1.2rem 0;
+  }
+  .qcm-prep-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+  }
+  .qcm-prep-card .q-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(251,146,60,0.2);
+    padding: 0.2rem 0.5rem; border-radius: 5px;
+    display: inline-block; margin-bottom: 0.5rem;
+  }
+  .qcm-prep-card .q-text {
+    color: var(--text); font-size: 0.92rem;
+    font-weight: 500; margin-bottom: 0.4rem;
+    line-height: 1.45;
+  }
+  .qcm-prep-card .q-answer {
+    color: var(--green); font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .qcm-prep-card .q-answer strong { color: var(--green); }
+  .qcm-prep-card code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.35rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+
+  /* FINALE */
+  .finale {
+    max-width: 1100px; margin: 0 auto;
+    padding: 3rem 2rem 2rem;
+  }
+  .finale-card {
+    background: linear-gradient(135deg, rgba(167,139,250,0.1), rgba(251,146,60,0.05));
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    padding: 2.4rem 2.2rem;
+    position: relative; overflow: hidden; text-align: center;
+  }
+  .finale-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
+  }
+  .finale-card h2 {
+    font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+    font-weight: 700; line-height: 1.15;
+    color: var(--text); margin-bottom: 0.9rem;
+  }
+  .finale-card h2 em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .finale-card p {
+    color: var(--text-soft); max-width: 720px; margin: 0 auto 0.8rem;
+    line-height: 1.65;
+  }
+
+  /* TABS — Pièges par catégorie */
+  .tabs {
+    margin: 1.5rem 0;
+  }
+  .tabs-nav {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .tab-btn {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    color: var(--text-soft); font-family: inherit;
+    font-size: 0.86rem; font-weight: 500;
+    padding: 0.5rem 1rem; border-radius: 9px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: all 0.2s var(--easing);
+  }
+  .tab-btn:hover {
+    color: var(--text); border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(251,146,60,0.08));
+    border-color: var(--primary);
+    color: var(--primary-bright);
+    font-weight: 600;
+  }
+  .tab-btn .tab-icon { font-size: 1.05em; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: tabIn 0.35s var(--easing); }
+  @keyframes tabIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .trap {
+    background: var(--card); backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    margin: 0.9rem 0;
+  }
+  .trap.critical {
+    border-left-color: var(--red);
+    background: linear-gradient(135deg, rgba(248,113,113,0.04), rgba(248,113,113,0.01));
+  }
+  .trap-head {
+    display: flex; align-items: center; gap: 0.7rem;
+    margin-bottom: 0.6rem;
+  }
+  .trap-num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem; font-weight: 700;
+    color: var(--amber);
+    background: var(--amber-soft);
+    border: 1px solid rgba(251,191,36,0.25);
+    padding: 0.22rem 0.55rem; border-radius: 6px;
+    min-width: 1.8em; text-align: center;
+  }
+  .trap.critical .trap-num {
+    color: var(--red); background: rgba(248,113,113,0.1);
+    border-color: rgba(248,113,113,0.25);
+  }
+  .trap h4 {
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--text); line-height: 1.3;
+    margin: 0;
+  }
+  .trap h4 code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.86em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 5px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .trap-issue {
+    color: var(--text-soft);
+    font-size: 0.94rem; line-height: 1.65;
+    margin: 0 0 0.7rem;
+  }
+  .trap-issue strong { color: var(--text); }
+  .trap-issue code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .trap-rule {
+    background: rgba(74,222,128,0.05);
+    border: 1px solid rgba(74,222,128,0.15);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    margin: 0.7rem 0 0;
+    font-size: 0.92rem; line-height: 1.55;
+    color: var(--text-soft);
+  }
+  .trap-rule strong { color: var(--green); }
+  .trap-rule code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .trap pre.code { margin: 0.4rem 0; }
+  .trap .compare-table { margin: 0.6rem 0; }
+
+  @media (max-width: 600px) {
+    .tabs-nav { flex-direction: column; }
+    .tab-btn { width: 100%; justify-content: flex-start; }
+  }
+  @media (max-width: 800px) {
+    .block-header { grid-template-columns: 1fr; gap: 0.4rem; }
+    .block-num { font-size: 3rem; }
+    section.block { padding: 3rem 1.2rem 1rem; }
+    .hero { padding: 3rem 1.2rem 2rem; }
+    .prereqs { padding: 0 1.2rem 1rem; }
+    .finale { padding: 2.5rem 1.2rem 1.5rem; }
+    .finale-card { padding: 1.8rem 1.4rem; }
+    .compare-table, .recap-table { font-size: 0.84rem; }
+    .compare-table th, .compare-table td, .recap-table th, .recap-table td { padding: 0.5rem 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    <span>1PHP3</span>
+    <span class="sep">·</span>
+    <span>Jour 3 · Cours approfondi</span>
+    <span class="sep">·</span>
+    <span class="accent">CRUD &amp; PDO</span>
+  </div>
+  <h1>
+    <span class="line"><span class="word-outline">Maîtriser le</span></span>
+    <span class="line"><span class="word-accent">CRUD en PHP.</span></span>
+  </h1>
+  <p class="hero-lead">Les <strong>4 opérations</strong> qui résument toute interaction avec une base de données : <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate, <strong>D</strong>elete. Ce cours vous apprend à les implémenter avec <strong>PDO</strong> et des <strong>requêtes préparées</strong> sécurisées contre les injections SQL. À la fin, vous savez gérer toutes les données d'une application web réelle.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="num">4</div><div class="label">verbes CRUD</div></div>
+    <div class="hero-meta-item"><div class="num">9</div><div class="label">sections</div></div>
+    <div class="hero-meta-item"><div class="num">5</div><div class="label">catégories de pièges</div></div>
+    <div class="hero-meta-item"><div class="num">14</div><div class="label">pièges flaggés</div></div>
+  </div>
+</section>
+
+<div class="prereqs">
+  <div class="prereqs-box">
+    <strong>📝 Prérequis</strong> — avant d'attaquer ce cours, assurez-vous d'avoir vu :
+    <ul>
+      <li><strong>Jour 1</strong> : variables, structures de contrôle, fonctions</li>
+      <li><strong>Jour 2</strong> : tableaux associatifs, <code>foreach</code></li>
+      <li><strong>Jour 3 (matin)</strong> : superglobales <code>$_POST</code>/<code>$_GET</code>, validation, <code>htmlspecialchars()</code></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================
+     SECTION 1 — CRUD, l'acronyme qui résume tout
+     ============================================================ -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">01</div>
+    <div>
+      <div class="block-eyebrow">Section 1 · L'acronyme qui résume tout</div>
+      <h2>CRUD — les <em>4 verbes</em> de la base.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">1.1</div>
+    <h3>Pourquoi seulement <strong>4 verbes</strong> ?</h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — le classeur de fiches papier</div>
+      <p>Imaginez une secrétaire devant un grand <em>classeur</em> rempli de fiches cartonnées. Sur chaque fiche, des informations (le nom, l'adresse, le téléphone d'un client). Au cours de sa journée, qu'a-t-elle besoin de faire avec ce classeur ?</p>
+      <p>Réfléchissez 2 secondes…</p>
+      <p>Elle peut <em>ajouter</em> une nouvelle fiche (un nouveau client), <em>relire</em> les fiches existantes (chercher un client), <em>corriger</em> une fiche (le client a déménagé), ou <em>retirer</em> une fiche (le client a résilié). Et c'est tout. <strong>Il n'existe aucune autre action possible.</strong></p>
+    </div>
+
+    <p>Une base de données fonctionne <strong>exactement comme ce classeur</strong>. Chaque <em>table</em> est un classeur, chaque <em>ligne</em> est une fiche, chaque <em>colonne</em> est un champ d'information sur la fiche. Et toutes les opérations qu'on peut imaginer se ramènent à ces 4 verbes :</p>
+
+    <pre class="ascii-art">┌───────────────────────────────┐
+│  📋 <span class="label">Table</span> : articles          │
+├───┬───────────────┬───────────┤
+│ id│ titre         │ auteur    │   ← ligne = "fiche"
+├───┼───────────────┼───────────┤
+│ 1 │ Bonjour PHP   │ Alice     │   ← <span class="value">READ</span>   = lire cette fiche
+│ 2 │ Découvrir SQL │ Bob       │   ← <span class="value">UPDATE</span> = corriger cette fiche
+│ 3 │ <span class="accent">[à créer]</span>     │ <span class="accent">[à créer]</span> │   ← <span class="value">CREATE</span> = glisser une nouvelle
+│ 4 │ ✗ supprimé    │ ✗         │   ← <span class="value">DELETE</span> = retirer cette fiche
+└───┴───────────────┴───────────┘</pre>
+
+    <div class="definition">
+      <strong>CRUD</strong> = <em>C</em>reate (créer), <em>R</em>ead (lire), <em>U</em>pdate (modifier), <em>D</em>elete (supprimer). C'est <strong>l'inventaire complet</strong> des actions possibles sur une donnée persistante. Toute application web — Facebook, Amazon, votre futur projet WebBlog — n'est qu'une combinaison de ces 4 opérations sur des tables.
+    </div>
+
+    <div class="callout key">
+      <div class="title">🎯 Point clé à retenir</div>
+      <p>Si on vous demande « <em>combien d'opérations principales y a-t-il dans une base de données ?</em> », la réponse est <strong>4</strong>. Pas 3, pas 5, pas 10. Quatre. C'est même tellement vrai qu'en HTTP (le langage du web) il existe 4 verbes principaux qui correspondent presque parfaitement : <code>POST</code> (Create), <code>GET</code> (Read), <code>PUT</code> (Update), <code>DELETE</code> (Delete).</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">1.2</div>
+    <h3>Correspondance CRUD ↔ SQL ↔ vie réelle</h3>
+
+    <p>Pour chaque verbe CRUD, il existe un mot-clé SQL et une action concrète. Voici la table de correspondance à <strong>mémoriser absolument</strong> :</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Verbe CRUD</th>
+          <th>Mot-clé SQL</th>
+          <th>Action sur le classeur</th>
+          <th>Exemple concret (WebBlog)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--green)">C</strong>reate</td>
+          <td><code>INSERT INTO</code></td>
+          <td>Glisser une nouvelle fiche</td>
+          <td>L'utilisateur publie un nouvel article</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--blue)">R</strong>ead</td>
+          <td><code>SELECT</code></td>
+          <td>Feuilleter / chercher une fiche</td>
+          <td>Afficher la liste des articles sur l'accueil</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--amber)">U</strong>pdate</td>
+          <td><code>UPDATE</code></td>
+          <td>Corriger une fiche au stylo</td>
+          <td>Modifier le titre d'un article</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--red)">D</strong>elete</td>
+          <td><code>DELETE FROM</code></td>
+          <td>Retirer une fiche du classeur</td>
+          <td>Supprimer définitivement un article</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <div class="title">💡 Astuce mnémotechnique</div>
+      <p>L'ordre <strong>C-R-U-D</strong> n'est pas anodin : il correspond au <strong>cycle de vie</strong> d'une donnée. Elle est d'abord <em>créée</em> (Create), puis <em>consultée</em> de nombreuses fois (Read), parfois <em>modifiée</em> (Update), et finalement <em>supprimée</em> (Delete). Comme un être humain : naissance, vie, modifications, et fin.</p>
+    </div>
+
+    <div class="callout warn">
+      <div class="title">⚠️ Confusions à éviter</div>
+      <p>On présente parfois de fausses définitions de CRUD qui ressemblent mais sont fausses :</p>
+      <ul>
+        <li><code>Connect, Read, Update, Disconnect</code> — ressemblant mais faux</li>
+        <li><code>Cache, Retrieve, Upload, Download</code> — c'est du jargon réseau, pas BDD</li>
+        <li><code>Compile, Run, Undo, Debug</code> — c'est un workflow de dev, pas BDD</li>
+      </ul>
+      <p>La <strong>seule bonne définition</strong> : <strong>C</strong>reate, <strong>R</strong>ead, <strong>U</strong>pdate, <strong>D</strong>elete.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 2 — PDO, l'outil pour parler à la BDD
+     ============================================================ -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">02</div>
+    <div>
+      <div class="block-eyebrow">Section 2 · L'outil pour parler à MySQL</div>
+      <h2>PDO — le <em>téléphone universel</em>.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">2.1</div>
+    <h3>Qu'est-ce que <code>PDO</code> ?</h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — le téléphone universel</div>
+      <p>Imaginez que vous deviez appeler 4 personnes qui parlent chacune une langue différente : MySQL, PostgreSQL, SQLite, Oracle. Vous pourriez apprendre les 4 langues. Ou vous pourriez avoir un <em>traducteur universel</em> qui prend votre message en français et le transmet correctement à chaque interlocuteur, peu importe sa langue.</p>
+      <p><strong>PDO est ce traducteur.</strong> Vous écrivez votre code une seule fois, en « PDO ». Si demain vous décidez de passer de MySQL à PostgreSQL, vous ne changez qu'une ligne (la <em>connexion</em>) et tout le reste continue de fonctionner.</p>
+    </div>
+
+    <div class="definition">
+      <strong>PDO</strong> signifie <em>PHP Data Objects</em>. C'est une <strong>extension PHP officielle</strong> qui fournit une interface <em>unifiée</em> pour dialoguer avec différentes bases de données (MySQL, PostgreSQL, SQLite, Oracle, MS SQL Server…). C'est l'outil <strong>recommandé</strong> aujourd'hui pour toute application PHP qui touche à une base.
+    </div>
+
+    <p>Pourquoi PDO plutôt que les anciennes méthodes (<code>mysql_*</code>, <code>mysqli</code>) ?</p>
+    <ul>
+      <li><strong>Sécurité native</strong> : les requêtes préparées sont intégrées et empêchent les injections SQL</li>
+      <li><strong>Portabilité</strong> : changer de SGBD = changer une seule ligne</li>
+      <li><strong>Moderne</strong> : orienté objet, gestion d'erreurs par exceptions (vs codes de retour)</li>
+      <li><strong>Standard</strong> : recommandé officiellement par la communauté PHP</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="title">⚠️ Faux amis — les acronymes qui ressemblent</div>
+      <p>On vous présentera parfois des acronymes proches qui n'ont rien à voir :</p>
+      <ul>
+        <li><code>PHP Data Output</code> — non, PDO ne formate rien pour l'affichage</li>
+        <li><code>PHP Database Optimizer</code> — non, PDO n'optimise pas les requêtes</li>
+        <li><code>PHP Direct Operation</code> — non, PDO passe au contraire par une couche d'abstraction</li>
+      </ul>
+      <p>La bonne signification : <strong>P</strong>HP <strong>D</strong>ata <strong>O</strong>bjects.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">2.2</div>
+    <h3>Se connecter à la base : les <strong>3 paramètres</strong></h3>
+
+    <p>Pour se connecter à une base avec PDO, on instancie un objet <code>PDO</code> qui a besoin d'exactement <strong>3 paramètres obligatoires</strong>.</p>
+
+    <pre class="code with-label" data-label="Syntaxe générale"><span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$utilisateur</span>, <span class="tk-kw">$motDePasse</span>);</pre>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Paramètre</th>
+          <th>Rôle</th>
+          <th>Exemple</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>DSN</strong><br><span style="color:var(--text-dim);font-size:0.85em">Data Source Name</span></td>
+          <td>Description de la connexion : quel type de BDD, sur quelle machine, quelle base.</td>
+          <td><code>"mysql:host=localhost;dbname=webblog;charset=utf8mb4"</code></td>
+        </tr>
+        <tr>
+          <td><strong>Utilisateur</strong></td>
+          <td>Le nom du compte MySQL avec lequel on se connecte.</td>
+          <td><code>"root"</code></td>
+        </tr>
+        <tr>
+          <td><strong>Mot de passe</strong></td>
+          <td>Le mot de passe MySQL.</td>
+          <td><code>""</code> (vide sur XAMPP/Laragon) ou <code>"root"</code> sous MAMP</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Exemple concret de connexion à la base <code>webblog</code> :</p>
+
+    <pre class="code with-label" data-label="Exemple complet"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$dsn</span>      = <span class="tk-str">"mysql:host=localhost;dbname=webblog;charset=utf8mb4"</span>;
+<span class="tk-kw">$user</span>     = <span class="tk-str">"root"</span>;
+<span class="tk-kw">$password</span> = <span class="tk-str">""</span>;
+
+<span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$user</span>, <span class="tk-kw">$password</span>);</pre>
+
+    <div class="line-by-line">
+      <ol>
+        <li><strong>Ligne du DSN</strong> : <code>mysql:</code> précise qu'on parle à MySQL (pour PostgreSQL ce serait <code>pgsql:</code>, pour SQLite <code>sqlite:</code>). <code>host=localhost</code> = sur la même machine. <code>dbname=webblog</code> = base à utiliser. <code>charset=utf8mb4</code> = jeu de caractères qui supporte tous les caractères Unicode (accents, emojis…).</li>
+        <li><strong>Ligne user</strong> : sur un serveur local, c'est presque toujours <code>root</code> par défaut.</li>
+        <li><strong>Ligne password</strong> : <strong>vide</strong> sur XAMPP/Laragon/WAMP par défaut, mais <code>'root'</code> sur MAMP. C'est un piège de configuration courant.</li>
+        <li><strong>Ligne <code>new PDO(...)</code></strong> : crée l'objet de connexion. Si MySQL ne répond pas, ou si les identifiants sont mauvais, cette ligne <em>lance une exception</em>.</li>
+      </ol>
+    </div>
+
+    <div class="callout warn">
+      <div class="title">⚠️ Ne pas confondre les paramètres</div>
+      <p>On vous présentera parfois des combinaisons fausses :</p>
+      <ul>
+        <li><em>Nom de BDD, port, fichier de config</em> → faux (le port et le nom sont dans le DSN)</li>
+        <li><em>Type de BDD, chemin absolu, charset</em> → faux (tout ça est dans le DSN, pas séparé)</li>
+        <li><em>IP, nom de table, clé de chiffrement</em> → complètement faux</li>
+      </ul>
+      <p>La bonne formule : <code>DSN</code> + <code>utilisateur</code> + <code>mot de passe</code>. Trois paramètres, dans cet ordre.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">2.3</div>
+    <h3>Gestion d'erreurs : <code>try / catch</code> + <code>ERRMODE_EXCEPTION</code></h3>
+
+    <p>Une connexion peut échouer pour plein de raisons : MySQL non démarré, mauvais mot de passe, base inexistante, serveur surchargé. On ne veut surtout pas que notre application affiche un message technique anxiogène au visiteur. On veut <strong>intercepter l'erreur proprement</strong>.</p>
+
+    <p>C'est le rôle du couple <code>try / catch</code>.</p>
+
+    <pre class="code with-label" data-label="Connexion PDO sécurisée"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">try</span> {
+    <span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(
+        <span class="tk-str">"mysql:host=localhost;dbname=webblog;charset=utf8mb4"</span>,
+        <span class="tk-str">"root"</span>,
+        <span class="tk-str">""</span>,
+        [
+            <span class="tk-kw">PDO::ATTR_ERRMODE</span>            =&gt; <span class="tk-kw">PDO::ERRMODE_EXCEPTION</span>,
+            <span class="tk-kw">PDO::ATTR_DEFAULT_FETCH_MODE</span> =&gt; <span class="tk-kw">PDO::FETCH_ASSOC</span>
+        ]
+    );
+    <span class="tk-fn">echo</span> <span class="tk-str">"✅ Connexion réussie"</span>;
+} <span class="tk-kw">catch</span> (<span class="tk-fn">PDOException</span> <span class="tk-kw">$e</span>) {
+    <span class="tk-fn">die</span>(<span class="tk-str">"❌ Erreur de connexion : "</span> . <span class="tk-kw">$e</span>-&gt;<span class="tk-fn">getMessage</span>());
+}</pre>
+
+    <div class="line-by-line">
+      <ol>
+        <li><strong><code>try { ... }</code></strong> : « <em>essaie d'exécuter ce bloc</em> ». Si tout se passe bien, PHP continue après le <code>catch</code>.</li>
+        <li><strong><code>new PDO(...)</code></strong> : le 4ᵉ paramètre (optionnel) est un <em>tableau d'options</em>. <code>ATTR_ERRMODE =&gt; ERRMODE_EXCEPTION</code> dit à PDO : « si quoi que ce soit échoue par la suite, <em>lance une exception</em> ». <code>FETCH_ASSOC</code> dit : « par défaut, renvoie les résultats en tableau associatif » (clés = noms de colonnes).</li>
+        <li><strong><code>catch (PDOException $e)</code></strong> : « <em>si une <code>PDOException</code> est levée dans le <code>try</code>, attrape-la dans la variable <code>$e</code></em> ». La méthode <code>$e-&gt;getMessage()</code> donne la description technique de l'erreur.</li>
+        <li><strong><code>die(...)</code></strong> : affiche le message et stoppe le script. Sans <code>die</code>, PHP continuerait avec une variable <code>$pdo</code> non définie → erreurs en cascade dès qu'on essaiera d'utiliser <code>$pdo</code> plus loin.</li>
+      </ol>
+    </div>
+
+    <div class="callout danger">
+      <div class="title">🚨 Piège majeur — l'option à NE JAMAIS oublier</div>
+      <p>L'option <code>PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION</code> est <strong>absolument essentielle</strong>. Sans elle, PDO <strong>n'envoie aucune exception</strong> et votre <code>try/catch</code> ne se déclenche jamais — les erreurs sont avalées silencieusement et vous passez 3 heures à chercher pourquoi votre code ne fonctionne pas.</p>
+      <p><strong>Règle absolue :</strong> toute connexion PDO doit avoir cette option. Pas de discussion.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="title">💡 Bonne pratique — fichier <code>config.php</code> séparé</div>
+      <p>On ne met jamais les identifiants de la BDD en dur dans chaque fichier. On crée un <code>config.php</code> qu'on inclut partout :</p>
+<pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-com">// config.php</span>
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_HOST'</span>, <span class="tk-str">'localhost'</span>);
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_NAME'</span>, <span class="tk-str">'webblog'</span>);
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_USER'</span>, <span class="tk-str">'root'</span>);
+<span class="tk-fn">define</span>(<span class="tk-str">'DB_PASS'</span>, <span class="tk-str">''</span>);
+<span class="tk-com">// + le bloc try/catch PDO qui crée $pdo</span>
+<span class="tk-com">// Dans les autres fichiers : require "config.php";</span></pre>
+    </div>
+
+    <div class="callout key">
+      <div class="title">🎯 Récap section 2 — ce qu'il faut savoir</div>
+      <p>Avant de continuer, vérifiez que vous savez répondre à ces 3 questions :</p>
+      <ol>
+        <li>Que signifie PDO ? <strong>P</strong>HP <strong>D</strong>ata <strong>O</strong>bjects.</li>
+        <li>Quels sont les 3 paramètres obligatoires de <code>new PDO()</code> ? <strong>DSN, utilisateur, mot de passe.</strong></li>
+        <li>Quelle option est cruciale pour avoir des exceptions ? <strong><code>PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION</code>.</strong></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3 — CREATE ICI -->
+
+<!-- SECTION 4 — READ ICI -->
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">03</div>
+    <div>
+      <div class="block-eyebrow">Section 3 · Create</div>
+      <h2><em>Insérer</em> une fiche dans le classeur.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">3.1</div>
+    <h3>La requête SQL : <code>INSERT INTO</code></h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — glisser une nouvelle fiche</div>
+      <p>Notre secrétaire prend une <em>fiche cartonnée vierge</em>, écrit dessus les informations du nouveau client, et la glisse à la suite des autres dans le classeur. La fiche reçoit automatiquement le numéro suivant disponible.</p>
+    </div>
+
+    <p>En SQL, la syntaxe pour ajouter une ligne est :</p>
+
+    <pre class="code with-label" data-label="Syntaxe SQL"><span class="tk-sql">INSERT INTO</span> nom_table (colonne1, colonne2, colonne3)
+<span class="tk-sql">VALUES</span> (valeur1, valeur2, valeur3);</pre>
+
+    <p>Exemple concret pour notre table <code>articles</code> :</p>
+
+    <pre class="code with-label" data-label="Exemple SQL"><span class="tk-sql">INSERT INTO</span> articles (titre, contenu, auteur)
+<span class="tk-sql">VALUES</span> (<span class="tk-str">'Bonjour PHP'</span>, <span class="tk-str">'Mon premier article...'</span>, <span class="tk-str">'Alice'</span>);</pre>
+
+    <div class="callout tip">
+      <div class="title">💡 Astuce — la colonne <code>id</code> est gérée automatiquement</div>
+      <p>Vous remarquez qu'on ne donne pas de valeur pour <code>id</code>. C'est parce que la table est créée avec <code>id INT AUTO_INCREMENT</code> : MySQL attribue tout seul le prochain numéro disponible (1, 2, 3…). Idem pour les colonnes avec valeur par défaut (comme <code>date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP</code>).</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">3.2</div>
+    <h3>En PHP : <code>prepare()</code> + <code>execute()</code></h3>
+
+    <p>En PHP, on ne tape jamais la requête SQL directement avec les valeurs. On utilise une <strong>requête préparée</strong> : on envoie d'abord la <em>structure</em> de la requête, puis les <em>valeurs</em> séparément.</p>
+
+    <pre class="code with-label" data-label="INSERT avec PDO"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;  <span class="tk-com">// récupère $pdo</span>
+
+<span class="tk-com">// Les valeurs viennent d'un formulaire ou d'une variable</span>
+<span class="tk-kw">$titre</span>   = <span class="tk-str">"Bonjour PHP"</span>;
+<span class="tk-kw">$contenu</span> = <span class="tk-str">"Mon premier article..."</span>;
+<span class="tk-kw">$auteur</span>  = <span class="tk-str">"Alice"</span>;
+
+<span class="tk-com">// 1) Préparer la requête (structure SQL avec des marqueurs ?)</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"INSERT INTO articles (titre, contenu, auteur) VALUES (?, ?, ?)"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+
+<span class="tk-com">// 2) Exécuter en passant les valeurs dans l'ordre des ?</span>
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$titre</span>, <span class="tk-kw">$contenu</span>, <span class="tk-kw">$auteur</span>]);
+
+<span class="tk-fn">echo</span> <span class="tk-str">"✅ Article créé !"</span>;</pre>
+
+    <div class="line-by-line">
+      <ol>
+        <li><strong><code>$pdo-&gt;prepare($sql)</code></strong> : envoie la <em>structure</em> de la requête à MySQL. Les <code>?</code> sont des emplacements (« marqueurs ») qui seront remplis plus tard. Retourne un objet <code>PDOStatement</code> stocké dans <code>$stmt</code>.</li>
+        <li><strong><code>$stmt-&gt;execute([...])</code></strong> : envoie les <em>valeurs</em> dans un tableau, dans le même ordre que les <code>?</code>. PDO les associe automatiquement et exécute la requête.</li>
+        <li><strong>Sécurité</strong> : même si <code>$titre</code> contenait du code SQL malveillant comme <code>"'; DROP TABLE articles; --"</code>, PDO le traiterait comme une <em>chaîne</em>, pas comme du code. <strong>Injection SQL impossible.</strong></li>
+      </ol>
+    </div>
+
+    <p>Variante avec des <strong>marqueurs nommés</strong> (plus lisible quand il y a beaucoup de paramètres) :</p>
+
+    <pre class="code with-label" data-label="Marqueurs nommés :nom"><span class="tk-kw">$sql</span> = <span class="tk-str">"INSERT INTO articles (titre, contenu, auteur)
+        VALUES (:titre, :contenu, :auteur)"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([
+    <span class="tk-str">':titre'</span>   =&gt; <span class="tk-kw">$titre</span>,
+    <span class="tk-str">':contenu'</span> =&gt; <span class="tk-kw">$contenu</span>,
+    <span class="tk-str">':auteur'</span>  =&gt; <span class="tk-kw">$auteur</span>
+]);</pre>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Style</th>
+          <th>Marqueur</th>
+          <th>Avantage</th>
+          <th>Inconvénient</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Positionnel</strong></td>
+          <td><code>?</code></td>
+          <td>Plus concis</td>
+          <td>L'ordre compte. 5 paramètres → on peut se tromper</td>
+        </tr>
+        <tr>
+          <td><strong>Nommé</strong></td>
+          <td><code>:nom</code></td>
+          <td>Plus lisible, ordre libre</td>
+          <td>Un peu plus verbeux</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <div class="title">💡 Quand utiliser quoi ?</div>
+      <p>Pour 2-3 paramètres → <code>?</code> suffit. Pour 5+ paramètres ou des UPDATE complexes → <code>:nom</code> est plus sûr (impossible de se tromper d'ordre).</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">3.3</div>
+    <h3>Récupérer l'<code>id</code> de la fiche créée</h3>
+
+    <p>Souvent, juste après un INSERT, on veut savoir <em>quel id</em> a été attribué automatiquement (pour rediriger vers la page de l'article créé, par exemple). PDO fournit la méthode <code>lastInsertId()</code> pour cela.</p>
+
+    <pre class="code with-label" data-label="Récupérer l'id auto-incrémenté"><span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$titre</span>, <span class="tk-kw">$contenu</span>, <span class="tk-kw">$auteur</span>]);
+
+<span class="tk-com">// Juste après l'INSERT, on récupère l'id généré</span>
+<span class="tk-kw">$nouvelId</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">lastInsertId</span>();
+
+<span class="tk-fn">echo</span> <span class="tk-str">"Article créé avec l'id "</span> . <span class="tk-kw">$nouvelId</span>;
+
+<span class="tk-com">// Cas d'usage typique : redirection vers la page de l'article</span>
+<span class="tk-fn">header</span>(<span class="tk-str">"Location: article.php?id=$nouvelId"</span>);
+<span class="tk-kw">exit</span>;</pre>
+
+    <div class="callout warn">
+      <div class="title">⚠️ Attention — l'<code>id</code> n'est PAS dans la variable PHP</div>
+      <p>Beaucoup de débutants croient que <code>$titre</code>, <code>$contenu</code>, etc. contiennent l'id après l'INSERT. <strong>Non.</strong> L'id n'existe que côté MySQL après l'<code>execute()</code>. La seule façon de le récupérer est <code>$pdo-&gt;lastInsertId()</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">04</div>
+    <div>
+      <div class="block-eyebrow">Section 4 · Read</div>
+      <h2><em>Feuilleter</em> le classeur.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">4.1</div>
+    <h3>Lire <strong>tous</strong> les enregistrements : <code>query()</code> + <code>fetchAll()</code></h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — feuilleter le classeur</div>
+      <p>La secrétaire prend le classeur, l'ouvre, et lit <em>chaque fiche</em> l'une après l'autre. À la fin, elle a une <em>pile</em> contenant toutes les informations.</p>
+    </div>
+
+    <p>En PHP, on utilise deux méthodes complémentaires :</p>
+    <ul>
+      <li><code>$pdo-&gt;query($sql)</code> : exécute une requête SQL <strong>sans paramètre</strong> et renvoie un <code>PDOStatement</code>.</li>
+      <li><code>$stmt-&gt;fetchAll()</code> : récupère <strong>tous</strong> les résultats dans un tableau PHP.</li>
+    </ul>
+
+    <pre class="code with-label" data-label="Lister tous les articles"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+
+<span class="tk-com">// Requête SELECT sans paramètre → on peut utiliser query()</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM articles ORDER BY date_creation DESC"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-kw">$sql</span>);
+
+<span class="tk-com">// On récupère tous les articles dans un tableau associatif</span>
+<span class="tk-kw">$articles</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetchAll</span>(<span class="tk-kw">PDO::FETCH_ASSOC</span>);
+
+<span class="tk-com">// On parcourt avec foreach</span>
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$articles</span> <span class="tk-kw">as</span> <span class="tk-kw">$article</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>]) . <span class="tk-str">"&lt;br&gt;"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">'auteur'</span>]) . <span class="tk-str">"&lt;br&gt;"</span>;
+}</pre>
+
+    <div class="line-by-line">
+      <ol>
+        <li><strong><code>$pdo-&gt;query($sql)</code></strong> : envoie la requête à MySQL. À utiliser uniquement <strong>sans variable</strong> dans la requête (donc sans risque d'injection SQL). Pour une requête avec variables, il faudra <code>prepare()</code>.</li>
+        <li><strong><code>fetchAll(PDO::FETCH_ASSOC)</code></strong> : récupère TOUS les résultats en une fois. <code>FETCH_ASSOC</code> dit : « renvoie chaque ligne sous forme de <em>tableau associatif</em> » (clés = noms de colonnes). Sans cette option, on aurait des doublons (colonne accessible par index ET par nom).</li>
+        <li><strong><code>foreach ($articles as $article)</code></strong> : on parcourt le tableau. Chaque <code>$article</code> est un tableau associatif comme <code>['id' =&gt; 1, 'titre' =&gt; '...', 'auteur' =&gt; '...']</code>.</li>
+        <li><strong><code>htmlspecialchars($article['titre'])</code></strong> : toujours nettoyer les données avant affichage. Un titre comme <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code> serait exécuté sinon (attaque XSS).</li>
+      </ol>
+    </div>
+
+    <p>Si le tableau est vide (aucun article en BDD), <code>fetchAll()</code> renvoie un tableau vide <code>[]</code>. Le <code>foreach</code> ne fait alors rien et tout va bien — pas d'erreur.</p>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">4.2</div>
+    <h3>Lire <strong>UN seul</strong> enregistrement : <code>prepare()</code> + <code>fetch()</code></h3>
+
+    <p>Quand on veut un seul article (par exemple sur la page <code>article.php?id=5</code>), on utilise <code>WHERE id = ...</code> dans le SELECT. Et comme l'id vient d'une variable utilisateur, on utilise <strong>obligatoirement</strong> une requête préparée.</p>
+
+    <pre class="code with-label" data-label="Lire un article par son id"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+
+<span class="tk-com">// L'id vient de l'URL : article.php?id=5</span>
+<span class="tk-kw">$id</span> = (<span class="tk-kw">int</span>) <span class="tk-kw">$_GET</span>[<span class="tk-str">'id'</span>];
+
+<span class="tk-com">// Requête préparée (variable dans le SQL → prepare obligatoire)</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM articles WHERE id = ?"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);
+
+<span class="tk-com">// fetch() renvoie UNE seule ligne (ou false si rien trouvé)</span>
+<span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>(<span class="tk-kw">PDO::FETCH_ASSOC</span>);
+
+<span class="tk-kw">if</span> (<span class="tk-kw">$article</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"&lt;h1&gt;"</span> . <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>]) . <span class="tk-str">"&lt;/h1&gt;"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"&lt;p&gt;"</span>   . <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">'contenu'</span>]) . <span class="tk-str">"&lt;/p&gt;"</span>;
+} <span class="tk-kw">else</span> {
+    <span class="tk-fn">echo</span> <span class="tk-str">"Article introuvable."</span>;
+}</pre>
+
+    <div class="line-by-line">
+      <ol>
+        <li><strong><code>(int) $_GET['id']</code></strong> : conversion forcée en entier. Si l'utilisateur tape <code>article.php?id=abc</code>, on obtient <code>0</code>, pas une erreur. C'est une mesure de validation simple.</li>
+        <li><strong><code>$pdo-&gt;prepare(...)</code></strong> + <code>execute([$id])</code> : la valeur de <code>$id</code> est envoyée séparément du SQL → impossible d'injecter du SQL via l'URL.</li>
+        <li><strong><code>$stmt-&gt;fetch(PDO::FETCH_ASSOC)</code></strong> : renvoie <strong>une seule ligne</strong>. Si aucun article ne correspond, renvoie <code>false</code>.</li>
+        <li><strong><code>if ($article)</code></strong> : on vérifie. Si <code>false</code>, on affiche un message « introuvable » plutôt qu'une page cassée.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">4.3</div>
+    <h3>⚠️ Le piège <code>fetch()</code> vs <code>fetchAll()</code></h3>
+
+    <p>C'est <strong>le</strong> piège classique en pratique :</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Méthode</th>
+          <th>Que renvoie-t-elle ?</th>
+          <th>Quand l'utiliser ?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>$stmt-&gt;fetch()</code></td>
+          <td><strong>UNE</strong> ligne (tableau associatif) <br>OU <code>false</code> si rien trouvé.</td>
+          <td>SELECT avec <code>WHERE id = ?</code> ou <code>LIMIT 1</code>.</td>
+        </tr>
+        <tr>
+          <td><code>$stmt-&gt;fetchAll()</code></td>
+          <td><strong>TOUTES</strong> les lignes (tableau de tableaux) <br>OU <code>[]</code> si rien trouvé.</td>
+          <td>SELECT qui renvoie plusieurs lignes (liste, recherche…).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout danger">
+      <div class="title">⚠️ Piège n°1 — confondre les deux</div>
+      <p>Si vous écrivez <code>fetchAll()</code> alors qu'il n'y a qu'une seule ligne attendue, vous obtenez un <strong>tableau contenant un seul tableau</strong> : <code>[ ['id'=&gt;1, 'titre'=&gt;'...'] ]</code>. Pour accéder au titre, il faudrait <code>$articles[0]['titre']</code> — pas <code>$articles['titre']</code>. Erreur de typage très fréquente.</p>
+    </div>
+
+    <div class="callout danger">
+      <div class="title">⚠️ Piège n°2 — tester si la liste est vide proprement</div>
+      <p>Beaucoup de débutants écrivent <code>if (!$articles) { ... }</code> pour tester si la liste est vide. Ça <em>fonctionne</em> (un tableau vide est évalué comme falsy), mais c'est peu lisible — on lit « si pas $articles » alors qu'on veut dire « si liste vide ». La formulation expressive : <code>if (empty($articles))</code> ou <code>if (count($articles) === 0)</code> — l'intention saute aux yeux.</p>
+    </div>
+
+    <div class="callout key">
+      <div class="title">🎯 Récap section 4 — ce qu'il faut savoir</div>
+      <ol>
+        <li><code>query()</code> = pour les SELECT <strong>sans variable</strong>. <code>prepare()</code> + <code>execute()</code> = pour ceux <strong>avec</strong>.</li>
+        <li><code>fetch()</code> = une ligne. <code>fetchAll()</code> = toutes les lignes.</li>
+        <li>Toujours échapper les données avec <code>htmlspecialchars()</code> avant affichage.</li>
+        <li>Toujours tester si on a bien reçu un résultat avant de l'utiliser.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">05</div>
+    <div>
+      <div class="block-eyebrow">Section 5 · Update</div>
+      <h2><em>Corriger</em> une fiche existante.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">5.1</div>
+    <h3>La requête SQL : <code>UPDATE ... SET ... WHERE</code></h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — corriger une fiche au stylo</div>
+      <p>Notre secrétaire reçoit une information : le client n°3 a changé d'adresse. Elle <em>sort la fiche n°3</em> du classeur, prend son stylo, <em>raie l'ancienne valeur</em> et <em>écrit la nouvelle</em>, puis remet la fiche dans le classeur. Les autres fiches n'ont pas bougé.</p>
+    </div>
+
+    <p>La syntaxe SQL pour modifier une ligne :</p>
+
+    <pre class="code with-label" data-label="Syntaxe SQL"><span class="tk-sql">UPDATE</span> nom_table
+<span class="tk-sql">SET</span> colonne1 = nouvelle_valeur1, colonne2 = nouvelle_valeur2
+<span class="tk-sql">WHERE</span> condition;</pre>
+
+    <p>Exemple : modifier le titre et le contenu de l'article d'id 5 :</p>
+
+    <pre class="code with-label" data-label="Exemple SQL"><span class="tk-sql">UPDATE</span> articles
+<span class="tk-sql">SET</span> titre = <span class="tk-str">'Nouveau titre'</span>, contenu = <span class="tk-str">'Texte mis à jour...'</span>
+<span class="tk-sql">WHERE</span> id = <span class="tk-num">5</span>;</pre>
+
+    <p>En PHP avec PDO :</p>
+
+    <pre class="code with-label" data-label="UPDATE en PHP"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+
+<span class="tk-kw">$id</span>             = <span class="tk-num">5</span>;
+<span class="tk-kw">$nouveauTitre</span>   = <span class="tk-str">"Nouveau titre"</span>;
+<span class="tk-kw">$nouveauContenu</span> = <span class="tk-str">"Texte mis à jour..."</span>;
+
+<span class="tk-com">// Préparer la requête</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"UPDATE articles SET titre = ?, contenu = ? WHERE id = ?"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+
+<span class="tk-com">// Exécuter avec les valeurs dans l'ordre des ?</span>
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$nouveauTitre</span>, <span class="tk-kw">$nouveauContenu</span>, <span class="tk-kw">$id</span>]);
+
+<span class="tk-fn">echo</span> <span class="tk-str">"✅ Article modifié"</span>;</pre>
+
+    <div class="line-by-line">
+      <ol>
+        <li><strong>L'ordre des <code>?</code> compte</strong> : le premier <code>?</code> correspond à <code>titre</code>, le deuxième à <code>contenu</code>, le troisième à <code>id</code> (dans le WHERE). Ils sont remplis dans cet ordre par <code>execute([$nouveauTitre, $nouveauContenu, $id])</code>.</li>
+        <li><strong>Le <code>WHERE</code></strong> est <em>crucial</em>. Il cible précisément l'article d'id 5. <strong>Sans WHERE, on modifierait TOUS les articles de la table.</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">5.2</div>
+    <h3>🚨 Le piège fatal : <code>UPDATE</code> sans <code>WHERE</code></h3>
+
+    <div class="callout danger">
+      <div class="title">🚨 ATTENTION — la plus grosse catastrophe du débutant</div>
+      <p>Imaginez ce code :</p>
+<pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-kw">$sql</span> = <span class="tk-str">"UPDATE articles SET titre = ?"</span>;  <span class="tk-com">// ← PAS de WHERE !</span>
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-str">"Nouveau titre"</span>]);</pre>
+      <p><strong>Cette requête modifie le titre de TOUS les articles de la table.</strong> Si vous avez 10 000 articles en BDD, ils ont tous le titre « Nouveau titre » après l'exécution. <strong>Irréversible</strong>, sauf à avoir une sauvegarde.</p>
+      <p>C'est la cause numéro 1 de catastrophes en stage. Toujours vérifier deux fois avant d'exécuter un UPDATE.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="title">💡 Astuce — tester avec un SELECT d'abord</div>
+      <p>Avant un UPDATE compliqué, exécutez d'abord un <code>SELECT</code> avec le <strong>même WHERE</strong> :</p>
+<pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-sql">SELECT</span> * <span class="tk-sql">FROM</span> articles <span class="tk-sql">WHERE</span> id = <span class="tk-num">5</span>;
+<span class="tk-com">-- Si ce SELECT renvoie LA ligne attendue → l'UPDATE peut suivre</span>
+<span class="tk-sql">UPDATE</span> articles <span class="tk-sql">SET</span> titre = <span class="tk-str">'...'</span> <span class="tk-sql">WHERE</span> id = <span class="tk-num">5</span>;</pre>
+      <p>Si le SELECT renvoie 0 ligne → votre WHERE est incorrect, l'UPDATE ne ferait rien. Si le SELECT renvoie 10 000 lignes → votre WHERE est <em>trop large</em>, vous alliez tout modifier.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">5.3</div>
+    <h3>Vérifier qu'une ligne a bien été modifiée : <code>rowCount()</code></h3>
+
+    <p>Après un UPDATE, on veut souvent savoir : « <em>est-ce que ça a vraiment modifié quelque chose ?</em> ». PDO fournit la méthode <code>rowCount()</code> qui renvoie le nombre de lignes affectées.</p>
+
+    <pre class="code with-label" data-label="Vérifier l'effet d'un UPDATE"><span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$nouveauTitre</span>, <span class="tk-kw">$nouveauContenu</span>, <span class="tk-kw">$id</span>]);
+
+<span class="tk-kw">$nbModifiees</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">rowCount</span>();
+
+<span class="tk-kw">if</span> (<span class="tk-kw">$nbModifiees</span> &gt; <span class="tk-num">0</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"✅ Article modifié"</span>;
+} <span class="tk-kw">else</span> {
+    <span class="tk-fn">echo</span> <span class="tk-str">"❌ Aucun article avec cet id"</span>;
+}</pre>
+
+    <div class="callout warn">
+      <div class="title">⚠️ Subtilité — <code>rowCount()</code> = 0 ne veut pas dire « erreur »</div>
+      <p>Si vous faites un UPDATE avec les <em>mêmes valeurs</em> que celles déjà en BDD, MySQL voit qu'il n'y a rien à changer et renvoie <code>rowCount() = 0</code>. Ce n'est pas une erreur, c'est juste « pas de modification effective ». De même si le WHERE ne trouve aucune ligne.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">06</div>
+    <div>
+      <div class="block-eyebrow">Section 6 · Delete</div>
+      <h2><em>Retirer</em> une fiche du classeur.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">6.1</div>
+    <h3>La requête SQL : <code>DELETE FROM ... WHERE</code></h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — retirer une fiche</div>
+      <p>Notre secrétaire prend la fiche n°3, la sort du classeur, et la <em>jette à la corbeille</em>. La fiche n'existe plus. Le classeur a maintenant une fiche de moins.</p>
+    </div>
+
+    <p>La syntaxe SQL pour supprimer une ligne :</p>
+
+    <pre class="code with-label" data-label="Syntaxe SQL"><span class="tk-sql">DELETE FROM</span> nom_table <span class="tk-sql">WHERE</span> condition;</pre>
+
+    <p>Exemple : supprimer l'article d'id 5 :</p>
+
+    <pre class="code with-label" data-label="Exemple SQL"><span class="tk-sql">DELETE FROM</span> articles <span class="tk-sql">WHERE</span> id = <span class="tk-num">5</span>;</pre>
+
+    <p>En PHP avec PDO :</p>
+
+    <pre class="code with-label" data-label="DELETE en PHP"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">require</span> <span class="tk-str">"config.php"</span>;
+
+<span class="tk-kw">$id</span> = (<span class="tk-kw">int</span>) <span class="tk-kw">$_GET</span>[<span class="tk-str">'id'</span>];
+
+<span class="tk-kw">$sql</span> = <span class="tk-str">"DELETE FROM articles WHERE id = ?"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);
+
+<span class="tk-kw">if</span> (<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">rowCount</span>() &gt; <span class="tk-num">0</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-str">"✅ Article supprimé"</span>;
+} <span class="tk-kw">else</span> {
+    <span class="tk-fn">echo</span> <span class="tk-str">"❌ Aucun article avec cet id"</span>;
+}</pre>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">6.2</div>
+    <h3>🚨 Même piège que UPDATE : <strong>toujours un <code>WHERE</code></strong></h3>
+
+    <div class="callout danger">
+      <div class="title">🚨 ATTENTION — encore plus catastrophique que UPDATE</div>
+      <p>Imaginez :</p>
+<pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"DELETE FROM articles"</span>);  <span class="tk-com">// ← PAS de WHERE</span></pre>
+      <p><strong>Tous les articles de la table sont effacés instantanément.</strong> Sans sauvegarde, c'est définitif. Si vos 10 000 articles disparaissent en production parce qu'on a oublié un <code>WHERE</code>, c'est très probablement votre licenciement le jour même.</p>
+      <p><strong>Règle absolue :</strong> avant tout DELETE ou UPDATE, on vérifie <strong>3 fois</strong> qu'il y a un WHERE et que le WHERE est correct.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="title">💡 Bonne pratique pro — la <em>suppression logique</em></div>
+      <p>En vrai, beaucoup d'applications ne suppriment <strong>jamais</strong> les données. Au lieu de DELETE, on ajoute une colonne <code>supprime</code> (boolean) ou <code>date_suppression</code> et on fait un UPDATE pour la marquer comme supprimée. Les SELECT filtrent les lignes supprimées (<code>WHERE supprime = FALSE</code>). Avantage : on peut <em>récupérer</em> les données en cas d'erreur. Cette technique s'appelle <strong>soft delete</strong>.</p>
+    </div>
+
+    <div class="callout key">
+      <div class="title">🎯 Récap sections 5 &amp; 6 — la règle d'or</div>
+      <p>Pour les requêtes UPDATE et DELETE, <strong>il faut TOUJOURS un <code>WHERE</code></strong>. Sans WHERE, vous touchez à <strong>toutes les lignes de la table</strong>. C'est la cause numéro 1 de catastrophes en BDD. <strong>Avant tout UPDATE/DELETE, vérifiez avec un SELECT que votre WHERE cible bien les bonnes lignes.</strong></p>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">07</div>
+    <div>
+      <div class="block-eyebrow">Section 7 · Sécurité</div>
+      <h2>Requêtes préparées vs <em>injection SQL</em>.</h2>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">7.1</div>
+    <h3>Le mauvais code qui ouvre la porte aux pirates</h3>
+
+    <div class="metaphor">
+      <div class="metaphor-title">🪄 Métaphore — le cheval de Troie</div>
+      <p>Dans la légende, les Grecs offrent un grand cheval de bois aux Troyens. Les Troyens le font entrer dans leurs murs sans se méfier — il a l'air inoffensif. Mais à l'intérieur du cheval se cachent des soldats grecs qui, la nuit venue, ouvrent les portes de la ville et la mettent à sac.</p>
+      <p>L'<strong>injection SQL</strong> fonctionne exactement comme ça : l'attaquant tape un texte qui <em>a l'air d'être un email ou un nom</em>, mais qui contient en réalité du code SQL caché. Si votre serveur l'avale sans se méfier, le code se met à exécuter ce qu'il veut sur votre base.</p>
+    </div>
+
+    <p>Voici un code <strong>dangereux</strong> qu'on voit hélas encore trop souvent :</p>
+
+    <pre class="code with-label" data-label="🚨 Code vulnérable — À NE JAMAIS ÉCRIRE"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$email</span> = <span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>];
+
+<span class="tk-com">// DANGER : on insère directement la variable dans le SQL</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM users WHERE email = '</span><span class="tk-kw">$email</span><span class="tk-str">'"</span>;
+<span class="tk-kw">$result</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-kw">$sql</span>);</pre>
+
+    <p>À première vue, ça semble inoffensif. Si l'utilisateur tape <code>alice@example.com</code>, la requête devient :</p>
+
+    <pre class="code"><span class="tk-sql">SELECT</span> * <span class="tk-sql">FROM</span> users <span class="tk-sql">WHERE</span> email = <span class="tk-str">'alice@example.com'</span>;</pre>
+
+    <p>Tout va bien. <strong>Mais</strong>… que se passe-t-il si l'utilisateur tape ceci dans le champ email :</p>
+
+    <pre class="code"><span class="tk-str">' OR 1=1 --</span></pre>
+
+    <p>La requête PHP devient :</p>
+
+    <pre class="code"><span class="tk-sql">SELECT</span> * <span class="tk-sql">FROM</span> users <span class="tk-sql">WHERE</span> email = <span class="tk-str">''</span> <span class="tk-sql">OR</span> <span class="tk-num">1</span>=<span class="tk-num">1</span> --<span class="tk-str">'</span></pre>
+
+    <p>Que lit MySQL ? « <em>Sélectionne tous les utilisateurs où l'email est vide OU 1=1 (toujours vrai)</em> ». <strong>Tous les utilisateurs sortent</strong>. Tout le <code>--</code> après est commenté (le <code>--</code> en SQL = commentaire de ligne).</p>
+
+    <div class="callout danger">
+      <div class="title">🚨 Conséquences d'une vraie injection SQL</div>
+      <p>Cet exemple est volontairement simple. En vrai, un attaquant peut faire bien pire :</p>
+      <ul>
+        <li><strong>Voler des données</strong> : <code>' UNION SELECT mot_de_passe FROM admins --</code></li>
+        <li><strong>Tout supprimer</strong> : <code>'; DROP TABLE users; --</code></li>
+        <li><strong>Créer un compte admin</strong> : <code>'; INSERT INTO admins (...) VALUES (...); --</code></li>
+      </ul>
+      <p>L'injection SQL reste <strong>l'une des failles les plus courantes</strong> selon les rapports OWASP (le classement de référence des failles de sécurité web). Ce n'est pas un risque théorique.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">7.2</div>
+    <h3>La solution : <strong>requêtes préparées</strong></h3>
+
+    <p>Le bon code, qu'on a vu dans toutes les sections précédentes :</p>
+
+    <pre class="code with-label" data-label="✅ Code sécurisé"><span class="tk-php">&lt;?php</span>
+<span class="tk-kw">$email</span> = <span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>];
+
+<span class="tk-com">// 1) Préparer la STRUCTURE SQL (sans les valeurs)</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM users WHERE email = ?"</span>;
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
+
+<span class="tk-com">// 2) Envoyer la valeur SÉPARÉMENT</span>
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$email</span>]);</pre>
+
+    <p>Pourquoi est-ce sûr ? Parce que la <strong>structure</strong> de la requête et la <strong>valeur</strong> de la variable sont envoyées <strong>séparément</strong> à MySQL. Quand l'utilisateur tape <code>' OR 1=1 --</code>, ce texte n'est <strong>jamais interprété</strong> comme du SQL. Il reste une simple <em>chaîne de caractères</em> qui sera comparée au champ email.</p>
+
+    <pre class="ascii-art">┌─────────────────────────────┐
+│  <span class="label">Sans préparation</span>            │
+│  La valeur est COLLÉE au SQL │
+│  → SQL et valeur mélangés    │
+│  → Injection POSSIBLE        │
+└─────────────────────────────┘
+
+┌─────────────────────────────┐
+│  <span class="value">Avec préparation</span>            │
+│  Structure SQL → MySQL       │
+│  Valeurs       → MySQL       │
+│  (deux envois séparés)       │
+│  → Injection IMPOSSIBLE      │
+└─────────────────────────────┘</pre>
+
+    <div class="callout key">
+      <div class="title">🎯 Règle absolue de sécurité — pas de discussion</div>
+      <p>Dès qu'une variable apparaît dans une requête SQL, on utilise <code>prepare()</code> + <code>execute()</code>. <strong>Jamais</strong>, au grand <strong>jamais</strong>, on ne fait :</p>
+      <ul>
+        <li><code>$pdo-&gt;query("... WHERE x = '$var'")</code> — concaténation directe</li>
+        <li><code>$pdo-&gt;query("... WHERE x = '" . $var . "'")</code> — pareil avec l'opérateur point</li>
+        <li><code>$pdo-&gt;query("... WHERE x = '{$var}'")</code> — pareil avec interpolation</li>
+      </ul>
+      <p>Toutes ces formes sont équivalentes — et toutes <strong>vulnérables aux injections SQL</strong>.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-num">7.3</div>
+    <h3>Marqueurs nommés <code>:nom</code> vs positionnels <code>?</code></h3>
+
+    <p>On a vu les deux. Voici la comparaison côte à côte :</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Positionnel <code>?</code></th>
+          <th>Nommé <code>:nom</code></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Syntaxe SQL</td>
+          <td><code>WHERE id = ? AND nom = ?</code></td>
+          <td><code>WHERE id = :id AND nom = :nom</code></td>
+        </tr>
+        <tr>
+          <td>Tableau <code>execute</code></td>
+          <td><code>[5, 'Alice']</code></td>
+          <td><code>[':id' =&gt; 5, ':nom' =&gt; 'Alice']</code></td>
+        </tr>
+        <tr>
+          <td>L'ordre compte ?</td>
+          <td>OUI — bien respecter</td>
+          <td>NON — clés libres</td>
+        </tr>
+        <tr>
+          <td>Lisibilité</td>
+          <td>Concis</td>
+          <td>Plus explicite</td>
+        </tr>
+        <tr>
+          <td>Sécurité</td>
+          <td>Identique</td>
+          <td>Identique</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout tip">
+      <div class="title">💡 Recommandation pratique</div>
+      <p>Les deux sont strictement équivalents en sécurité. Choisissez selon le contexte :</p>
+      <ul>
+        <li><strong>2-3 paramètres</strong> ou requête simple → <code>?</code> suffit, c'est concis</li>
+        <li><strong>5+ paramètres</strong> ou variable réutilisée plusieurs fois dans la requête → <code>:nom</code>, c'est plus sûr</li>
+      </ul>
+      <p>L'important n'est pas le style, mais de toujours utiliser <code>prepare()</code> + <code>execute()</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">08</div>
+    <div>
+      <div class="block-eyebrow">Section 8 · Vigilance</div>
+      <h2>Les pièges sur lesquels il faut <em>faire attention</em>.</h2>
+    </div>
+  </div>
+
+  <p style="color:var(--text-soft);max-width:850px;margin-bottom:1.5rem">Toutes les erreurs classiques du CRUD regroupées par thème. Cliquez sur les onglets pour explorer chaque catégorie de piège. Chacun explique <strong>ce qui coince</strong> et <strong>comment l'éviter</strong>.</p>
+
+  <div class="tabs">
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="pdo" onclick="switchTab('pdo', this)">
+        <span class="tab-icon">🔌</span> PDO &amp; Connexion
+      </button>
+      <button class="tab-btn" data-tab="prepare" onclick="switchTab('prepare', this)">
+        <span class="tab-icon">🛡️</span> Requêtes préparées
+      </button>
+      <button class="tab-btn" data-tab="update" onclick="switchTab('update', this)">
+        <span class="tab-icon">⚠️</span> UPDATE / DELETE
+      </button>
+      <button class="tab-btn" data-tab="fetch" onclick="switchTab('fetch', this)">
+        <span class="tab-icon">📋</span> Lecture des résultats
+      </button>
+      <button class="tab-btn" data-tab="display" onclick="switchTab('display', this)">
+        <span class="tab-icon">🖥️</span> Affichage sécurisé
+      </button>
+    </div>
+
+    <!-- ONGLET 1 : PDO & Connexion -->
+    <div class="tab-panel active" data-tab="pdo">
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">1</span>
+          <h4>Oublier <code>ERRMODE_EXCEPTION</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> sans cette option, PDO n'envoie aucune exception en cas d'erreur. Votre <code>try/catch</code> reste muet. Les erreurs disparaissent silencieusement et vous passez 3 heures à chercher pourquoi votre code « ne fait rien ».</p>
+<pre class="code"><span class="tk-com">// ❌ Mauvais : pas d'option d'erreur</span>
+<span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$user</span>, <span class="tk-kw">$pass</span>);
+
+<span class="tk-com">// ✅ Bon : on active les exceptions</span>
+<span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$user</span>, <span class="tk-kw">$pass</span>, [
+    <span class="tk-kw">PDO::ATTR_ERRMODE</span> =&gt; <span class="tk-kw">PDO::ERRMODE_EXCEPTION</span>
+]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> toute connexion PDO doit avoir cette option dans le 4ᵉ paramètre.</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">2</span>
+          <h4>Confondre les 3 paramètres de <code>new PDO()</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> on cherche à mettre l'hôte, le port, ou le charset en paramètres séparés. <strong>Tout ça est dans le DSN.</strong></p>
+<pre class="code"><span class="tk-com">// ✅ Les 3 paramètres dans le bon ordre</span>
+<span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(
+    <span class="tk-str">"mysql:host=localhost;dbname=webblog;charset=utf8mb4"</span>,  <span class="tk-com">// 1. DSN</span>
+    <span class="tk-str">"root"</span>,    <span class="tk-com">// 2. Utilisateur</span>
+    <span class="tk-str">""</span>         <span class="tk-com">// 3. Mot de passe</span>
+);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>DSN</code> + <code>utilisateur</code> + <code>mot de passe</code>. Trois paramètres, dans cet ordre.</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">3</span>
+          <h4>Confondre l'acronyme PDO</h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> on hésite avec « PHP Data Output », « PHP Database Optimizer », « PHP Direct Operation »… toutes ces variantes sont <strong>fausses</strong>.</p>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> PDO = <strong>P</strong>HP <strong>D</strong>ata <strong>O</strong>bjects. C'est une interface unifiée pour parler à plusieurs SGBD (MySQL, PostgreSQL, SQLite…).</p>
+      </div>
+    </div>
+
+    <!-- ONGLET 2 : Requêtes préparées -->
+    <div class="tab-panel" data-tab="prepare">
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">1</span>
+          <h4>Concaténer une variable dans le SQL</h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> on insère une variable directement dans la chaîne SQL avec <code>.</code> ou l'interpolation <code>"{$var}"</code>. <strong>Injection SQL garantie.</strong></p>
+<pre class="code"><span class="tk-com">// ❌ DANGEREUX : concaténation directe</span>
+<span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM users WHERE email = '"</span> . <span class="tk-kw">$email</span> . <span class="tk-str">"'"</span>;
+<span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-kw">$sql</span>);
+
+<span class="tk-com">// ❌ DANGEREUX : interpolation</span>
+<span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"SELECT * FROM users WHERE email = '$email'"</span>);
+
+<span class="tk-com">// ✅ SÉCURISÉ : requête préparée</span>
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"SELECT * FROM users WHERE email = ?"</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$email</span>]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> dès qu'une variable apparaît dans le SQL, on passe par <code>prepare()</code> + <code>execute()</code>. Pas de discussion.</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">2</span>
+          <h4>Utiliser <code>query()</code> avec une variable</h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> on essaie de passer des paramètres à <code>query()</code>. Elle <strong>n'accepte pas de paramètres</strong> — c'est une méthode pour les SELECT statiques uniquement.</p>
+<pre class="code"><span class="tk-com">// ❌ query() n'accepte pas de variable séparée</span>
+<span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"SELECT * FROM articles WHERE id = ?"</span>, [<span class="tk-kw">$id</span>]);
+
+<span class="tk-com">// ✅ prepare() + execute() pour toute requête avec variable</span>
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"SELECT * FROM articles WHERE id = ?"</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>query()</code> = SELECT <em>statique sans variable</em>. <code>prepare()</code> = dès qu'il y a une variable.</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">3</span>
+          <h4>Mélanger marqueurs <code>?</code> et <code>:nom</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> les deux styles fonctionnent, mais on ne peut pas les mélanger dans une même requête.</p>
+<pre class="code"><span class="tk-com">// ❌ Mélange interdit</span>
+<span class="tk-fn">prepare</span>(<span class="tk-str">"WHERE id = ? AND nom = :nom"</span>);
+
+<span class="tk-com">// ✅ Style positionnel — tableau ordonné</span>
+<span class="tk-fn">prepare</span>(<span class="tk-str">"WHERE id = ? AND nom = ?"</span>);
+<span class="tk-fn">execute</span>([<span class="tk-num">5</span>, <span class="tk-str">'Alice'</span>]);
+
+<span class="tk-com">// ✅ Style nommé — tableau associatif</span>
+<span class="tk-fn">prepare</span>(<span class="tk-str">"WHERE id = :id AND nom = :nom"</span>);
+<span class="tk-fn">execute</span>([<span class="tk-str">':id'</span> =&gt; <span class="tk-num">5</span>, <span class="tk-str">':nom'</span> =&gt; <span class="tk-str">'Alice'</span>]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> choisir un style et s'y tenir. Avec <code>?</code> → tableau ordonné. Avec <code>:nom</code> → tableau associatif.</p>
+      </div>
+    </div>
+
+    <!-- ONGLET 3 : UPDATE / DELETE -->
+    <div class="tab-panel" data-tab="update">
+      <div class="trap critical">
+        <div class="trap-head">
+          <span class="trap-num">1</span>
+          <h4>UPDATE sans WHERE</h4>
+        </div>
+        <p class="trap-issue"><strong>🚨 Ce qui coince :</strong> oublier le <code>WHERE</code> dans un UPDATE → <strong>toutes les lignes de la table sont modifiées</strong>. Si vous avez 10 000 articles, ils ont tous le même titre après l'exécution. Irréversible sans sauvegarde.</p>
+<pre class="code"><span class="tk-com">// 🚨 CATASTROPHE : modifie TOUS les articles</span>
+<span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"UPDATE articles SET titre = 'Bug'"</span>);
+
+<span class="tk-com">// ✅ Cible un seul article</span>
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"UPDATE articles SET titre = ? WHERE id = ?"</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-str">'Nouveau titre'</span>, <span class="tk-num">5</span>]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> tester d'abord avec un <code>SELECT * WHERE ...</code> identique. Si le SELECT renvoie les bonnes lignes → l'UPDATE peut suivre.</p>
+      </div>
+
+      <div class="trap critical">
+        <div class="trap-head">
+          <span class="trap-num">2</span>
+          <h4>DELETE sans WHERE</h4>
+        </div>
+        <p class="trap-issue"><strong>🚨 Ce qui coince :</strong> encore plus grave que UPDATE — un DELETE sans WHERE <strong>vide toute la table</strong>. Sans sauvegarde, les données sont perdues à jamais.</p>
+<pre class="code"><span class="tk-com">// 🚨 CATASTROPHE : vide la table entière</span>
+<span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"DELETE FROM articles"</span>);
+
+<span class="tk-com">// ✅ Cible un seul article</span>
+<span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"DELETE FROM articles WHERE id = ?"</span>);
+<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> avant tout DELETE, vérifier 3 fois le WHERE. En pro, on évite même les DELETE — on fait du <strong>soft delete</strong> (colonne <code>supprime</code> mise à <code>true</code> au lieu d'effacer).</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">3</span>
+          <h4>Interpréter <code>rowCount() == 0</code> comme une erreur</h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> après un UPDATE, <code>rowCount()</code> peut renvoyer <code>0</code> sans qu'il y ait d'erreur — par exemple si on met la même valeur qu'avant, ou si le WHERE ne trouve aucune ligne.</p>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>rowCount() = 0</code> signifie « aucune ligne réellement modifiée », pas « erreur ». Pour détecter une vraie erreur, c'est le <code>try/catch</code> qui s'en charge.</p>
+      </div>
+    </div>
+
+    <!-- ONGLET 4 : Lecture des résultats -->
+    <div class="tab-panel" data-tab="fetch">
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">1</span>
+          <h4>Confondre <code>fetch()</code> et <code>fetchAll()</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> on utilise <code>fetchAll()</code> alors qu'on attendait une seule ligne (ou inversement). Le format du résultat est différent.</p>
+<pre class="code"><span class="tk-com">// fetch() : UNE ligne ou false</span>
+<span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>(<span class="tk-kw">PDO::FETCH_ASSOC</span>);
+<span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];  <span class="tk-com">// accès direct par clé</span>
+
+<span class="tk-com">// fetchAll() : tableau de tableaux</span>
+<span class="tk-kw">$articles</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetchAll</span>(<span class="tk-kw">PDO::FETCH_ASSOC</span>);
+<span class="tk-fn">echo</span> <span class="tk-kw">$articles</span>[<span class="tk-num">0</span>][<span class="tk-str">'titre'</span>];  <span class="tk-com">// double indexation</span>
+<span class="tk-kw">foreach</span> (<span class="tk-kw">$articles</span> <span class="tk-kw">as</span> <span class="tk-kw">$a</span>) { <span class="tk-fn">echo</span> <span class="tk-kw">$a</span>[<span class="tk-str">'titre'</span>]; }</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>fetch()</code> = 1 résultat attendu (SELECT avec <code>WHERE id</code>). <code>fetchAll()</code> = plusieurs résultats attendus (liste).</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">2</span>
+          <h4>Ne pas tester si le résultat est vide</h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> <code>fetch()</code> renvoie <code>false</code> si aucun résultat. Si vous accédez à <code>$article['titre']</code> sans tester, vous obtenez un warning et une page cassée.</p>
+<pre class="code"><span class="tk-com">// ❌ Ne teste pas le résultat</span>
+<span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>();
+<span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];  <span class="tk-com">// warning si $article === false</span>
+
+<span class="tk-com">// ✅ On teste d'abord</span>
+<span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>();
+<span class="tk-kw">if</span> (<span class="tk-kw">$article</span>) {
+    <span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];
+} <span class="tk-kw">else</span> {
+    <span class="tk-fn">echo</span> <span class="tk-str">"Article introuvable"</span>;
+}</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> toujours tester le retour de <code>fetch()</code> avant d'accéder à ses clés.</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">3</span>
+          <h4>Oublier <code>PDO::FETCH_ASSOC</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> sans cette option, PDO renvoie chaque ligne <strong>en double</strong> : une fois avec clés numériques (0, 1, 2…) et une fois avec clés de colonnes ('id', 'titre'…). Tableaux deux fois plus gros, accès ambigu.</p>
+<pre class="code"><span class="tk-com">// Sans FETCH_ASSOC : tableau doublé</span>
+<span class="tk-com">// [0 =&gt; 1, 'id' =&gt; 1, 1 =&gt; 'Titre', 'titre' =&gt; 'Titre']</span>
+
+<span class="tk-com">// ✅ Avec FETCH_ASSOC : tableau propre</span>
+<span class="tk-com">// ['id' =&gt; 1, 'titre' =&gt; 'Titre']</span></pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> mettre <code>PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC</code> dans les options de <code>new PDO()</code> pour l'avoir partout par défaut.</p>
+      </div>
+    </div>
+
+    <!-- ONGLET 5 : Affichage sécurisé -->
+    <div class="tab-panel" data-tab="display">
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">1</span>
+          <h4>Afficher des données sans <code>htmlspecialchars()</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> si un titre contient <code>&lt;script&gt;alert('hack')&lt;/script&gt;</code>, le navigateur l'<strong>exécute</strong> dès qu'on fait <code>echo $article['titre']</code>. Attaque XSS classique.</p>
+<pre class="code"><span class="tk-com">// ❌ Affichage brut : XSS possible</span>
+<span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];
+
+<span class="tk-com">// ✅ Toujours échapper avant d'afficher</span>
+<span class="tk-fn">echo</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>]);</pre>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> toute donnée venant de la BDD ou d'un utilisateur passe par <code>htmlspecialchars()</code> avant <code>echo</code>.</p>
+      </div>
+
+      <div class="trap">
+        <div class="trap-head">
+          <span class="trap-num">2</span>
+          <h4>Confondre <code>htmlspecialchars()</code> et <code>strip_tags()</code></h4>
+        </div>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> les deux fonctions <em>traitent</em> du HTML mais font des choses différentes.</p>
+        <table class="compare-table">
+          <thead>
+            <tr><th>Fonction</th><th>Effet sur <code>&lt;b&gt;Bold&lt;/b&gt;</code></th><th>Usage</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>htmlspecialchars()</code></td>
+              <td><code>&amp;lt;b&amp;gt;Bold&amp;lt;/b&amp;gt;</code><br><em>(balises visibles comme texte)</em></td>
+              <td>Pour l'affichage — sécurité XSS</td>
+            </tr>
+            <tr>
+              <td><code>strip_tags()</code></td>
+              <td><code>Bold</code><br><em>(balises supprimées)</em></td>
+              <td>Pour nettoyer du texte (extraits, etc.)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="trap-rule"><strong>🎯 Règle :</strong> pour l'affichage utilisateur → <code>htmlspecialchars</code>. Pour générer un extrait sans balises → <code>strip_tags</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">09</div>
+    <div>
+      <div class="block-eyebrow">Récapitulatif final</div>
+      <h2>Ce qu'il faut <em>retenir</em>.</h2>
+    </div>
+  </div>
+
+  <table class="recap-table">
+    <thead>
+      <tr>
+        <th>Opération</th>
+        <th>SQL</th>
+        <th>PHP/PDO</th>
+        <th>À retenir</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>CREATE</strong></td>
+        <td><code>INSERT INTO t (...) VALUES (...)</code></td>
+        <td><code>prepare()</code> + <code>execute([...])</code> + <code>lastInsertId()</code></td>
+        <td>L'id est attribué par MySQL, récupéré via <code>lastInsertId()</code></td>
+      </tr>
+      <tr>
+        <td><strong>READ (tous)</strong></td>
+        <td><code>SELECT * FROM t</code></td>
+        <td><code>query()</code> + <code>fetchAll()</code></td>
+        <td>Renvoie un tableau de tableaux. <code>foreach</code> pour parcourir.</td>
+      </tr>
+      <tr>
+        <td><strong>READ (un)</strong></td>
+        <td><code>SELECT * FROM t WHERE id = ?</code></td>
+        <td><code>prepare()</code> + <code>execute()</code> + <code>fetch()</code></td>
+        <td><code>fetch()</code> renvoie 1 ligne ou <code>false</code>. Toujours tester.</td>
+      </tr>
+      <tr>
+        <td><strong>UPDATE</strong></td>
+        <td><code>UPDATE t SET ... WHERE ...</code></td>
+        <td><code>prepare()</code> + <code>execute([...])</code> + <code>rowCount()</code></td>
+        <td>⚠️ <strong>Sans WHERE, modifie TOUT.</strong></td>
+      </tr>
+      <tr>
+        <td><strong>DELETE</strong></td>
+        <td><code>DELETE FROM t WHERE ...</code></td>
+        <td><code>prepare()</code> + <code>execute([...])</code> + <code>rowCount()</code></td>
+        <td>⚠️ <strong>Sans WHERE, supprime TOUT.</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin:2rem 0 0.7rem;color:var(--text);font-size:1.2rem">Les 3 règles d'or de la BDD</h3>
+
+  <div class="callout key">
+    <div class="title">🥇 Règle 1 — Toujours préparer les requêtes</div>
+    <p>Dès qu'une variable apparaît dans le SQL, on utilise <code>prepare()</code> + <code>execute()</code>. C'est <strong>non négociable</strong>. C'est la seule façon de se protéger des injections SQL.</p>
+  </div>
+
+  <div class="callout key">
+    <div class="title">🥈 Règle 2 — Toujours <code>WHERE</code> sur UPDATE et DELETE</div>
+    <p>Avant tout UPDATE ou DELETE, vérifier deux fois que le <code>WHERE</code> est présent et qu'il cible bien la (les) bonne(s) ligne(s). Tester avec un <code>SELECT</code> d'abord.</p>
+  </div>
+
+  <div class="callout key">
+    <div class="title">🥉 Règle 3 — Toujours échapper à l'affichage</div>
+    <p>Avant d'<code>echo</code>'er une donnée venant de la BDD, on l'enveloppe dans <code>htmlspecialchars()</code>. Sinon, si la donnée contient du HTML/JavaScript (intentionnellement ou non), le navigateur l'exécute → faille XSS.</p>
+  </div>
+</section>
+
+<div class="finale">
+  <div class="finale-card">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.9rem">🎉 Bravo</div>
+    <h2>Vous savez maintenant faire un <em>CRUD complet</em>.</h2>
+    <p>Création, lecture, modification, suppression — vous avez les 4 verbes en main. Avec en plus la sécurité par requêtes préparées, vous pouvez construire une vraie application web qui gère des données persistantes sans risque d'injection SQL.</p>
+    <p>Prochaine étape : <strong>l'authentification</strong> (Jour 4) — pour décider <em>qui</em> a le droit de faire quoi sur ces données.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0.9rem;margin:1.8rem 0 0.5rem;text-align:left">
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ CREATE</div>
+        <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">INSERT INTO ...</code></div>
+      </div>
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ READ</div>
+        <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">SELECT ...</code></div>
+      </div>
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ UPDATE</div>
+        <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">UPDATE ... WHERE</code></div>
+      </div>
+      <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ DELETE</div>
+        <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">DELETE FROM ... WHERE</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="height:3rem"></div>
+
+<script>
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = ((window.scrollY / max) * 100) + '%';
+  });
+
+  // Onglets pièges
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector(`.tab-panel[data-tab="${tabId}"]`).classList.add('active');
+  }
+</script>
+
+</body>
+</html>
