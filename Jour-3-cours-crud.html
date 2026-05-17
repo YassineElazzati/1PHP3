@@ -131,7 +131,7 @@
     margin-bottom: 0.25rem; position: relative; padding-left: 1.3rem;
   }
   .prereqs-box li::before {
-    content: '📝'; position: absolute; left: 0; top: 0;
+    content: ''; position: absolute; left: 0; top: 0;
   }
 
   /* SECTIONS */
@@ -249,7 +249,7 @@
     line-height: 1.65;
   }
   .definition::before {
-    content: '📖 Définition';
+    content: ' Définition';
     display: block;
     font-size: 0.7rem; font-weight: 700;
     color: var(--accent); text-transform: uppercase; letter-spacing: 0.13em;
@@ -304,7 +304,7 @@
     color: var(--text-soft);
   }
   .line-by-line::before {
-    content: '🔍 Analysons ce code ligne par ligne';
+    content: ' Analysons ce code ligne par ligne';
     display: block;
     font-size: 0.7rem; font-weight: 700;
     color: var(--blue); text-transform: uppercase; letter-spacing: 0.13em;
@@ -667,7 +667,7 @@
 
 <div class="prereqs">
   <div class="prereqs-box">
-    <strong>📝 Prérequis</strong> — avant d'attaquer ce cours, assurez-vous d'avoir vu :
+    <strong>Prérequis</strong> — avant d'attaquer ce cours, assurez-vous d'avoir vu :
     <ul>
       <li><strong>Jour 1</strong> : variables, structures de contrôle, fonctions</li>
       <li><strong>Jour 2</strong> : tableaux associatifs, <code>foreach</code></li>
@@ -693,7 +693,7 @@
     <h3>Pourquoi seulement <strong>4 verbes</strong> ?</h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — le classeur de fiches papier</div>
+      <div class="metaphor-title">Métaphore — le classeur de fiches papier</div>
       <p>Imaginez une secrétaire devant un grand <em>classeur</em> rempli de fiches cartonnées. Sur chaque fiche, des informations (le nom, l'adresse, le téléphone d'un client). Au cours de sa journée, qu'a-t-elle besoin de faire avec ce classeur ?</p>
       <p>Réfléchissez 2 secondes…</p>
       <p>Elle peut <em>ajouter</em> une nouvelle fiche (un nouveau client), <em>relire</em> les fiches existantes (chercher un client), <em>corriger</em> une fiche (le client a déménagé), ou <em>retirer</em> une fiche (le client a résilié). Et c'est tout. <strong>Il n'existe aucune autre action possible.</strong></p>
@@ -702,14 +702,14 @@
     <p>Une base de données fonctionne <strong>exactement comme ce classeur</strong>. Chaque <em>table</em> est un classeur, chaque <em>ligne</em> est une fiche, chaque <em>colonne</em> est un champ d'information sur la fiche. Et toutes les opérations qu'on peut imaginer se ramènent à ces 4 verbes :</p>
 
     <pre class="ascii-art">┌───────────────────────────────┐
-│  📋 <span class="label">Table</span> : articles          │
+│   <span class="label">Table</span> : articles          │
 ├───┬───────────────┬───────────┤
 │ id│ titre         │ auteur    │   ← ligne = "fiche"
 ├───┼───────────────┼───────────┤
 │ 1 │ Bonjour PHP   │ Alice     │   ← <span class="value">READ</span>   = lire cette fiche
 │ 2 │ Découvrir SQL │ Bob       │   ← <span class="value">UPDATE</span> = corriger cette fiche
 │ 3 │ <span class="accent">[à créer]</span>     │ <span class="accent">[à créer]</span> │   ← <span class="value">CREATE</span> = glisser une nouvelle
-│ 4 │ ✗ supprimé    │ ✗         │   ← <span class="value">DELETE</span> = retirer cette fiche
+│ 4 │  supprimé    │          │   ← <span class="value">DELETE</span> = retirer cette fiche
 └───┴───────────────┴───────────┘</pre>
 
     <div class="definition">
@@ -717,7 +717,7 @@
     </div>
 
     <div class="callout key">
-      <div class="title">🎯 Point clé à retenir</div>
+      <div class="title">Point clé à retenir</div>
       <p>Si on vous demande « <em>combien d'opérations principales y a-t-il dans une base de données ?</em> », la réponse est <strong>4</strong>. Pas 3, pas 5, pas 10. Quatre. C'est même tellement vrai qu'en HTTP (le langage du web) il existe 4 verbes principaux qui correspondent presque parfaitement : <code>POST</code> (Create), <code>GET</code> (Read), <code>PUT</code> (Update), <code>DELETE</code> (Delete).</p>
     </div>
   </div>
@@ -766,12 +766,12 @@
     </table>
 
     <div class="callout tip">
-      <div class="title">💡 Astuce mnémotechnique</div>
+      <div class="title">Astuce mnémotechnique</div>
       <p>L'ordre <strong>C-R-U-D</strong> n'est pas anodin : il correspond au <strong>cycle de vie</strong> d'une donnée. Elle est d'abord <em>créée</em> (Create), puis <em>consultée</em> de nombreuses fois (Read), parfois <em>modifiée</em> (Update), et finalement <em>supprimée</em> (Delete). Comme un être humain : naissance, vie, modifications, et fin.</p>
     </div>
 
     <div class="callout warn">
-      <div class="title">⚠️ Confusions à éviter</div>
+      <div class="title">Confusions à éviter</div>
       <p>On présente parfois de fausses définitions de CRUD qui ressemblent mais sont fausses :</p>
       <ul>
         <li><code>Connect, Read, Update, Disconnect</code> — ressemblant mais faux</li>
@@ -800,7 +800,7 @@
     <h3>Qu'est-ce que <code>PDO</code> ?</h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — le téléphone universel</div>
+      <div class="metaphor-title">Métaphore — le téléphone universel</div>
       <p>Imaginez que vous deviez appeler 4 personnes qui parlent chacune une langue différente : MySQL, PostgreSQL, SQLite, Oracle. Vous pourriez apprendre les 4 langues. Ou vous pourriez avoir un <em>traducteur universel</em> qui prend votre message en français et le transmet correctement à chaque interlocuteur, peu importe sa langue.</p>
       <p><strong>PDO est ce traducteur.</strong> Vous écrivez votre code une seule fois, en « PDO ». Si demain vous décidez de passer de MySQL à PostgreSQL, vous ne changez qu'une ligne (la <em>connexion</em>) et tout le reste continue de fonctionner.</p>
     </div>
@@ -818,7 +818,7 @@
     </ul>
 
     <div class="callout warn">
-      <div class="title">⚠️ Faux amis — les acronymes qui ressemblent</div>
+      <div class="title">Faux amis — les acronymes qui ressemblent</div>
       <p>On vous présentera parfois des acronymes proches qui n'ont rien à voir :</p>
       <ul>
         <li><code>PHP Data Output</code> — non, PDO ne formate rien pour l'affichage</li>
@@ -883,7 +883,7 @@
     </div>
 
     <div class="callout warn">
-      <div class="title">⚠️ Ne pas confondre les paramètres</div>
+      <div class="title">Ne pas confondre les paramètres</div>
       <p>On vous présentera parfois des combinaisons fausses :</p>
       <ul>
         <li><em>Nom de BDD, port, fichier de config</em> → faux (le port et le nom sont dans le DSN)</li>
@@ -913,9 +913,9 @@
             <span class="tk-kw">PDO::ATTR_DEFAULT_FETCH_MODE</span> =&gt; <span class="tk-kw">PDO::FETCH_ASSOC</span>
         ]
     );
-    <span class="tk-fn">echo</span> <span class="tk-str">"✅ Connexion réussie"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"Connexion réussie"</span>;
 } <span class="tk-kw">catch</span> (<span class="tk-fn">PDOException</span> <span class="tk-kw">$e</span>) {
-    <span class="tk-fn">die</span>(<span class="tk-str">"❌ Erreur de connexion : "</span> . <span class="tk-kw">$e</span>-&gt;<span class="tk-fn">getMessage</span>());
+    <span class="tk-fn">die</span>(<span class="tk-str">"Erreur de connexion : "</span> . <span class="tk-kw">$e</span>-&gt;<span class="tk-fn">getMessage</span>());
 }</pre>
 
     <div class="line-by-line">
@@ -928,13 +928,13 @@
     </div>
 
     <div class="callout danger">
-      <div class="title">🚨 Piège majeur — l'option à NE JAMAIS oublier</div>
+      <div class="title">Piège majeur — l'option à NE JAMAIS oublier</div>
       <p>L'option <code>PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION</code> est <strong>absolument essentielle</strong>. Sans elle, PDO <strong>n'envoie aucune exception</strong> et votre <code>try/catch</code> ne se déclenche jamais — les erreurs sont avalées silencieusement et vous passez 3 heures à chercher pourquoi votre code ne fonctionne pas.</p>
       <p><strong>Règle absolue :</strong> toute connexion PDO doit avoir cette option. Pas de discussion.</p>
     </div>
 
     <div class="callout tip">
-      <div class="title">💡 Bonne pratique — fichier <code>config.php</code> séparé</div>
+      <div class="title">Bonne pratique — fichier <code>config.php</code> séparé</div>
       <p>On ne met jamais les identifiants de la BDD en dur dans chaque fichier. On crée un <code>config.php</code> qu'on inclut partout :</p>
 <pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-com">// config.php</span>
 <span class="tk-fn">define</span>(<span class="tk-str">'DB_HOST'</span>, <span class="tk-str">'localhost'</span>);
@@ -946,7 +946,7 @@
     </div>
 
     <div class="callout key">
-      <div class="title">🎯 Récap section 2 — ce qu'il faut savoir</div>
+      <div class="title">Récap section 2 — ce qu'il faut savoir</div>
       <p>Avant de continuer, vérifiez que vous savez répondre à ces 3 questions :</p>
       <ol>
         <li>Que signifie PDO ? <strong>P</strong>HP <strong>D</strong>ata <strong>O</strong>bjects.</li>
@@ -975,7 +975,7 @@
     <h3>La requête SQL : <code>INSERT INTO</code></h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — glisser une nouvelle fiche</div>
+      <div class="metaphor-title">Métaphore — glisser une nouvelle fiche</div>
       <p>Notre secrétaire prend une <em>fiche cartonnée vierge</em>, écrit dessus les informations du nouveau client, et la glisse à la suite des autres dans le classeur. La fiche reçoit automatiquement le numéro suivant disponible.</p>
     </div>
 
@@ -990,7 +990,7 @@
 <span class="tk-sql">VALUES</span> (<span class="tk-str">'Bonjour PHP'</span>, <span class="tk-str">'Mon premier article...'</span>, <span class="tk-str">'Alice'</span>);</pre>
 
     <div class="callout tip">
-      <div class="title">💡 Astuce — la colonne <code>id</code> est gérée automatiquement</div>
+      <div class="title">Astuce — la colonne <code>id</code> est gérée automatiquement</div>
       <p>Vous remarquez qu'on ne donne pas de valeur pour <code>id</code>. C'est parce que la table est créée avec <code>id INT AUTO_INCREMENT</code> : MySQL attribue tout seul le prochain numéro disponible (1, 2, 3…). Idem pour les colonnes avec valeur par défaut (comme <code>date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP</code>).</p>
     </div>
   </div>
@@ -1016,7 +1016,7 @@
 <span class="tk-com">// 2) Exécuter en passant les valeurs dans l'ordre des ?</span>
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$titre</span>, <span class="tk-kw">$contenu</span>, <span class="tk-kw">$auteur</span>]);
 
-<span class="tk-fn">echo</span> <span class="tk-str">"✅ Article créé !"</span>;</pre>
+<span class="tk-fn">echo</span> <span class="tk-str">"Article créé !"</span>;</pre>
 
     <div class="line-by-line">
       <ol>
@@ -1063,7 +1063,7 @@
     </table>
 
     <div class="callout tip">
-      <div class="title">💡 Quand utiliser quoi ?</div>
+      <div class="title">Quand utiliser quoi ?</div>
       <p>Pour 2-3 paramètres → <code>?</code> suffit. Pour 5+ paramètres ou des UPDATE complexes → <code>:nom</code> est plus sûr (impossible de se tromper d'ordre).</p>
     </div>
   </div>
@@ -1086,7 +1086,7 @@
 <span class="tk-kw">exit</span>;</pre>
 
     <div class="callout warn">
-      <div class="title">⚠️ Attention — l'<code>id</code> n'est PAS dans la variable PHP</div>
+      <div class="title">Attention — l'<code>id</code> n'est PAS dans la variable PHP</div>
       <p>Beaucoup de débutants croient que <code>$titre</code>, <code>$contenu</code>, etc. contiennent l'id après l'INSERT. <strong>Non.</strong> L'id n'existe que côté MySQL après l'<code>execute()</code>. La seule façon de le récupérer est <code>$pdo-&gt;lastInsertId()</code>.</p>
     </div>
   </div>
@@ -1106,7 +1106,7 @@
     <h3>Lire <strong>tous</strong> les enregistrements : <code>query()</code> + <code>fetchAll()</code></h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — feuilleter le classeur</div>
+      <div class="metaphor-title">Métaphore — feuilleter le classeur</div>
       <p>La secrétaire prend le classeur, l'ouvre, et lit <em>chaque fiche</em> l'une après l'autre. À la fin, elle a une <em>pile</em> contenant toutes les informations.</p>
     </div>
 
@@ -1183,7 +1183,7 @@
 
   <div class="sub">
     <div class="sub-num">4.3</div>
-    <h3>⚠️ Le piège <code>fetch()</code> vs <code>fetchAll()</code></h3>
+    <h3>Le piège <code>fetch()</code> vs <code>fetchAll()</code></h3>
 
     <p>C'est <strong>le</strong> piège classique en pratique :</p>
 
@@ -1210,17 +1210,17 @@
     </table>
 
     <div class="callout danger">
-      <div class="title">⚠️ Piège n°1 — confondre les deux</div>
+      <div class="title">Piège n°1 — confondre les deux</div>
       <p>Si vous écrivez <code>fetchAll()</code> alors qu'il n'y a qu'une seule ligne attendue, vous obtenez un <strong>tableau contenant un seul tableau</strong> : <code>[ ['id'=&gt;1, 'titre'=&gt;'...'] ]</code>. Pour accéder au titre, il faudrait <code>$articles[0]['titre']</code> — pas <code>$articles['titre']</code>. Erreur de typage très fréquente.</p>
     </div>
 
     <div class="callout danger">
-      <div class="title">⚠️ Piège n°2 — tester si la liste est vide proprement</div>
+      <div class="title">Piège n°2 — tester si la liste est vide proprement</div>
       <p>Beaucoup de débutants écrivent <code>if (!$articles) { ... }</code> pour tester si la liste est vide. Ça <em>fonctionne</em> (un tableau vide est évalué comme falsy), mais c'est peu lisible — on lit « si pas $articles » alors qu'on veut dire « si liste vide ». La formulation expressive : <code>if (empty($articles))</code> ou <code>if (count($articles) === 0)</code> — l'intention saute aux yeux.</p>
     </div>
 
     <div class="callout key">
-      <div class="title">🎯 Récap section 4 — ce qu'il faut savoir</div>
+      <div class="title">Récap section 4 — ce qu'il faut savoir</div>
       <ol>
         <li><code>query()</code> = pour les SELECT <strong>sans variable</strong>. <code>prepare()</code> + <code>execute()</code> = pour ceux <strong>avec</strong>.</li>
         <li><code>fetch()</code> = une ligne. <code>fetchAll()</code> = toutes les lignes.</li>
@@ -1245,7 +1245,7 @@
     <h3>La requête SQL : <code>UPDATE ... SET ... WHERE</code></h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — corriger une fiche au stylo</div>
+      <div class="metaphor-title">Métaphore — corriger une fiche au stylo</div>
       <p>Notre secrétaire reçoit une information : le client n°3 a changé d'adresse. Elle <em>sort la fiche n°3</em> du classeur, prend son stylo, <em>raie l'ancienne valeur</em> et <em>écrit la nouvelle</em>, puis remet la fiche dans le classeur. Les autres fiches n'ont pas bougé.</p>
     </div>
 
@@ -1277,7 +1277,7 @@
 <span class="tk-com">// Exécuter avec les valeurs dans l'ordre des ?</span>
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$nouveauTitre</span>, <span class="tk-kw">$nouveauContenu</span>, <span class="tk-kw">$id</span>]);
 
-<span class="tk-fn">echo</span> <span class="tk-str">"✅ Article modifié"</span>;</pre>
+<span class="tk-fn">echo</span> <span class="tk-str">"Article modifié"</span>;</pre>
 
     <div class="line-by-line">
       <ol>
@@ -1289,10 +1289,10 @@
 
   <div class="sub">
     <div class="sub-num">5.2</div>
-    <h3>🚨 Le piège fatal : <code>UPDATE</code> sans <code>WHERE</code></h3>
+    <h3>Le piège fatal : <code>UPDATE</code> sans <code>WHERE</code></h3>
 
     <div class="callout danger">
-      <div class="title">🚨 ATTENTION — la plus grosse catastrophe du débutant</div>
+      <div class="title">ATTENTION — la plus grosse catastrophe du débutant</div>
       <p>Imaginez ce code :</p>
 <pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-kw">$sql</span> = <span class="tk-str">"UPDATE articles SET titre = ?"</span>;  <span class="tk-com">// ← PAS de WHERE !</span>
 <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-kw">$sql</span>);
@@ -1302,7 +1302,7 @@
     </div>
 
     <div class="callout tip">
-      <div class="title">💡 Astuce — tester avec un SELECT d'abord</div>
+      <div class="title">Astuce — tester avec un SELECT d'abord</div>
       <p>Avant un UPDATE compliqué, exécutez d'abord un <code>SELECT</code> avec le <strong>même WHERE</strong> :</p>
 <pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-sql">SELECT</span> * <span class="tk-sql">FROM</span> articles <span class="tk-sql">WHERE</span> id = <span class="tk-num">5</span>;
 <span class="tk-com">-- Si ce SELECT renvoie LA ligne attendue → l'UPDATE peut suivre</span>
@@ -1322,13 +1322,13 @@
 <span class="tk-kw">$nbModifiees</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">rowCount</span>();
 
 <span class="tk-kw">if</span> (<span class="tk-kw">$nbModifiees</span> &gt; <span class="tk-num">0</span>) {
-    <span class="tk-fn">echo</span> <span class="tk-str">"✅ Article modifié"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"Article modifié"</span>;
 } <span class="tk-kw">else</span> {
-    <span class="tk-fn">echo</span> <span class="tk-str">"❌ Aucun article avec cet id"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"Aucun article avec cet id"</span>;
 }</pre>
 
     <div class="callout warn">
-      <div class="title">⚠️ Subtilité — <code>rowCount()</code> = 0 ne veut pas dire « erreur »</div>
+      <div class="title">Subtilité — <code>rowCount()</code> = 0 ne veut pas dire « erreur »</div>
       <p>Si vous faites un UPDATE avec les <em>mêmes valeurs</em> que celles déjà en BDD, MySQL voit qu'il n'y a rien à changer et renvoie <code>rowCount() = 0</code>. Ce n'est pas une erreur, c'est juste « pas de modification effective ». De même si le WHERE ne trouve aucune ligne.</p>
     </div>
   </div>
@@ -1348,7 +1348,7 @@
     <h3>La requête SQL : <code>DELETE FROM ... WHERE</code></h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — retirer une fiche</div>
+      <div class="metaphor-title">Métaphore — retirer une fiche</div>
       <p>Notre secrétaire prend la fiche n°3, la sort du classeur, et la <em>jette à la corbeille</em>. La fiche n'existe plus. Le classeur a maintenant une fiche de moins.</p>
     </div>
 
@@ -1372,18 +1372,18 @@
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);
 
 <span class="tk-kw">if</span> (<span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">rowCount</span>() &gt; <span class="tk-num">0</span>) {
-    <span class="tk-fn">echo</span> <span class="tk-str">"✅ Article supprimé"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"Article supprimé"</span>;
 } <span class="tk-kw">else</span> {
-    <span class="tk-fn">echo</span> <span class="tk-str">"❌ Aucun article avec cet id"</span>;
+    <span class="tk-fn">echo</span> <span class="tk-str">"Aucun article avec cet id"</span>;
 }</pre>
   </div>
 
   <div class="sub">
     <div class="sub-num">6.2</div>
-    <h3>🚨 Même piège que UPDATE : <strong>toujours un <code>WHERE</code></strong></h3>
+    <h3>Même piège que UPDATE : <strong>toujours un <code>WHERE</code></strong></h3>
 
     <div class="callout danger">
-      <div class="title">🚨 ATTENTION — encore plus catastrophique que UPDATE</div>
+      <div class="title">ATTENTION — encore plus catastrophique que UPDATE</div>
       <p>Imaginez :</p>
 <pre class="code" style="margin-top:0.5rem;font-size:0.78rem"><span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"DELETE FROM articles"</span>);  <span class="tk-com">// ← PAS de WHERE</span></pre>
       <p><strong>Tous les articles de la table sont effacés instantanément.</strong> Sans sauvegarde, c'est définitif. Si vos 10 000 articles disparaissent en production parce qu'on a oublié un <code>WHERE</code>, c'est très probablement votre licenciement le jour même.</p>
@@ -1391,12 +1391,12 @@
     </div>
 
     <div class="callout tip">
-      <div class="title">💡 Bonne pratique pro — la <em>suppression logique</em></div>
+      <div class="title">Bonne pratique pro — la <em>suppression logique</em></div>
       <p>En vrai, beaucoup d'applications ne suppriment <strong>jamais</strong> les données. Au lieu de DELETE, on ajoute une colonne <code>supprime</code> (boolean) ou <code>date_suppression</code> et on fait un UPDATE pour la marquer comme supprimée. Les SELECT filtrent les lignes supprimées (<code>WHERE supprime = FALSE</code>). Avantage : on peut <em>récupérer</em> les données en cas d'erreur. Cette technique s'appelle <strong>soft delete</strong>.</p>
     </div>
 
     <div class="callout key">
-      <div class="title">🎯 Récap sections 5 &amp; 6 — la règle d'or</div>
+      <div class="title">Récap sections 5 &amp; 6 — la règle d'or</div>
       <p>Pour les requêtes UPDATE et DELETE, <strong>il faut TOUJOURS un <code>WHERE</code></strong>. Sans WHERE, vous touchez à <strong>toutes les lignes de la table</strong>. C'est la cause numéro 1 de catastrophes en BDD. <strong>Avant tout UPDATE/DELETE, vérifiez avec un SELECT que votre WHERE cible bien les bonnes lignes.</strong></p>
     </div>
   </div>
@@ -1416,14 +1416,14 @@
     <h3>Le mauvais code qui ouvre la porte aux pirates</h3>
 
     <div class="metaphor">
-      <div class="metaphor-title">🪄 Métaphore — le cheval de Troie</div>
+      <div class="metaphor-title">Métaphore — le cheval de Troie</div>
       <p>Dans la légende, les Grecs offrent un grand cheval de bois aux Troyens. Les Troyens le font entrer dans leurs murs sans se méfier — il a l'air inoffensif. Mais à l'intérieur du cheval se cachent des soldats grecs qui, la nuit venue, ouvrent les portes de la ville et la mettent à sac.</p>
       <p>L'<strong>injection SQL</strong> fonctionne exactement comme ça : l'attaquant tape un texte qui <em>a l'air d'être un email ou un nom</em>, mais qui contient en réalité du code SQL caché. Si votre serveur l'avale sans se méfier, le code se met à exécuter ce qu'il veut sur votre base.</p>
     </div>
 
     <p>Voici un code <strong>dangereux</strong> qu'on voit hélas encore trop souvent :</p>
 
-    <pre class="code with-label" data-label="🚨 Code vulnérable — À NE JAMAIS ÉCRIRE"><span class="tk-php">&lt;?php</span>
+    <pre class="code with-label" data-label="Code vulnérable — À NE JAMAIS ÉCRIRE"><span class="tk-php">&lt;?php</span>
 <span class="tk-kw">$email</span> = <span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>];
 
 <span class="tk-com">// DANGER : on insère directement la variable dans le SQL</span>
@@ -1445,7 +1445,7 @@
     <p>Que lit MySQL ? « <em>Sélectionne tous les utilisateurs où l'email est vide OU 1=1 (toujours vrai)</em> ». <strong>Tous les utilisateurs sortent</strong>. Tout le <code>--</code> après est commenté (le <code>--</code> en SQL = commentaire de ligne).</p>
 
     <div class="callout danger">
-      <div class="title">🚨 Conséquences d'une vraie injection SQL</div>
+      <div class="title">Conséquences d'une vraie injection SQL</div>
       <p>Cet exemple est volontairement simple. En vrai, un attaquant peut faire bien pire :</p>
       <ul>
         <li><strong>Voler des données</strong> : <code>' UNION SELECT mot_de_passe FROM admins --</code></li>
@@ -1462,7 +1462,7 @@
 
     <p>Le bon code, qu'on a vu dans toutes les sections précédentes :</p>
 
-    <pre class="code with-label" data-label="✅ Code sécurisé"><span class="tk-php">&lt;?php</span>
+    <pre class="code with-label" data-label="Code sécurisé"><span class="tk-php">&lt;?php</span>
 <span class="tk-kw">$email</span> = <span class="tk-kw">$_POST</span>[<span class="tk-str">'email'</span>];
 
 <span class="tk-com">// 1) Préparer la STRUCTURE SQL (sans les valeurs)</span>
@@ -1490,7 +1490,7 @@
 └─────────────────────────────┘</pre>
 
     <div class="callout key">
-      <div class="title">🎯 Règle absolue de sécurité — pas de discussion</div>
+      <div class="title">Règle absolue de sécurité — pas de discussion</div>
       <p>Dès qu'une variable apparaît dans une requête SQL, on utilise <code>prepare()</code> + <code>execute()</code>. <strong>Jamais</strong>, au grand <strong>jamais</strong>, on ne fait :</p>
       <ul>
         <li><code>$pdo-&gt;query("... WHERE x = '$var'")</code> — concaténation directe</li>
@@ -1545,7 +1545,7 @@
     </table>
 
     <div class="callout tip">
-      <div class="title">💡 Recommandation pratique</div>
+      <div class="title">Recommandation pratique</div>
       <p>Les deux sont strictement équivalents en sécurité. Choisissez selon le contexte :</p>
       <ul>
         <li><strong>2-3 paramètres</strong> ou requête simple → <code>?</code> suffit, c'est concis</li>
@@ -1570,19 +1570,19 @@
   <div class="tabs">
     <div class="tabs-nav">
       <button class="tab-btn active" data-tab="pdo" onclick="switchTab('pdo', this)">
-        <span class="tab-icon">🔌</span> PDO &amp; Connexion
+         PDO &amp; Connexion
       </button>
       <button class="tab-btn" data-tab="prepare" onclick="switchTab('prepare', this)">
-        <span class="tab-icon">🛡️</span> Requêtes préparées
+         Requêtes préparées
       </button>
       <button class="tab-btn" data-tab="update" onclick="switchTab('update', this)">
-        <span class="tab-icon">⚠️</span> UPDATE / DELETE
+         UPDATE / DELETE
       </button>
       <button class="tab-btn" data-tab="fetch" onclick="switchTab('fetch', this)">
-        <span class="tab-icon">📋</span> Lecture des résultats
+         Lecture des résultats
       </button>
       <button class="tab-btn" data-tab="display" onclick="switchTab('display', this)">
-        <span class="tab-icon">🖥️</span> Affichage sécurisé
+         Affichage sécurisé
       </button>
     </div>
 
@@ -1594,14 +1594,14 @@
           <h4>Oublier <code>ERRMODE_EXCEPTION</code></h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> sans cette option, PDO n'envoie aucune exception en cas d'erreur. Votre <code>try/catch</code> reste muet. Les erreurs disparaissent silencieusement et vous passez 3 heures à chercher pourquoi votre code « ne fait rien ».</p>
-<pre class="code"><span class="tk-com">// ❌ Mauvais : pas d'option d'erreur</span>
+<pre class="code"><span class="tk-com">// Mauvais : pas d'option d'erreur</span>
 <span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$user</span>, <span class="tk-kw">$pass</span>);
 
-<span class="tk-com">// ✅ Bon : on active les exceptions</span>
+<span class="tk-com">// Bon : on active les exceptions</span>
 <span class="tk-kw">$pdo</span> = <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(<span class="tk-kw">$dsn</span>, <span class="tk-kw">$user</span>, <span class="tk-kw">$pass</span>, [
     <span class="tk-kw">PDO::ATTR_ERRMODE</span> =&gt; <span class="tk-kw">PDO::ERRMODE_EXCEPTION</span>
 ]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> toute connexion PDO doit avoir cette option dans le 4ᵉ paramètre.</p>
+        <p class="trap-rule"><strong>Règle :</strong> toute connexion PDO doit avoir cette option dans le 4ᵉ paramètre.</p>
       </div>
 
       <div class="trap">
@@ -1610,13 +1610,13 @@
           <h4>Confondre les 3 paramètres de <code>new PDO()</code></h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> on cherche à mettre l'hôte, le port, ou le charset en paramètres séparés. <strong>Tout ça est dans le DSN.</strong></p>
-<pre class="code"><span class="tk-com">// ✅ Les 3 paramètres dans le bon ordre</span>
+<pre class="code"><span class="tk-com">// Les 3 paramètres dans le bon ordre</span>
 <span class="tk-kw">new</span> <span class="tk-fn">PDO</span>(
     <span class="tk-str">"mysql:host=localhost;dbname=webblog;charset=utf8mb4"</span>,  <span class="tk-com">// 1. DSN</span>
     <span class="tk-str">"root"</span>,    <span class="tk-com">// 2. Utilisateur</span>
     <span class="tk-str">""</span>         <span class="tk-com">// 3. Mot de passe</span>
 );</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>DSN</code> + <code>utilisateur</code> + <code>mot de passe</code>. Trois paramètres, dans cet ordre.</p>
+        <p class="trap-rule"><strong>Règle :</strong> <code>DSN</code> + <code>utilisateur</code> + <code>mot de passe</code>. Trois paramètres, dans cet ordre.</p>
       </div>
 
       <div class="trap">
@@ -1625,7 +1625,7 @@
           <h4>Confondre l'acronyme PDO</h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> on hésite avec « PHP Data Output », « PHP Database Optimizer », « PHP Direct Operation »… toutes ces variantes sont <strong>fausses</strong>.</p>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> PDO = <strong>P</strong>HP <strong>D</strong>ata <strong>O</strong>bjects. C'est une interface unifiée pour parler à plusieurs SGBD (MySQL, PostgreSQL, SQLite…).</p>
+        <p class="trap-rule"><strong>Règle :</strong> PDO = <strong>P</strong>HP <strong>D</strong>ata <strong>O</strong>bjects. C'est une interface unifiée pour parler à plusieurs SGBD (MySQL, PostgreSQL, SQLite…).</p>
       </div>
     </div>
 
@@ -1637,17 +1637,17 @@
           <h4>Concaténer une variable dans le SQL</h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> on insère une variable directement dans la chaîne SQL avec <code>.</code> ou l'interpolation <code>"{$var}"</code>. <strong>Injection SQL garantie.</strong></p>
-<pre class="code"><span class="tk-com">// ❌ DANGEREUX : concaténation directe</span>
+<pre class="code"><span class="tk-com">// DANGEREUX : concaténation directe</span>
 <span class="tk-kw">$sql</span> = <span class="tk-str">"SELECT * FROM users WHERE email = '"</span> . <span class="tk-kw">$email</span> . <span class="tk-str">"'"</span>;
 <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-kw">$sql</span>);
 
-<span class="tk-com">// ❌ DANGEREUX : interpolation</span>
+<span class="tk-com">// DANGEREUX : interpolation</span>
 <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"SELECT * FROM users WHERE email = '$email'"</span>);
 
-<span class="tk-com">// ✅ SÉCURISÉ : requête préparée</span>
+<span class="tk-com">// SÉCURISÉ : requête préparée</span>
 <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"SELECT * FROM users WHERE email = ?"</span>);
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$email</span>]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> dès qu'une variable apparaît dans le SQL, on passe par <code>prepare()</code> + <code>execute()</code>. Pas de discussion.</p>
+        <p class="trap-rule"><strong>Règle :</strong> dès qu'une variable apparaît dans le SQL, on passe par <code>prepare()</code> + <code>execute()</code>. Pas de discussion.</p>
       </div>
 
       <div class="trap">
@@ -1656,13 +1656,13 @@
           <h4>Utiliser <code>query()</code> avec une variable</h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> on essaie de passer des paramètres à <code>query()</code>. Elle <strong>n'accepte pas de paramètres</strong> — c'est une méthode pour les SELECT statiques uniquement.</p>
-<pre class="code"><span class="tk-com">// ❌ query() n'accepte pas de variable séparée</span>
+<pre class="code"><span class="tk-com">// query() n'accepte pas de variable séparée</span>
 <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"SELECT * FROM articles WHERE id = ?"</span>, [<span class="tk-kw">$id</span>]);
 
-<span class="tk-com">// ✅ prepare() + execute() pour toute requête avec variable</span>
+<span class="tk-com">// prepare() + execute() pour toute requête avec variable</span>
 <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"SELECT * FROM articles WHERE id = ?"</span>);
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>query()</code> = SELECT <em>statique sans variable</em>. <code>prepare()</code> = dès qu'il y a une variable.</p>
+        <p class="trap-rule"><strong>Règle :</strong> <code>query()</code> = SELECT <em>statique sans variable</em>. <code>prepare()</code> = dès qu'il y a une variable.</p>
       </div>
 
       <div class="trap">
@@ -1671,17 +1671,17 @@
           <h4>Mélanger marqueurs <code>?</code> et <code>:nom</code></h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> les deux styles fonctionnent, mais on ne peut pas les mélanger dans une même requête.</p>
-<pre class="code"><span class="tk-com">// ❌ Mélange interdit</span>
+<pre class="code"><span class="tk-com">// Mélange interdit</span>
 <span class="tk-fn">prepare</span>(<span class="tk-str">"WHERE id = ? AND nom = :nom"</span>);
 
-<span class="tk-com">// ✅ Style positionnel — tableau ordonné</span>
+<span class="tk-com">// Style positionnel — tableau ordonné</span>
 <span class="tk-fn">prepare</span>(<span class="tk-str">"WHERE id = ? AND nom = ?"</span>);
 <span class="tk-fn">execute</span>([<span class="tk-num">5</span>, <span class="tk-str">'Alice'</span>]);
 
-<span class="tk-com">// ✅ Style nommé — tableau associatif</span>
+<span class="tk-com">// Style nommé — tableau associatif</span>
 <span class="tk-fn">prepare</span>(<span class="tk-str">"WHERE id = :id AND nom = :nom"</span>);
 <span class="tk-fn">execute</span>([<span class="tk-str">':id'</span> =&gt; <span class="tk-num">5</span>, <span class="tk-str">':nom'</span> =&gt; <span class="tk-str">'Alice'</span>]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> choisir un style et s'y tenir. Avec <code>?</code> → tableau ordonné. Avec <code>:nom</code> → tableau associatif.</p>
+        <p class="trap-rule"><strong>Règle :</strong> choisir un style et s'y tenir. Avec <code>?</code> → tableau ordonné. Avec <code>:nom</code> → tableau associatif.</p>
       </div>
     </div>
 
@@ -1692,14 +1692,14 @@
           <span class="trap-num">1</span>
           <h4>UPDATE sans WHERE</h4>
         </div>
-        <p class="trap-issue"><strong>🚨 Ce qui coince :</strong> oublier le <code>WHERE</code> dans un UPDATE → <strong>toutes les lignes de la table sont modifiées</strong>. Si vous avez 10 000 articles, ils ont tous le même titre après l'exécution. Irréversible sans sauvegarde.</p>
-<pre class="code"><span class="tk-com">// 🚨 CATASTROPHE : modifie TOUS les articles</span>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> oublier le <code>WHERE</code> dans un UPDATE → <strong>toutes les lignes de la table sont modifiées</strong>. Si vous avez 10 000 articles, ils ont tous le même titre après l'exécution. Irréversible sans sauvegarde.</p>
+<pre class="code"><span class="tk-com">// CATASTROPHE : modifie TOUS les articles</span>
 <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"UPDATE articles SET titre = 'Bug'"</span>);
 
-<span class="tk-com">// ✅ Cible un seul article</span>
+<span class="tk-com">// Cible un seul article</span>
 <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"UPDATE articles SET titre = ? WHERE id = ?"</span>);
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-str">'Nouveau titre'</span>, <span class="tk-num">5</span>]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> tester d'abord avec un <code>SELECT * WHERE ...</code> identique. Si le SELECT renvoie les bonnes lignes → l'UPDATE peut suivre.</p>
+        <p class="trap-rule"><strong>Règle :</strong> tester d'abord avec un <code>SELECT * WHERE ...</code> identique. Si le SELECT renvoie les bonnes lignes → l'UPDATE peut suivre.</p>
       </div>
 
       <div class="trap critical">
@@ -1707,14 +1707,14 @@
           <span class="trap-num">2</span>
           <h4>DELETE sans WHERE</h4>
         </div>
-        <p class="trap-issue"><strong>🚨 Ce qui coince :</strong> encore plus grave que UPDATE — un DELETE sans WHERE <strong>vide toute la table</strong>. Sans sauvegarde, les données sont perdues à jamais.</p>
-<pre class="code"><span class="tk-com">// 🚨 CATASTROPHE : vide la table entière</span>
+        <p class="trap-issue"><strong>Ce qui coince :</strong> encore plus grave que UPDATE — un DELETE sans WHERE <strong>vide toute la table</strong>. Sans sauvegarde, les données sont perdues à jamais.</p>
+<pre class="code"><span class="tk-com">// CATASTROPHE : vide la table entière</span>
 <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">query</span>(<span class="tk-str">"DELETE FROM articles"</span>);
 
-<span class="tk-com">// ✅ Cible un seul article</span>
+<span class="tk-com">// Cible un seul article</span>
 <span class="tk-kw">$stmt</span> = <span class="tk-kw">$pdo</span>-&gt;<span class="tk-fn">prepare</span>(<span class="tk-str">"DELETE FROM articles WHERE id = ?"</span>);
 <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">execute</span>([<span class="tk-kw">$id</span>]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> avant tout DELETE, vérifier 3 fois le WHERE. En pro, on évite même les DELETE — on fait du <strong>soft delete</strong> (colonne <code>supprime</code> mise à <code>true</code> au lieu d'effacer).</p>
+        <p class="trap-rule"><strong>Règle :</strong> avant tout DELETE, vérifier 3 fois le WHERE. En pro, on évite même les DELETE — on fait du <strong>soft delete</strong> (colonne <code>supprime</code> mise à <code>true</code> au lieu d'effacer).</p>
       </div>
 
       <div class="trap">
@@ -1723,7 +1723,7 @@
           <h4>Interpréter <code>rowCount() == 0</code> comme une erreur</h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> après un UPDATE, <code>rowCount()</code> peut renvoyer <code>0</code> sans qu'il y ait d'erreur — par exemple si on met la même valeur qu'avant, ou si le WHERE ne trouve aucune ligne.</p>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>rowCount() = 0</code> signifie « aucune ligne réellement modifiée », pas « erreur ». Pour détecter une vraie erreur, c'est le <code>try/catch</code> qui s'en charge.</p>
+        <p class="trap-rule"><strong>Règle :</strong> <code>rowCount() = 0</code> signifie « aucune ligne réellement modifiée », pas « erreur ». Pour détecter une vraie erreur, c'est le <code>try/catch</code> qui s'en charge.</p>
       </div>
     </div>
 
@@ -1743,7 +1743,7 @@
 <span class="tk-kw">$articles</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetchAll</span>(<span class="tk-kw">PDO::FETCH_ASSOC</span>);
 <span class="tk-fn">echo</span> <span class="tk-kw">$articles</span>[<span class="tk-num">0</span>][<span class="tk-str">'titre'</span>];  <span class="tk-com">// double indexation</span>
 <span class="tk-kw">foreach</span> (<span class="tk-kw">$articles</span> <span class="tk-kw">as</span> <span class="tk-kw">$a</span>) { <span class="tk-fn">echo</span> <span class="tk-kw">$a</span>[<span class="tk-str">'titre'</span>]; }</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> <code>fetch()</code> = 1 résultat attendu (SELECT avec <code>WHERE id</code>). <code>fetchAll()</code> = plusieurs résultats attendus (liste).</p>
+        <p class="trap-rule"><strong>Règle :</strong> <code>fetch()</code> = 1 résultat attendu (SELECT avec <code>WHERE id</code>). <code>fetchAll()</code> = plusieurs résultats attendus (liste).</p>
       </div>
 
       <div class="trap">
@@ -1752,18 +1752,18 @@
           <h4>Ne pas tester si le résultat est vide</h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> <code>fetch()</code> renvoie <code>false</code> si aucun résultat. Si vous accédez à <code>$article['titre']</code> sans tester, vous obtenez un warning et une page cassée.</p>
-<pre class="code"><span class="tk-com">// ❌ Ne teste pas le résultat</span>
+<pre class="code"><span class="tk-com">// Ne teste pas le résultat</span>
 <span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>();
 <span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];  <span class="tk-com">// warning si $article === false</span>
 
-<span class="tk-com">// ✅ On teste d'abord</span>
+<span class="tk-com">// On teste d'abord</span>
 <span class="tk-kw">$article</span> = <span class="tk-kw">$stmt</span>-&gt;<span class="tk-fn">fetch</span>();
 <span class="tk-kw">if</span> (<span class="tk-kw">$article</span>) {
     <span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];
 } <span class="tk-kw">else</span> {
     <span class="tk-fn">echo</span> <span class="tk-str">"Article introuvable"</span>;
 }</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> toujours tester le retour de <code>fetch()</code> avant d'accéder à ses clés.</p>
+        <p class="trap-rule"><strong>Règle :</strong> toujours tester le retour de <code>fetch()</code> avant d'accéder à ses clés.</p>
       </div>
 
       <div class="trap">
@@ -1775,9 +1775,9 @@
 <pre class="code"><span class="tk-com">// Sans FETCH_ASSOC : tableau doublé</span>
 <span class="tk-com">// [0 =&gt; 1, 'id' =&gt; 1, 1 =&gt; 'Titre', 'titre' =&gt; 'Titre']</span>
 
-<span class="tk-com">// ✅ Avec FETCH_ASSOC : tableau propre</span>
+<span class="tk-com">// Avec FETCH_ASSOC : tableau propre</span>
 <span class="tk-com">// ['id' =&gt; 1, 'titre' =&gt; 'Titre']</span></pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> mettre <code>PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC</code> dans les options de <code>new PDO()</code> pour l'avoir partout par défaut.</p>
+        <p class="trap-rule"><strong>Règle :</strong> mettre <code>PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC</code> dans les options de <code>new PDO()</code> pour l'avoir partout par défaut.</p>
       </div>
     </div>
 
@@ -1789,12 +1789,12 @@
           <h4>Afficher des données sans <code>htmlspecialchars()</code></h4>
         </div>
         <p class="trap-issue"><strong>Ce qui coince :</strong> si un titre contient <code>&lt;script&gt;alert('hack')&lt;/script&gt;</code>, le navigateur l'<strong>exécute</strong> dès qu'on fait <code>echo $article['titre']</code>. Attaque XSS classique.</p>
-<pre class="code"><span class="tk-com">// ❌ Affichage brut : XSS possible</span>
+<pre class="code"><span class="tk-com">// Affichage brut : XSS possible</span>
 <span class="tk-fn">echo</span> <span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>];
 
-<span class="tk-com">// ✅ Toujours échapper avant d'afficher</span>
+<span class="tk-com">// Toujours échapper avant d'afficher</span>
 <span class="tk-fn">echo</span> <span class="tk-fn">htmlspecialchars</span>(<span class="tk-kw">$article</span>[<span class="tk-str">'titre'</span>]);</pre>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> toute donnée venant de la BDD ou d'un utilisateur passe par <code>htmlspecialchars()</code> avant <code>echo</code>.</p>
+        <p class="trap-rule"><strong>Règle :</strong> toute donnée venant de la BDD ou d'un utilisateur passe par <code>htmlspecialchars()</code> avant <code>echo</code>.</p>
       </div>
 
       <div class="trap">
@@ -1820,7 +1820,7 @@
             </tr>
           </tbody>
         </table>
-        <p class="trap-rule"><strong>🎯 Règle :</strong> pour l'affichage utilisateur → <code>htmlspecialchars</code>. Pour générer un extrait sans balises → <code>strip_tags</code>.</p>
+        <p class="trap-rule"><strong>Règle :</strong> pour l'affichage utilisateur → <code>htmlspecialchars</code>. Pour générer un extrait sans balises → <code>strip_tags</code>.</p>
       </div>
     </div>
   </div>
@@ -1867,13 +1867,13 @@
         <td><strong>UPDATE</strong></td>
         <td><code>UPDATE t SET ... WHERE ...</code></td>
         <td><code>prepare()</code> + <code>execute([...])</code> + <code>rowCount()</code></td>
-        <td>⚠️ <strong>Sans WHERE, modifie TOUT.</strong></td>
+        <td> <strong>Sans WHERE, modifie TOUT.</strong></td>
       </tr>
       <tr>
         <td><strong>DELETE</strong></td>
         <td><code>DELETE FROM t WHERE ...</code></td>
         <td><code>prepare()</code> + <code>execute([...])</code> + <code>rowCount()</code></td>
-        <td>⚠️ <strong>Sans WHERE, supprime TOUT.</strong></td>
+        <td> <strong>Sans WHERE, supprime TOUT.</strong></td>
       </tr>
     </tbody>
   </table>
@@ -1881,43 +1881,43 @@
   <h3 style="margin:2rem 0 0.7rem;color:var(--text);font-size:1.2rem">Les 3 règles d'or de la BDD</h3>
 
   <div class="callout key">
-    <div class="title">🥇 Règle 1 — Toujours préparer les requêtes</div>
+    <div class="title">Règle 1 — Toujours préparer les requêtes</div>
     <p>Dès qu'une variable apparaît dans le SQL, on utilise <code>prepare()</code> + <code>execute()</code>. C'est <strong>non négociable</strong>. C'est la seule façon de se protéger des injections SQL.</p>
   </div>
 
   <div class="callout key">
-    <div class="title">🥈 Règle 2 — Toujours <code>WHERE</code> sur UPDATE et DELETE</div>
+    <div class="title">Règle 2 — Toujours <code>WHERE</code> sur UPDATE et DELETE</div>
     <p>Avant tout UPDATE ou DELETE, vérifier deux fois que le <code>WHERE</code> est présent et qu'il cible bien la (les) bonne(s) ligne(s). Tester avec un <code>SELECT</code> d'abord.</p>
   </div>
 
   <div class="callout key">
-    <div class="title">🥉 Règle 3 — Toujours échapper à l'affichage</div>
+    <div class="title">Règle 3 — Toujours échapper à l'affichage</div>
     <p>Avant d'<code>echo</code>'er une donnée venant de la BDD, on l'enveloppe dans <code>htmlspecialchars()</code>. Sinon, si la donnée contient du HTML/JavaScript (intentionnellement ou non), le navigateur l'exécute → faille XSS.</p>
   </div>
 </section>
 
 <div class="finale">
   <div class="finale-card">
-    <div style="font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.9rem">🎉 Bravo</div>
+    <div style="font-size:0.72rem;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.9rem">Bravo</div>
     <h2>Vous savez maintenant faire un <em>CRUD complet</em>.</h2>
     <p>Création, lecture, modification, suppression — vous avez les 4 verbes en main. Avec en plus la sécurité par requêtes préparées, vous pouvez construire une vraie application web qui gère des données persistantes sans risque d'injection SQL.</p>
     <p>Prochaine étape : <strong>l'authentification</strong> (Jour 4) — pour décider <em>qui</em> a le droit de faire quoi sur ces données.</p>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0.9rem;margin:1.8rem 0 0.5rem;text-align:left">
       <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
-        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ CREATE</div>
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">CREATE</div>
         <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">INSERT INTO ...</code></div>
       </div>
       <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
-        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ READ</div>
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">READ</div>
         <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">SELECT ...</code></div>
       </div>
       <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
-        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ UPDATE</div>
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">UPDATE</div>
         <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">UPDATE ... WHERE</code></div>
       </div>
       <div style="background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:0.85rem 1rem">
-        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">☑ DELETE</div>
+        <div style="font-size:0.7rem;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:0.3rem">DELETE</div>
         <div style="color:var(--text-soft);font-size:0.86rem"><code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;background:var(--code-bg);padding:0.05rem 0.3rem;border-radius:4px;color:var(--primary-bright);border:1px solid var(--border)">DELETE FROM ... WHERE</code></div>
       </div>
     </div>
