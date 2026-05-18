@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projet Salon — Roadmap équipe</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px; line-height: 1.7; color: var(--text);
+    background: var(--bg); -webkit-font-smoothing: antialiased;
+    overflow-x: hidden; min-height: 100vh;
+  }
+  ::selection { background: var(--primary); color: var(--bg); }
+  :root {
+    --bg: #0a0a0f; --bg-soft: #11111a; --bg-elev: #16161f;
+    --card: rgba(255,255,255,0.025); --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text: #e8e8ed; --text-soft: #a0a0b0; --text-dim: #6b6b78;
+    --primary: #a78bfa; --primary-bright: #c4b5fd;
+    --accent: #fb923c; --accent-soft: rgba(251,146,60,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --red: #f87171; --amber: #fbbf24; --blue: #60a5fa;
+    --pink: #f472b6;
+    --code-bg: #0d0d18;
+    --easing: cubic-bezier(0.4, 0, 0.2, 1);
+    --p-a: #a78bfa; --p-b: #fb923c; --p-c: #60a5fa; --p-d: #4ade80;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+    background-size: 28px 28px; pointer-events: none; z-index: 0;
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.2) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.2) 100%);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(167,139,250,0.12), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(251,146,60,0.05), transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  main, section, .hero, .filters-bar { position: relative; z-index: 1; }
+
+  .progress-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    z-index: 1000; width: 0%; transition: width 0.1s ease;
+  }
+
+  /* HERO */
+  .hero {
+    display: flex; flex-direction: column;
+    padding: 4rem 2rem 2.5rem;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    padding: 0.5rem 1rem; border: 1px solid var(--border);
+    border-radius: 999px; font-size: 0.78rem; font-weight: 500;
+    color: var(--text-soft); width: fit-content; margin-bottom: 1.6rem;
+    background: var(--card); backdrop-filter: blur(10px);
+  }
+  .hero-eyebrow .dot {
+    width: 7px; height: 7px; background: var(--green);
+    border-radius: 50%; box-shadow: 0 0 12px var(--green);
+    animation: pulse 2s infinite;
+  }
+  .hero-eyebrow .sep { color: var(--text-dim); }
+  .hero-eyebrow .accent { color: var(--accent); font-weight: 600; }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4.5rem); font-weight: 800;
+    line-height: 1; letter-spacing: -0.04em;
+    margin-bottom: 1.4rem; color: var(--text);
+  }
+  .hero h1 .word-accent {
+    background: linear-gradient(135deg, var(--primary) 20%, var(--accent) 80%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    font-style: italic;
+  }
+  .hero-lead {
+    font-size: clamp(1rem, 1.5vw, 1.15rem); color: var(--text-soft);
+    max-width: 720px; line-height: 1.6;
+  }
+  .hero-meta {
+    margin-top: 2.2rem; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1.4rem; max-width: 700px;
+    padding-top: 1.8rem; border-top: 1px solid var(--border);
+  }
+  .hero-meta-item .num {
+    font-size: 1.9rem; font-weight: 700;
+    background: linear-gradient(180deg, var(--text), var(--text-soft));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    line-height: 1;
+  }
+  .hero-meta-item .label {
+    font-size: 0.74rem; color: var(--text-dim);
+    margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.4); } }
+
+  /* FILTERS */
+  .filters-bar {
+    position: sticky; top: 0;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0.85rem 2rem;
+    z-index: 50;
+  }
+  .filters-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    color: var(--text-soft); font-family: inherit;
+    font-size: 0.84rem; font-weight: 500;
+    padding: 0.42rem 0.9rem; border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    transition: all 0.2s var(--easing);
+  }
+  .filter-btn:hover { color: var(--text); border-color: var(--border-strong); }
+  .filter-btn.active {
+    background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(251,146,60,0.08));
+    border-color: var(--primary); color: var(--primary-bright);
+  }
+  .filter-btn .pdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .filter-btn .pdot.a { background: var(--p-a); }
+  .filter-btn .pdot.b { background: var(--p-b); }
+  .filter-btn .pdot.c { background: var(--p-c); }
+  .filter-btn .pdot.d { background: var(--p-d); }
+  .filter-btn .count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem; color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    padding: 0.08rem 0.4rem; border-radius: 4px;
+  }
+
+  /* SECTIONS */
+  section.block {
+    max-width: 1100px; margin: 0 auto;
+    padding: 3.5rem 2rem 1.5rem; position: relative;
+  }
+  section.block::before {
+    content: ''; position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%); width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  }
+  .block-header {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 1.5rem; align-items: baseline; margin-bottom: 1.4rem;
+  }
+  .block-num {
+    font-size: clamp(2.6rem, 5vw, 4.2rem); font-weight: 800;
+    font-style: italic; letter-spacing: -0.04em;
+    line-height: 0.9; color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    user-select: none;
+  }
+  .block-eyebrow {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 0.45rem;
+  }
+  .block-header h2 {
+    font-size: clamp(1.45rem, 2.8vw, 2.1rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.025em;
+  }
+  .block-header h2 em {
+    font-style: italic; font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .block-intro {
+    font-size: 0.98rem; color: var(--text-soft);
+    margin-bottom: 1.4rem; max-width: 800px; line-height: 1.65;
+  }
+  .block-intro strong { color: var(--text); }
+  .block-intro code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+
+  /* PERSON HEADER */
+  .person-header {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.3rem;
+    background: var(--card); backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin: 0.7rem 0;
+    position: relative; overflow: hidden;
+  }
+  .person-header::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+  }
+  .person-header.pa::before { background: linear-gradient(90deg, transparent, var(--p-a), transparent); }
+  .person-header.pb::before { background: linear-gradient(90deg, transparent, var(--p-b), transparent); }
+  .person-header.pc::before { background: linear-gradient(90deg, transparent, var(--p-c), transparent); }
+  .person-header.pd::before { background: linear-gradient(90deg, transparent, var(--p-d), transparent); }
+  .person-avatar {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.4rem; font-weight: 800;
+    border-radius: 11px; flex-shrink: 0;
+    color: var(--bg);
+  }
+  .person-header.pa .person-avatar { background: var(--p-a); }
+  .person-header.pb .person-avatar { background: var(--p-b); }
+  .person-header.pc .person-avatar { background: var(--p-c); }
+  .person-header.pd .person-avatar { background: var(--p-d); }
+  .person-title { font-size: 1.08rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+  .person-roles { font-size: 0.85rem; color: var(--text-soft); }
+  .person-roles strong { color: var(--text); font-weight: 600; }
+  .person-roles .acc-a { color: var(--p-a); }
+  .person-roles .acc-b { color: var(--p-b); }
+  .person-roles .acc-c { color: var(--p-c); }
+  .person-roles .acc-d { color: var(--p-d); }
+
+  /* TASK CARD */
+  .task {
+    background: var(--card); backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.3rem; margin: 0.7rem 0;
+    position: relative; overflow: hidden;
+    transition: all 0.3s var(--easing);
+  }
+  .task::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
+  }
+  .task[data-person="A"]::before { background: var(--p-a); }
+  .task[data-person="B"]::before { background: var(--p-b); }
+  .task[data-person="C"]::before { background: var(--p-c); }
+  .task[data-person="D"]::before { background: var(--p-d); }
+  .task[data-person="ALL"]::before { background: linear-gradient(180deg, var(--p-a), var(--p-b), var(--p-c), var(--p-d)); }
+  .task.done {
+    border-color: rgba(74,222,128,0.3);
+    background: linear-gradient(135deg, rgba(74,222,128,0.04), rgba(255,255,255,0.015));
+  }
+  .task.done::before { background: var(--green); }
+
+  .task-head {
+    display: flex; align-items: center; gap: 0.7rem;
+    margin-bottom: 0.7rem; flex-wrap: wrap;
+  }
+  .task-id {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem; font-weight: 700;
+    color: var(--text-dim); background: var(--bg-elev);
+    border: 1px solid var(--border);
+    padding: 0.22rem 0.55rem; border-radius: 6px; white-space: nowrap;
+  }
+  .task-pbadge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem; font-weight: 700;
+    padding: 0.2rem 0.55rem; border-radius: 5px; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .task-pbadge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+  }
+  .task[data-person="A"] .task-pbadge { color: var(--p-a); background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); }
+  .task[data-person="A"] .task-pbadge::before { background: var(--p-a); }
+  .task[data-person="B"] .task-pbadge { color: var(--p-b); background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.25); }
+  .task[data-person="B"] .task-pbadge::before { background: var(--p-b); }
+  .task[data-person="C"] .task-pbadge { color: var(--p-c); background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.25); }
+  .task[data-person="C"] .task-pbadge::before { background: var(--p-c); }
+  .task[data-person="D"] .task-pbadge { color: var(--p-d); background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25); }
+  .task[data-person="D"] .task-pbadge::before { background: var(--p-d); }
+  .task[data-person="ALL"] .task-pbadge { color: var(--accent); background: var(--accent-soft); border: 1px solid rgba(251,146,60,0.25); }
+  .task[data-person="ALL"] .task-pbadge::before { background: var(--accent); }
+
+  .task-meta {
+    display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .duration {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem; color: var(--text-dim);
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--border); border-radius: 5px;
+  }
+  .done-toggle {
+    background: var(--bg-elev); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.28rem 0.65rem;
+    color: var(--text-dim); font-size: 0.76rem;
+    cursor: pointer; font-family: inherit;
+    transition: all 0.2s var(--easing);
+  }
+  .done-toggle:hover { border-color: var(--green); color: var(--green); }
+  .task.done .done-toggle {
+    background: var(--green-soft); border-color: var(--green); color: var(--green);
+  }
+  .task h3 {
+    font-size: 1.05rem; font-weight: 700;
+    margin: 0 0 0.4rem; color: var(--text); line-height: 1.35;
+  }
+  .task h3 code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 5px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .task p {
+    color: var(--text-soft); margin-bottom: 0.5rem;
+    line-height: 1.6; max-width: 850px;
+    font-size: 0.95rem;
+  }
+  .task p code, .task li code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .task strong { color: var(--text); }
+
+  /* STEPS LIST */
+  .steps-label {
+    font-size: 0.7rem; font-weight: 700;
+    color: var(--primary); text-transform: uppercase; letter-spacing: 0.13em;
+    margin: 0.6rem 0 0.3rem;
+  }
+  ol.steps {
+    list-style: none; counter-reset: stepcount;
+    margin: 0.3rem 0 0.7rem 0; padding: 0;
+  }
+  ol.steps > li {
+    counter-increment: stepcount;
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 0.45rem;
+    color: var(--text-soft);
+    line-height: 1.55;
+    font-size: 0.94rem;
+  }
+  ol.steps > li::before {
+    content: counter(stepcount);
+    position: absolute;
+    left: 0; top: 0.1rem;
+    width: 1.4rem; height: 1.4rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--primary);
+    background: rgba(167,139,250,0.08);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* USE / CONCEPTS */
+  .use {
+    background: rgba(96,165,250,0.04);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    margin: 0.6rem 0;
+    font-size: 0.88rem;
+    color: var(--text-soft);
+  }
+  .use::before {
+    content: '🔧 À utiliser';
+    display: block;
+    font-size: 0.66rem; font-weight: 700; color: var(--blue);
+    text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 0.3rem;
+  }
+  .use code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.86em; background: var(--code-bg);
+    padding: 0.08rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+    margin: 0 0.15rem;
+  }
+
+  /* FILE PATH */
+  .file-path {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem; color: var(--primary-bright);
+    background: var(--bg-elev);
+    border: 1px solid var(--border); border-radius: 7px;
+    padding: 0.28rem 0.65rem;
+    margin: 0.4rem 0 0.5rem;
+  }
+  .file-path::before { content: '📄'; font-size: 0.85rem; }
+  .file-path.new::before { content: '✨'; }
+  .file-path.edit::before { content: '✏️'; }
+
+  /* CALLOUTS */
+  .callout {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    margin: 0.5rem 0;
+    font-size: 0.88rem; line-height: 1.55;
+    color: var(--text-soft);
+  }
+  .callout strong { color: var(--text); }
+  .callout code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85em; background: var(--code-bg);
+    padding: 0.08rem 0.4rem; border-radius: 4px;
+    color: var(--primary-bright); border: 1px solid var(--border);
+  }
+  .callout.tip {
+    background: linear-gradient(135deg, rgba(96,165,250,0.05), rgba(96,165,250,0.01));
+    border-left: 3px solid var(--blue);
+  }
+  .callout.warn {
+    background: linear-gradient(135deg, rgba(251,191,36,0.05), rgba(251,191,36,0.01));
+    border-left: 3px solid var(--amber);
+  }
+  .callout.depends {
+    background: linear-gradient(135deg, rgba(244,114,182,0.05), rgba(244,114,182,0.01));
+    border-left: 3px solid var(--pink);
+  }
+  .callout .title {
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 0.25rem;
+  }
+  .callout.tip .title { color: var(--blue); }
+  .callout.warn .title { color: var(--amber); }
+  .callout.depends .title { color: var(--pink); }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  /* CODE BLOCK (rare) */
+  pre.code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 0.8rem 1rem;
+    margin: 0.55rem 0;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+    font-size: 0.8rem; line-height: 1.6;
+    color: var(--text); white-space: pre;
+  }
+  pre.code .tk-sql { color: #c4b5fd; font-weight: 600; }
+  pre.code .tk-str { color: #86efac; }
+  pre.code .tk-num { color: #f9a8d4; }
+  pre.code .tk-com { color: var(--text-dim); font-style: italic; }
+
+  /* PROGRESS WIDGET */
+  .progress-widget {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: rgba(13,13,24,0.92); backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 14px;
+    padding: 0.85rem 1.1rem; z-index: 100;
+    display: flex; align-items: center; gap: 0.9rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    transition: all 0.3s var(--easing);
+  }
+  .progress-widget:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .pw-ring { width: 36px; height: 36px; position: relative; }
+  .pw-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .pw-ring circle { fill: none; stroke-width: 3; }
+  .pw-ring .bg-ring { stroke: var(--border); }
+  .pw-ring .fg-ring {
+    stroke: url(#pwGrad); stroke-linecap: round;
+    transition: stroke-dasharray 0.5s var(--easing);
+  }
+  .pw-count {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1rem; font-weight: 700; color: var(--text);
+  }
+  .pw-count .pw-done { color: var(--green); }
+  .pw-label {
+    font-size: 0.7rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.3;
+  }
+
+  @media (max-width: 800px) {
+    .hero { padding: 3rem 1.2rem 2rem; }
+    .filters-bar { padding: 0.7rem 1rem; }
+    section.block { padding: 2.5rem 1.2rem 1rem; }
+    .block-header { grid-template-columns: 1fr; gap: 0.4rem; }
+    .block-num { font-size: 3rem; }
+    .task { padding: 0.9rem 1.05rem; }
+    .progress-widget { bottom: 1rem; right: 1rem; padding: 0.6rem 0.9rem; }
+    .pw-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="pwGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="dot"></span>
+    <span>Projet de groupe</span>
+    <span class="sep">·</span>
+    <span>Équipe de 4</span>
+    <span class="sep">·</span>
+    <span class="accent">Salon de coiffure</span>
+  </div>
+  <h1>Roadmap <span class="word-accent">équipe</span>.</h1>
+  <p class="hero-lead">L'architecture du projet et les étapes à suivre pour chaque personne. <strong>Pas de code prêt à copier-coller</strong> — à vous de chercher comment faire avec les concepts vus en cours. Filtrez par personne pour voir uniquement vos tâches.</p>
+
+  <div class="hero-meta">
+    <div class="hero-meta-item"><div class="num">4</div><div class="label">personnes</div></div>
+    <div class="hero-meta-item"><div class="num">3</div><div class="label">pages PHP</div></div>
+    <div class="hero-meta-item"><div class="num">4</div><div class="label">opérations CRUD</div></div>
+    <div class="hero-meta-item"><div class="num">31</div><div class="label">étapes</div></div>
+  </div>
+</section>
+
+<div class="filters-bar">
+  <div class="filters-inner">
+    <button class="filter-btn active" data-filter="all">Tout <span class="count">31</span></button>
+    <button class="filter-btn" data-filter="ALL"><span class="pdot" style="background:var(--accent)"></span>Commun <span class="count">11</span></button>
+    <button class="filter-btn" data-filter="A"><span class="pdot a"></span>Personne A <span class="count">5</span></button>
+    <button class="filter-btn" data-filter="B"><span class="pdot b"></span>Personne B <span class="count">5</span></button>
+    <button class="filter-btn" data-filter="C"><span class="pdot c"></span>Personne C <span class="count">5</span></button>
+    <button class="filter-btn" data-filter="D"><span class="pdot d"></span>Personne D <span class="count">5</span></button>
+  </div>
+</div>
+
+<!-- 00. RÉPARTITION -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">00</div>
+    <div>
+      <div class="block-eyebrow">Architecture · Qui fait quoi</div>
+      <h2>La <em>répartition</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Chaque personne a 2 missions : une <strong>partie du site</strong> + une <strong>lettre du CRUD</strong>. Tout le monde touche au CRUD, personne n'est bloqué en attendant les autres.</p>
+
+  <div class="person-header pa">
+    <div class="person-avatar">A</div>
+    <div>
+      <div class="person-title">Personne A — <span style="color:var(--p-a)">la charpente</span></div>
+      <div class="person-roles"><span class="acc-a">Header + Footer communs</span> · <strong>CREATE</strong> (ajouter une réservation)</div>
+    </div>
+  </div>
+  <div class="person-header pb">
+    <div class="person-avatar">B</div>
+    <div>
+      <div class="person-title">Personne B — <span style="color:var(--p-b)">l'accueil</span></div>
+      <div class="person-roles"><span class="acc-b">Page d'accueil</span> · <strong>READ</strong> (lister les réservations)</div>
+    </div>
+  </div>
+  <div class="person-header pc">
+    <div class="person-avatar">C</div>
+    <div>
+      <div class="person-title">Personne C — <span style="color:var(--p-c)">le contact</span></div>
+      <div class="person-roles"><span class="acc-c">Page contact + map</span> · <strong>UPDATE</strong> (modifier une réservation)</div>
+    </div>
+  </div>
+  <div class="person-header pd">
+    <div class="person-avatar">D</div>
+    <div>
+      <div class="person-title">Personne D — <span style="color:var(--p-d)">les réservations</span></div>
+      <div class="person-roles"><span class="acc-d">Squelette page réservation</span> · <strong>DELETE</strong> (supprimer une réservation)</div>
+    </div>
+  </div>
+</section>
+
+<!-- 01. ARCHITECTURE FICHIERS -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">01</div>
+    <div>
+      <div class="block-eyebrow">Architecture · Arborescence</div>
+      <h2>L'<em>arborescence</em> du projet.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Voici la structure de fichiers à créer dans le dossier <code>salon-coiffure/</code>. Chaque fichier a un propriétaire — c'est lui qui doit le créer.</p>
+<pre class="code">salon-coiffure/
+├── <span style="color:#86efac">config.php</span>                  <span style="color:var(--text-dim)">← commun (tous)</span>
+├── <span style="color:#86efac">index.php</span>                   <span style="color:var(--text-dim)">← Personne B (accueil)</span>
+├── <span style="color:#86efac">contact.php</span>                 <span style="color:var(--text-dim)">← Personne C</span>
+├── <span style="color:#86efac">reservations.php</span>            <span style="color:var(--text-dim)">← Personne D (squelette) + B (listing)</span>
+├── <span style="color:#86efac">ajouter-reservation.php</span>     <span style="color:var(--text-dim)">← Personne A (CREATE)</span>
+├── <span style="color:#86efac">modifier-reservation.php</span>    <span style="color:var(--text-dim)">← Personne C (UPDATE)</span>
+├── <span style="color:#86efac">supprimer-reservation.php</span>   <span style="color:var(--text-dim)">← Personne D (DELETE)</span>
+├── includes/
+│   ├── <span style="color:#86efac">header.php</span>              <span style="color:var(--text-dim)">← Personne A</span>
+│   └── <span style="color:#86efac">footer.php</span>              <span style="color:var(--text-dim)">← Personne A</span>
+└── assets/
+    └── <span style="color:#86efac">style.css</span>               <span style="color:var(--text-dim)">← CSS commun (tous y ajoutent leurs styles)</span></pre>
+</section>
+
+<!-- 02. SETUP COMMUN -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">02</div>
+    <div>
+      <div class="block-eyebrow">Phase 1 · À faire ensemble</div>
+      <h2>Setup <em>commun</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Ces tâches sont à faire <strong>à 4</strong> avant que chacun parte sur sa partie. Comptez 30 minutes.</p>
+
+  <div class="task" id="t-s1" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.1</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-s1')">○ Fait</button></div>
+    </div>
+    <h3>Créer la base de données <code>salon-coiffure</code></h3>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Ouvrir <strong>phpMyAdmin</strong> (<code>http://localhost/phpmyadmin</code>)</li>
+      <li>Créer une nouvelle base : nom <code>salon-coiffure</code>, interclassement <code>utf8mb4_unicode_ci</code></li>
+      <li>Importer les 3 tables fournies (onglet SQL → coller les CREATE TABLE)</li>
+      <li>Vérifier que les 3 tables apparaissent : <code>disponibilites</code>, <code>services</code>, <code>reservations</code></li>
+    </ol>
+    <div class="callout warn">
+      <div class="title">⚠️ Attention au tiret</div>
+      <p>Le nom <code>salon-coiffure</code> contient un tiret — pensez à bien l'écrire dans le DSN PHP.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-s2" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.2</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">5 min</span><button class="done-toggle" onclick="toggleDone('t-s2')">○ Fait</button></div>
+    </div>
+    <h3>Insérer des données de test</h3>
+    <p>Les tables <code>services</code> et <code>disponibilites</code> doivent avoir du contenu pour pouvoir tester les réservations.</p>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Dans phpMyAdmin, onglet SQL — insérer 5 services au choix (nom, description, durée, prix). Exemples : Coupe Homme, Coupe Femme, Coloration, Balayage, Barbe</li>
+      <li>Insérer les 7 jours de la semaine dans <code>disponibilites</code> (9h-19h en semaine, 9h-18h le samedi, <code>actif = 0</code> le dimanche)</li>
+      <li>Vérifier dans l'onglet Parcourir que tout est bien là</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-s3" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.3</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">5 min</span><button class="done-toggle" onclick="toggleDone('t-s3')">○ Fait</button></div>
+    </div>
+    <h3>Créer le dossier du projet</h3>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Aller dans le dossier <code>htdocs/</code> (XAMPP) ou <code>www/</code> (Laragon/WAMP)</li>
+      <li>Créer un dossier <code>salon-coiffure/</code></li>
+      <li>À l'intérieur, créer le sous-dossier <code>includes/</code></li>
+      <li>Vérifier que <code>http://localhost/salon-coiffure/</code> répond (page blanche ou erreur 403 = OK)</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-s4" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.4</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-s4')">○ Fait</button></div>
+    </div>
+    <h3>Créer <code>config.php</code> (la connexion)</h3>
+    <p>Le fichier qui contient la connexion PDO à la base. Sera <code>require</code>'d par toutes les pages qui touchent à la BDD.</p>
+    <div class="steps-label">Ce que le fichier doit contenir</div>
+    <ol class="steps">
+      <li>Les 4 constantes : <code>DB_HOST</code> (<code>'localhost'</code>), <code>DB_NAME</code> (<code>'salon-coiffure'</code>), <code>DB_USER</code> (<code>'root'</code>), <code>DB_PASS</code> (<code>''</code> sur Windows / <code>'root'</code> sur Mac MAMP)</li>
+      <li>Un <code>try / catch</code> qui instancie <code>new PDO(...)</code> avec ces 3 paramètres : DSN, user, password</li>
+      <li>Le DSN format : <code>"mysql:host=...;dbname=...;charset=utf8mb4"</code></li>
+      <li>Les options : <code>PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION</code> et <code>PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC</code></li>
+      <li>Le <code>catch (PDOException $e)</code> qui affiche un <code>die()</code> en cas d'erreur</li>
+    </ol>
+    <div class="steps-label">Comment l'utiliser dans les autres fichiers</div>
+    <ol class="steps">
+      <li>Tout en haut de chaque fichier qui touche à la BDD, ajouter : <code>require "config.php";</code></li>
+      <li>Cette ligne charge le fichier et exécute son contenu, ce qui crée la variable <code>$pdo</code></li>
+      <li>Ensuite, dans le fichier, on peut utiliser <code>$pdo-&gt;query(...)</code> ou <code>$pdo-&gt;prepare(...)</code> librement</li>
+      <li>Si le fichier est dans un sous-dossier (cas de <code>includes/header.php</code>), il faut remonter d'un niveau : <code>require "../config.php";</code></li>
+    </ol>
+    <div class="callout tip">
+      <div class="title">💡 Référence</div>
+      <p>Reprendre le modèle vu dans le cours CRUD/PDO, section 2.3.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-s5" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.5</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">5 min</span><button class="done-toggle" onclick="toggleDone('t-s5')">○ Fait</button></div>
+    </div>
+    <h3>Tester la connexion</h3>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Créer un fichier temporaire <code>test.php</code> qui inclut <code>config.php</code></li>
+      <li>Faire une requête simple : <code>SELECT * FROM services</code></li>
+      <li>Afficher les résultats avec un <code>foreach</code></li>
+      <li>Ouvrir dans le navigateur : si les services s'affichent → setup OK</li>
+      <li><strong>Supprimer <code>test.php</code></strong> une fois validé</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-s6" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.6</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">15 min</span><button class="done-toggle" onclick="toggleDone('t-s6')">○ Fait</button></div>
+    </div>
+    <h3>Gérer les branches Git pour travailler à 4 sans s'écraser</h3>
+    <p>Travailler à 4 sur le même dossier sans Git = chaos garanti. La méthode propre : chacun travaille sur <strong>sa branche</strong>, puis on fusionne tout à la fin.</p>
+
+    <div class="steps-label">1. Mise en place (1 personne le fait, les autres clonent)</div>
+    <ol class="steps">
+      <li>Une personne crée un repo sur GitHub (privé ou public, peu importe) et ajoute les 3 autres comme collaborateurs (Settings → Collaborators)</li>
+      <li>Cette personne initialise localement dans <code>salon-coiffure/</code> :
+        <pre class="code">git init
+git add .
+git commit -m "Setup initial"
+git remote add origin https://github.com/.../salon-coiffure.git
+git branch -M main
+git push -u origin main</pre>
+      </li>
+      <li>Les 3 autres récupèrent le projet :
+        <pre class="code">git clone https://github.com/.../salon-coiffure.git
+cd salon-coiffure</pre>
+      </li>
+    </ol>
+
+    <div class="steps-label">2. Chacun crée et utilise SA branche</div>
+    <ol class="steps">
+      <li>Créer sa branche depuis <code>main</code> (à faire <strong>une seule fois</strong>) :
+        <pre class="code">git checkout main
+git pull
+git checkout -b branche-A   <span class="tk-com"># personne A — adapter avec votre lettre</span></pre>
+      </li>
+      <li>Coder normalement sur ses fichiers</li>
+      <li>Sauvegarder régulièrement (toutes les 30 min ou après chaque tâche) :
+        <pre class="code">git add .
+git commit -m "A.1 : header.php créé"
+git push origin branche-A</pre>
+      </li>
+      <li>Pour basculer entre branches : <code>git checkout nom-branche</code></li>
+    </ol>
+
+    <div class="steps-label">3. À la fin — fusionner toutes les branches dans <code>main</code></div>
+    <ol class="steps">
+      <li>Tous poussent leurs derniers commits sur leur branche</li>
+      <li>Revenir sur <code>main</code> et fusionner les 4 branches :
+        <pre class="code">git checkout main
+git pull
+git merge branche-A
+git merge branche-B
+git merge branche-C
+git merge branche-D
+git push origin main</pre>
+      </li>
+      <li>S'il y a des conflits (deux personnes ont modifié le même fichier) : ouvrir le fichier dans VS Code, les zones en conflit sont marquées par <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> et <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> — choisir quelle version garder, puis <code>git add .</code> + <code>git commit</code></li>
+    </ol>
+
+    <div class="callout tip">
+      <div class="title">💡 Astuce pratique</div>
+      <p>Avant de commencer à coder, toujours faire <code>git pull</code> pour récupérer ce que les autres ont peut-être déjà poussé.</p>
+    </div>
+
+    <div class="callout warn">
+      <div class="title">⚠️ Si Git est trop compliqué</div>
+      <p>Plan B : partager le dossier via Google Drive / Dropbox / OneDrive et travailler <strong>à tour de rôle</strong> sur les fichiers communs (header, footer, reservations.php). Chacun crée ses propres fichiers en parallèle. Moins propre mais ça marche pour un projet court.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-s7" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">S.7</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-s7')">○ Fait</button></div>
+    </div>
+    <h3>Mettre en place le CSS commun</h3>
+    <p>On utilise <strong>Bootstrap</strong> pour la base (composants, grille, couleurs) et un <strong>fichier <code>style.css</code> custom</strong> pour les ajouts spécifiques (couleurs du salon, polices, animations…).</p>
+
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Créer le sous-dossier <code>assets/</code> dans <code>salon-coiffure/</code></li>
+      <li>Créer un fichier <code>assets/style.css</code> vide pour l'instant — chacun y ajoutera ses styles au fil du projet</li>
+      <li>Dans <code>includes/header.php</code> (créé par A), inclure les <strong>deux feuilles de style</strong> dans le <code>&lt;head&gt;</code> :
+        <ul style="margin-top:0.3rem">
+          <li>D'abord Bootstrap (CDN)</li>
+          <li>Ensuite <code>assets/style.css</code> (pour qu'il puisse <em>surcharger</em> Bootstrap si besoin)</li>
+        </ul>
+      </li>
+      <li>Forme du lien custom : <code>&lt;link rel="stylesheet" href="assets/style.css"&gt;</code></li>
+    </ol>
+
+    <div class="steps-label">Conventions pour éviter les conflits sur <code>style.css</code></div>
+    <ol class="steps">
+      <li>Chacun préfixe ses classes par sa lettre : <code>.a-hero</code> (Personne A), <code>.b-card-service</code> (Personne B), etc.</li>
+      <li>Chacun écrit ses styles dans une section commentée du fichier :
+        <pre class="code"><span class="tk-com">/* ===== Personne A (header/footer) ===== */</span>
+.a-navbar { ... }
+
+<span class="tk-com">/* ===== Personne B (accueil) ===== */</span>
+.b-hero { ... }</pre>
+      </li>
+      <li>Comme ça, pas de conflit Git sur le même fichier (chacun touche à sa section)</li>
+    </ol>
+
+    <div class="callout tip">
+      <div class="title">💡 Astuce — démarrer sans CSS custom</div>
+      <p>Si Bootstrap seul suffit pour rendre le site joli (ce qui est souvent le cas), on peut <strong>laisser <code>style.css</code> vide</strong> et y revenir uniquement si on veut un détail particulier (couleur du salon, police…).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 03. PERSONNE A -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">03</div>
+    <div>
+      <div class="block-eyebrow">Personne A · La charpente</div>
+      <h2>Header / Footer &amp; <em>CREATE</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro"><strong>Démarrer rapidement avec le header/footer</strong> — B, C et D en ont besoin pour leurs pages. Ensuite, passer au formulaire d'ajout.</p>
+
+  <div class="task" id="t-a1" data-person="A">
+    <div class="task-head">
+      <span class="task-id">A.1</span><span class="task-pbadge">A</span>
+      <div class="task-meta"><span class="duration">30 min</span><button class="done-toggle" onclick="toggleDone('t-a1')">○ Fait</button></div>
+    </div>
+    <h3>Créer <code>includes/header.php</code></h3>
+    <div class="file-path new">salon-coiffure/includes/header.php</div>
+    <div class="steps-label">Ce que le fichier doit contenir</div>
+    <ol class="steps">
+      <li>Le <code>&lt;!DOCTYPE&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code> avec encodage UTF-8, titre, lien vers Bootstrap (CDN)</li>
+      <li>L'ouverture de <code>&lt;body&gt;</code></li>
+      <li>Une <strong>barre de navigation</strong> Bootstrap (<code>&lt;nav&gt;</code>) avec 3 liens : Accueil, Réservation, Contact</li>
+      <li>L'ouverture d'un <code>&lt;main class="container"&gt;</code> (qui sera fermé par le footer)</li>
+    </ol>
+    <div class="callout tip">
+      <div class="title">💡 Pas de fermeture de balises</div>
+      <p>Le header laisse <code>&lt;main&gt;</code> et <code>&lt;body&gt;</code> <strong>ouverts</strong> — c'est le footer qui les fermera.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-a2" data-person="A">
+    <div class="task-head">
+      <span class="task-id">A.2</span><span class="task-pbadge">A</span>
+      <div class="task-meta"><span class="duration">15 min</span><button class="done-toggle" onclick="toggleDone('t-a2')">○ Fait</button></div>
+    </div>
+    <h3>Créer <code>includes/footer.php</code></h3>
+    <div class="file-path new">salon-coiffure/includes/footer.php</div>
+    <div class="steps-label">Ce que le fichier doit contenir</div>
+    <ol class="steps">
+      <li>La <strong>fermeture</strong> de <code>&lt;main&gt;</code></li>
+      <li>Un <code>&lt;footer&gt;</code> avec : adresse du salon, copyright (avec l'année dynamique via <code>date("Y")</code>)</li>
+      <li>La fermeture de <code>&lt;body&gt;</code> et <code>&lt;html&gt;</code></li>
+    </ol>
+    <div class="callout depends">
+      <div class="title">🔔 Notifier l'équipe</div>
+      <p>Dès que header/footer sont prêts → prévenir B, C, D. Ils peuvent commencer leurs pages.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-a3" data-person="A">
+    <div class="task-head">
+      <span class="task-id">A.3 — CREATE</span><span class="task-pbadge">A</span>
+      <div class="task-meta"><span class="duration">45 min</span><button class="done-toggle" onclick="toggleDone('t-a3')">○ Fait</button></div>
+    </div>
+    <h3>Formulaire d'ajout — <code>ajouter-reservation.php</code></h3>
+    <div class="file-path new">salon-coiffure/ajouter-reservation.php</div>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Inclure <code>config.php</code> et <code>header.php</code></li>
+      <li>Construire le formulaire HTML avec tous les champs nécessaires : nom, email, téléphone, date, heure, service (<code>&lt;select&gt;</code>), disponibilité (<code>&lt;select&gt;</code>)</li>
+      <li>Les deux <code>&lt;select&gt;</code> sont alimentés depuis la BDD : un SELECT sur <code>services</code> et un sur <code>disponibilites WHERE actif = 1</code></li>
+      <li>Méthode du formulaire : <code>POST</code>, action vers la même page</li>
+      <li>Bouton « Publier » à la fin</li>
+    </ol>
+    <div class="use">
+      <code>$_POST</code> · <code>require</code> · <code>$pdo-&gt;query()</code> · <code>foreach</code> pour remplir les select · <code>htmlspecialchars()</code> sur les labels affichés
+    </div>
+  </div>
+
+  <div class="task" id="t-a4" data-person="A">
+    <div class="task-head">
+      <span class="task-id">A.4</span><span class="task-pbadge">A</span>
+      <div class="task-meta"><span class="duration">30 min</span><button class="done-toggle" onclick="toggleDone('t-a4')">○ Fait</button></div>
+    </div>
+    <h3>Validation + INSERT en BDD</h3>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Détecter la soumission avec <code>$_SERVER['REQUEST_METHOD'] === 'POST'</code></li>
+      <li>Récupérer chaque champ depuis <code>$_POST</code>, les nettoyer avec <code>trim()</code></li>
+      <li>Vérifier que les champs obligatoires sont remplis (<code>empty()</code>)</li>
+      <li>Vérifier que l'email est valide (<code>filter_var($email, FILTER_VALIDATE_EMAIL)</code>)</li>
+      <li>Vérifier que le téléphone fait bien 10 caractères, que la date n'est pas dans le passé</li>
+      <li>S'il n'y a aucune erreur : <strong>requête préparée</strong> <code>INSERT INTO reservations (...)</code> avec <code>prepare() + execute()</code></li>
+      <li>Rediriger vers <code>reservations.php</code> avec <code>header("Location: ...")</code> puis <code>exit</code></li>
+      <li>S'il y a des erreurs : ré-afficher le formulaire avec les messages d'erreur en rouge sous chaque champ, et les valeurs déjà saisies conservées</li>
+    </ol>
+    <div class="callout warn">
+      <div class="title">⚠️ Sécurité</div>
+      <p>Pour conserver les valeurs en cas d'erreur : <code>value="&lt;?= htmlspecialchars($_POST['nom'] ?? '') ?&gt;"</code>. Sans <code>htmlspecialchars</code> = faille XSS.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-a5" data-person="A">
+    <div class="task-head">
+      <span class="task-id">A.5</span><span class="task-pbadge">A</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-a5')">○ Fait</button></div>
+    </div>
+    <h3>Tester de bout en bout</h3>
+    <ol class="steps">
+      <li>Soumettre vide → toutes les erreurs s'affichent en rouge</li>
+      <li>Soumettre avec un email invalide → seule l'erreur email s'affiche</li>
+      <li>Soumettre correctement → vérifier dans phpMyAdmin que la ligne est bien dans <code>reservations</code></li>
+      <li>Vérifier qu'on est redirigé vers <code>reservations.php</code></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 04. PERSONNE B -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">04</div>
+    <div>
+      <div class="block-eyebrow">Personne B · L'accueil</div>
+      <h2>Page accueil &amp; <em>READ</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Construire la page d'accueil engageante du salon, puis afficher la liste des réservations sur la page <code>reservations.php</code>.</p>
+
+  <div class="task" id="t-b1" data-person="B">
+    <div class="task-head">
+      <span class="task-id">B.1</span><span class="task-pbadge">B</span>
+      <div class="task-meta"><span class="duration">30 min</span><button class="done-toggle" onclick="toggleDone('t-b1')">○ Fait</button></div>
+    </div>
+    <h3>Squelette de <code>index.php</code></h3>
+    <div class="file-path new">salon-coiffure/index.php</div>
+    <div class="steps-label">Ce que la page doit afficher</div>
+    <ol class="steps">
+      <li>Inclure <code>header.php</code> et <code>footer.php</code></li>
+      <li>Une <strong>bannière hero</strong> avec le nom du salon et un slogan</li>
+      <li>Une <strong>présentation</strong> en 2-3 paragraphes (qui on est, depuis combien d'années)</li>
+      <li>Un <strong>bouton « Réserver »</strong> qui mène à <code>reservations.php</code></li>
+    </ol>
+    <div class="callout depends">
+      <div class="title">🔗 Dépendance</div>
+      <p>Nécessite <code>header.php</code> et <code>footer.php</code> de A. Vous pouvez commencer avec un HTML de base le temps qu'ils soient prêts.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-b2" data-person="B">
+    <div class="task-head">
+      <span class="task-id">B.2</span><span class="task-pbadge">B</span>
+      <div class="task-meta"><span class="duration">25 min</span><button class="done-toggle" onclick="toggleDone('t-b2')">○ Fait</button></div>
+    </div>
+    <h3>Afficher les services sur l'accueil</h3>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Inclure <code>config.php</code> en haut</li>
+      <li>Faire un <code>SELECT * FROM services</code> et récupérer tout avec <code>fetchAll()</code></li>
+      <li>Afficher les services dans une <strong>grille Bootstrap</strong> (row + col-md-4) — une carte par service</li>
+      <li>Chaque carte affiche : nom, description, durée, prix</li>
+    </ol>
+    <div class="use">
+      <code>$pdo-&gt;query()</code> · <code>fetchAll()</code> · <code>foreach</code> · <code>htmlspecialchars()</code> pour les textes
+    </div>
+  </div>
+
+  <div class="task" id="t-b3" data-person="B">
+    <div class="task-head">
+      <span class="task-id">B.3</span><span class="task-pbadge">B</span>
+      <div class="task-meta"><span class="duration">15 min</span><button class="done-toggle" onclick="toggleDone('t-b3')">○ Fait</button></div>
+    </div>
+    <h3>Afficher les horaires d'ouverture</h3>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Faire un SELECT sur <code>disponibilites</code> avec <code>WHERE actif = 1</code></li>
+      <li>Afficher chaque jour avec son créneau (« Lundi : 09:00 - 19:00 »)</li>
+      <li>Mettre ça dans une section dédiée sur la page d'accueil</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-b4" data-person="B">
+    <div class="task-head">
+      <span class="task-id">B.4 — READ</span><span class="task-pbadge">B</span>
+      <div class="task-meta"><span class="duration">45 min</span><button class="done-toggle" onclick="toggleDone('t-b4')">○ Fait</button></div>
+    </div>
+    <h3>Lister les réservations dans <code>reservations.php</code></h3>
+    <div class="file-path edit">salon-coiffure/reservations.php (zone listing créée par D)</div>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Écrire un SELECT qui récupère les réservations <strong>avec leur service et jour</strong> — il faut une <strong>jointure</strong> (<code>LEFT JOIN</code>) sur <code>services</code> et <code>disponibilites</code></li>
+      <li>Trier par date la plus récente d'abord (<code>ORDER BY date_rdv DESC, heure_rdv DESC</code>)</li>
+      <li>Afficher dans un <code>&lt;table class="table"&gt;</code> Bootstrap : Client, Email, Téléphone, Date, Heure, Service, Statut</li>
+      <li>Ajouter 2 colonnes d'actions par ligne : un lien <strong>Modifier</strong> (vers <code>modifier-reservation.php?id=X</code>) et un lien <strong>Supprimer</strong> (vers <code>supprimer-reservation.php?id=X</code>)</li>
+      <li>Si la liste est vide : afficher un message d'alerte Bootstrap (« Aucune réservation »)</li>
+    </ol>
+    <div class="use">
+      <code>SELECT ... LEFT JOIN</code> · <code>fetchAll()</code> · <code>foreach</code> · <code>htmlspecialchars()</code> · <code>empty()</code>
+    </div>
+    <div class="callout warn">
+      <div class="title">⚠️ XSS</div>
+      <p>Toutes les valeurs venant de la BDD doivent passer par <code>htmlspecialchars()</code> avant <code>echo</code>. Un nom de client peut contenir n'importe quoi.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-b5" data-person="B">
+    <div class="task-head">
+      <span class="task-id">B.5</span><span class="task-pbadge">B</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-b5')">○ Fait</button></div>
+    </div>
+    <h3>Tester</h3>
+    <ol class="steps">
+      <li>Vérifier que la page d'accueil s'affiche bien avec tous les éléments</li>
+      <li>Sur la page réservations, vérifier que la liste s'affiche correctement</li>
+      <li>Demander à A de créer une réservation → vérifier qu'elle apparaît bien dans la liste</li>
+      <li>Vérifier que les boutons Modifier / Supprimer pointent vers les bonnes URLs</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 05. PERSONNE C -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">05</div>
+    <div>
+      <div class="block-eyebrow">Personne C · Le contact</div>
+      <h2>Page contact &amp; <em>UPDATE</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Construire la page contact (avec map) et coder la modification d'une réservation.</p>
+
+  <div class="task" id="t-c1" data-person="C">
+    <div class="task-head">
+      <span class="task-id">C.1</span><span class="task-pbadge">C</span>
+      <div class="task-meta"><span class="duration">20 min</span><button class="done-toggle" onclick="toggleDone('t-c1')">○ Fait</button></div>
+    </div>
+    <h3>Page <code>contact.php</code> — coordonnées</h3>
+    <div class="file-path new">salon-coiffure/contact.php</div>
+    <div class="steps-label">Ce que la page doit afficher</div>
+    <ol class="steps">
+      <li>Header + footer inclus</li>
+      <li>Un titre « Nous contacter »</li>
+      <li>L'<strong>adresse</strong> postale complète</li>
+      <li>Le <strong>téléphone</strong> avec un lien <code>tel:</code> cliquable</li>
+      <li>L'<strong>email</strong> avec un lien <code>mailto:</code></li>
+      <li>Les <strong>horaires d'ouverture</strong> (mêmes données que B sur l'accueil — c'est OK de répéter)</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-c2" data-person="C">
+    <div class="task-head">
+      <span class="task-id">C.2</span><span class="task-pbadge">C</span>
+      <div class="task-meta"><span class="duration">25 min</span><button class="done-toggle" onclick="toggleDone('t-c2')">○ Fait</button></div>
+    </div>
+    <h3>Ajouter la map avec la position du salon</h3>
+    <div class="steps-label">2 options possibles</div>
+    <ol class="steps">
+      <li><strong>Option 1 — Google Maps :</strong> aller sur <code>maps.google.com</code>, chercher l'adresse choisie, cliquer sur Partager → Intégrer une carte, copier le code <code>&lt;iframe&gt;</code> et le coller dans la page</li>
+      <li><strong>Option 2 — OpenStreetMap :</strong> chercher l'adresse sur <code>openstreetmap.org</code>, utiliser le bouton « Partager » → onglet « HTML » → copier le code <code>&lt;iframe&gt;</code></li>
+      <li>Mettre la map à droite des infos (grille Bootstrap : 2 colonnes <code>col-md-6</code>)</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-c3" data-person="C">
+    <div class="task-head">
+      <span class="task-id">C.3 — UPDATE</span><span class="task-pbadge">C</span>
+      <div class="task-meta"><span class="duration">45 min</span><button class="done-toggle" onclick="toggleDone('t-c3')">○ Fait</button></div>
+    </div>
+    <h3>Modifier une réservation — <code>modifier-reservation.php</code></h3>
+    <div class="file-path new">salon-coiffure/modifier-reservation.php</div>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Récupérer l'id depuis l'URL : <code>$_GET['id']</code>, le caster en <code>(int)</code></li>
+      <li>Vérifier que l'id est valide, sinon rediriger vers <code>reservations.php</code></li>
+      <li>Faire un SELECT avec <code>WHERE id = ?</code> + <code>fetch()</code> pour récupérer la résa existante</li>
+      <li>Si la résa n'existe pas (<code>fetch</code> renvoie <code>false</code>) : rediriger</li>
+      <li>Construire un formulaire <strong>pré-rempli</strong> avec les valeurs actuelles (<code>value="&lt;?= htmlspecialchars($resa['nom_client']) ?&gt;"</code>)</li>
+      <li>Au submit : valider les données comme A, puis faire un <code>UPDATE ... SET ... WHERE id = ?</code> en requête préparée</li>
+      <li>Rediriger vers <code>reservations.php</code> après modification</li>
+    </ol>
+    <div class="use">
+      <code>$_GET</code> · <code>(int)</code> · <code>prepare()</code> · <code>execute()</code> · <code>fetch()</code> · <code>header("Location: ...")</code>
+    </div>
+    <div class="callout warn">
+      <div class="title">🚨 LE piège</div>
+      <p>Ne JAMAIS oublier le <code>WHERE Id_reservations = ?</code> dans l'UPDATE. Sans WHERE → toutes les réservations modifiées. Vérifier 2 fois.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-c4" data-person="C">
+    <div class="task-head">
+      <span class="task-id">C.4</span><span class="task-pbadge">C</span>
+      <div class="task-meta"><span class="duration">15 min</span><button class="done-toggle" onclick="toggleDone('t-c4')">○ Fait</button></div>
+    </div>
+    <h3>Permettre de changer le statut</h3>
+    <p>Dans le formulaire de modification, ajouter un <code>&lt;select name="statut"&gt;</code> avec 4 options : <code>en_attente</code>, <code>confirmee</code>, <code>annulee</code>, <code>terminee</code>.</p>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Mettre les 4 statuts dans un tableau PHP</li>
+      <li>Avec un <code>foreach</code>, générer les <code>&lt;option&gt;</code></li>
+      <li>Ajouter <code>selected</code> sur l'option qui correspond au statut actuel de la résa</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-c5" data-person="C">
+    <div class="task-head">
+      <span class="task-id">C.5</span><span class="task-pbadge">C</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-c5')">○ Fait</button></div>
+    </div>
+    <h3>Tester</h3>
+    <ol class="steps">
+      <li>Cliquer sur Modifier d'une résa dans la liste → vérifier le pré-remplissage</li>
+      <li>Modifier un champ, soumettre → vérifier dans phpMyAdmin qu'une <strong>seule</strong> ligne a changé</li>
+      <li>Tester avec un id qui n'existe pas (<code>?id=999</code>) → redirection sans erreur</li>
+      <li>Tester avec un id non numérique (<code>?id=abc</code>) → redirection sans erreur</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 06. PERSONNE D -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">06</div>
+    <div>
+      <div class="block-eyebrow">Personne D · Les réservations</div>
+      <h2>Squelette &amp; <em>DELETE</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Créer le squelette de la page réservation (qui sera complétée par B avec le listing), et coder la suppression.</p>
+
+  <div class="task" id="t-d1" data-person="D">
+    <div class="task-head">
+      <span class="task-id">D.1</span><span class="task-pbadge">D</span>
+      <div class="task-meta"><span class="duration">20 min</span><button class="done-toggle" onclick="toggleDone('t-d1')">○ Fait</button></div>
+    </div>
+    <h3>Squelette <code>reservations.php</code></h3>
+    <div class="file-path new">salon-coiffure/reservations.php</div>
+    <div class="steps-label">Ce que la page doit contenir</div>
+    <ol class="steps">
+      <li>Inclure <code>config.php</code>, <code>header.php</code> et <code>footer.php</code></li>
+      <li>Un titre « Réservations »</li>
+      <li>À droite du titre, un <strong>bouton « + Nouvelle réservation »</strong> qui mène vers <code>ajouter-reservation.php</code></li>
+      <li>Une zone vide avec un commentaire <code>&lt;!-- LISTING ICI --&gt;</code> que B remplira</li>
+    </ol>
+    <div class="callout depends">
+      <div class="title">🔗 À coordonner avec B</div>
+      <p>Une fois le squelette prêt, dire à B qu'il peut écrire son listing dans la zone marquée.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-d2" data-person="D">
+    <div class="task-head">
+      <span class="task-id">D.2 — DELETE</span><span class="task-pbadge">D</span>
+      <div class="task-meta"><span class="duration">25 min</span><button class="done-toggle" onclick="toggleDone('t-d2')">○ Fait</button></div>
+    </div>
+    <h3>Supprimer une réservation — <code>supprimer-reservation.php</code></h3>
+    <div class="file-path new">salon-coiffure/supprimer-reservation.php</div>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Inclure <code>config.php</code></li>
+      <li>Vérifier que <code>$_GET['id']</code> est présent ET numérique (sinon rediriger)</li>
+      <li>Caster en <code>(int)</code></li>
+      <li>Requête préparée : <code>DELETE FROM reservations WHERE Id_reservations = ?</code></li>
+      <li>Rediriger vers <code>reservations.php</code> avec <code>header()</code> + <code>exit</code></li>
+      <li>Pas de HTML — cette page n'affiche rien, elle fait l'action et redirige</li>
+    </ol>
+    <div class="use">
+      <code>$_GET</code> · <code>is_numeric()</code> · <code>(int)</code> · <code>prepare()</code> · <code>execute()</code> · <code>header()</code>
+    </div>
+    <div class="callout warn">
+      <div class="title">🚨 LE piège catastrophique</div>
+      <p>Sans <code>WHERE</code>, le DELETE vide <strong>toute la table</strong>. Vérifier 3 fois que le WHERE est bien là avant de tester. Faire un backup de la base avant le premier test.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-d3" data-person="D">
+    <div class="task-head">
+      <span class="task-id">D.3</span><span class="task-pbadge">D</span>
+      <div class="task-meta"><span class="duration">15 min</span><button class="done-toggle" onclick="toggleDone('t-d3')">○ Fait</button></div>
+    </div>
+    <h3>Ajouter une confirmation avant suppression</h3>
+    <p>Pour éviter les clics accidentels, le lien Supprimer doit déclencher une boîte de dialogue JavaScript.</p>
+    <div class="steps-label">Étapes</div>
+    <ol class="steps">
+      <li>Sur le lien Supprimer du tableau (créé par B), ajouter l'attribut <code>onclick="return confirm('Supprimer cette réservation ?')"</code></li>
+      <li>Si l'utilisateur clique Annuler → le clic est bloqué, rien ne se passe</li>
+      <li>Si OK → le lien suit son cours normalement vers <code>supprimer-reservation.php</code></li>
+    </ol>
+    <div class="callout depends">
+      <div class="title">🔗 À coordonner avec B</div>
+      <p>C'est dans le tableau de B qu'on ajoute le <code>onclick</code>. Ouvrir le fichier <code>reservations.php</code> à deux pour ajouter cette ligne.</p>
+    </div>
+  </div>
+
+  <div class="task" id="t-d4" data-person="D">
+    <div class="task-head">
+      <span class="task-id">D.4</span><span class="task-pbadge">D</span>
+      <div class="task-meta"><span class="duration">15 min</span><button class="done-toggle" onclick="toggleDone('t-d4')">○ Fait</button></div>
+    </div>
+    <h3>Tester</h3>
+    <ol class="steps">
+      <li>Créer 3 réservations de test (via le formulaire de A)</li>
+      <li>Cliquer Supprimer sur la 2ème → confirmation → OK</li>
+      <li>Vérifier dans phpMyAdmin : la 2ème est partie, les 2 autres sont là</li>
+      <li>Tester avec un id inexistant (<code>?id=99999</code>) → redirection propre, pas d'erreur</li>
+      <li>Tester avec un id non numérique → idem</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-d5" data-person="D">
+    <div class="task-head">
+      <span class="task-id">D.5</span><span class="task-pbadge">D</span>
+      <div class="task-meta"><span class="duration">— bonus</span><button class="done-toggle" onclick="toggleDone('t-d5')">○ Fait</button></div>
+    </div>
+    <h3>Bonus — message de confirmation après suppression</h3>
+    <p>Idée : après la suppression, afficher un message vert « Réservation supprimée » sur la page <code>reservations.php</code>.</p>
+    <div class="steps-label">Piste</div>
+    <ol class="steps">
+      <li>Dans <code>supprimer-reservation.php</code>, ajouter un paramètre à l'URL de redirection (par exemple <code>?supprime=1</code>)</li>
+      <li>Sur <code>reservations.php</code>, tester <code>isset($_GET['supprime'])</code> et afficher une alerte Bootstrap si oui</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 07. INTÉGRATION FINALE -->
+<section class="block">
+  <div class="block-header">
+    <div class="block-num">07</div>
+    <div>
+      <div class="block-eyebrow">Phase finale · Tous ensemble</div>
+      <h2>Intégration &amp; <em>tests</em>.</h2>
+    </div>
+  </div>
+  <p class="block-intro">Une fois que chacun a terminé, on se retrouve à 4 pour vérifier que tout fonctionne ensemble. Comptez 1 heure.</p>
+
+  <div class="task" id="t-f1" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">F.1</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">20 min</span><button class="done-toggle" onclick="toggleDone('t-f1')">○ Fait</button></div>
+    </div>
+    <h3>Tout réunir dans un seul projet</h3>
+    <ol class="steps">
+      <li>Si Git : merger les branches de chacun dans <code>main</code>, résoudre les conflits</li>
+      <li>Sinon : récupérer tous les fichiers de chacun et les rassembler dans le dossier projet</li>
+      <li>Vérifier que tous les fichiers de l'arborescence sont présents</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-f2" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">F.2</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">25 min</span><button class="done-toggle" onclick="toggleDone('t-f2')">○ Fait</button></div>
+    </div>
+    <h3>Parcours utilisateur de bout en bout</h3>
+    <p>Faire un test complet en jouant le rôle d'un visiteur :</p>
+    <ol class="steps">
+      <li>Accueil → vérifier que tout s'affiche (services, horaires, bouton réserver)</li>
+      <li>Contact → infos, map, liens cliquables</li>
+      <li>Réservation → la liste s'affiche, les boutons fonctionnent</li>
+      <li>Ajouter → formulaire OK, validation OK, INSERT OK, redirection OK</li>
+      <li>Modifier → pré-remplissage OK, UPDATE OK</li>
+      <li>Supprimer → confirmation OK, DELETE OK</li>
+      <li>Navigation → tous les liens du header marchent sur toutes les pages</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-f3" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">F.3</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-f3')">○ Fait</button></div>
+    </div>
+    <h3>Checklist sécurité</h3>
+    <ol class="steps">
+      <li>Toutes les requêtes avec variable utilisent <code>prepare()</code> + <code>execute()</code> ? (pas de concaténation directe)</li>
+      <li>Tous les <code>echo</code> de données BDD ont <code>htmlspecialchars()</code> ?</li>
+      <li>Tous les UPDATE et DELETE ont bien un <code>WHERE</code> ?</li>
+      <li>Les ids venant de l'URL sont castés en <code>(int)</code> ?</li>
+      <li>Le fichier <code>test.php</code> de la phase setup est bien supprimé ?</li>
+    </ol>
+  </div>
+
+  <div class="task" id="t-f4" data-person="ALL">
+    <div class="task-head">
+      <span class="task-id">F.4</span><span class="task-pbadge">🤝 ENSEMBLE</span>
+      <div class="task-meta"><span class="duration">10 min</span><button class="done-toggle" onclick="toggleDone('t-f4')">○ Fait</button></div>
+    </div>
+    <h3>Préparer le rendu / la démo</h3>
+    <ol class="steps">
+      <li>Faire un <strong>export SQL</strong> de la base depuis phpMyAdmin (à rendre avec le code)</li>
+      <li>Zipper le dossier <code>salon-coiffure/</code> + le fichier <code>.sql</code></li>
+      <li>Préparer une mini-démo de 5 min : qui présente quoi</li>
+      <li>Optionnel : un <code>README.md</code> avec la répartition des tâches</li>
+    </ol>
+  </div>
+</section>
+
+<!-- WIDGET -->
+<div class="progress-widget">
+  <div class="pw-ring">
+    <svg viewBox="0 0 36 36">
+      <circle class="bg-ring" cx="18" cy="18" r="15"></circle>
+      <circle class="fg-ring" cx="18" cy="18" r="15" stroke-dasharray="0 94.2"></circle>
+    </svg>
+  </div>
+  <div>
+    <div class="pw-count"><span class="pw-done" id="pwDone">0</span> <span style="color:var(--text-dim)">/ <span id="pwTotal">31</span></span></div>
+    <div class="pw-label">étapes faites</div>
+  </div>
+</div>
+
+<div style="height:3rem"></div>
+
+<script>
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.width = ((window.scrollY / max) * 100) + '%';
+  });
+
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const allTasks = document.querySelectorAll('.task');
+  const pwTotal = document.getElementById('pwTotal');
+  const pwDone = document.getElementById('pwDone');
+  const fgRing = document.querySelector('.fg-ring');
+  const circ = 94.2;
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      allTasks.forEach(t => {
+        if (filter === 'all' || t.dataset.person === filter) {
+          t.classList.remove('hidden');
+        } else {
+          t.classList.add('hidden');
+        }
+      });
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  function toggleDone(taskId) {
+    const t = document.getElementById(taskId);
+    t.classList.toggle('done');
+    t.querySelector('.done-toggle').textContent = t.classList.contains('done') ? '● Fait' : '○ Fait';
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const visibleTasks = document.querySelectorAll('.task:not(.hidden)');
+    const visibleDone = document.querySelectorAll('.task.done:not(.hidden)');
+    pwDone.textContent = visibleDone.length;
+    pwTotal.textContent = visibleTasks.length;
+    const ratio = visibleTasks.length === 0 ? 0 : visibleDone.length / visibleTasks.length;
+    fgRing.setAttribute('stroke-dasharray', `${ratio * circ} ${circ}`);
+  }
+  updateProgress();
+</script>
+
+</body>
+</html>
